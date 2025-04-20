@@ -6,7 +6,7 @@ export function HeaderWithAuth() {
     <header className="border-b">
       <div className="container flex h-16 items-center justify-between py-4">
         <Link href="/">
-          <span className="text-2xl font-bold text-orange-500 cursor-pointer">Fast Recipe</span>
+          <span className="text-2xl font-bold text-orange-500 cursor-pointer">Fast Recipes</span>
         </Link>
         <UserMenu />
       </div>
