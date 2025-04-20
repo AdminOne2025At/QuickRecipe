@@ -52,7 +52,7 @@ export function SimpleHeader() {
             <Button 
               variant="ghost" 
               size="sm" 
-              className="text-green-600 hover:text-green-700 hover:bg-green-50"
+              className="text-orange-700 hover:text-orange-800 hover:bg-orange-50"
             >
               منشورات المجتمع
             </Button>
@@ -65,7 +65,7 @@ export function SimpleHeader() {
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 gap-2"
+                className="text-orange-700 hover:text-orange-800 hover:bg-orange-50 gap-2"
               >
                 <BookmarkIcon className="h-4 w-4" />
                 وصفاتي المحفوظة
@@ -107,14 +107,14 @@ export function SimpleHeader() {
               <span className="block py-2 px-3 hover:bg-gray-100 rounded-md">الرئيسية</span>
             </Link>
             <Link href="/community-posts">
-              <span className="block py-2 px-3 hover:bg-gray-100 rounded-md text-green-600">
+              <span className="block py-2 px-3 hover:bg-gray-100 rounded-md text-orange-700">
                 منشورات المجتمع
               </span>
             </Link>
 
             {!isLoading && currentUser && (
               <Link href="/saved-recipes">
-                <span className="block py-2 px-3 hover:bg-gray-100 rounded-md text-purple-600 flex items-center gap-2">
+                <span className="block py-2 px-3 hover:bg-gray-100 rounded-md text-orange-700 flex items-center gap-2">
                   <BookmarkIcon className="h-4 w-4" />
                   وصفاتي المحفوظة
                 </span>
