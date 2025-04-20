@@ -814,10 +814,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // API endpoint لاستقبال رسائل الاتصال والإبلاغ عن الأخطاء
   app.post("/api/contact", async (req, res) => {
     try {
+      console.log("تلقي طلب اتصال جديد:", req.body);
       const { name, email, subject, message } = req.body;
       
       // تحقق من صحة البيانات
       if (!name || !email || !subject || !message) {
+        console.log("بيانات اتصال غير مكتملة:", req.body);
         return res.status(400).json({ 
           message: "جميع الحقول مطلوبة: الاسم، البريد الإلكتروني، الموضوع، والرسالة" 
         });
@@ -829,13 +831,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`الرسالة: ${message}`);
       console.log(`سيتم إرسال رد إلى البريد الإلكتروني: ${email}`);
       
+      // محاكاة معالجة الرسالة
+      const responseData = {
+        success: true,
+        message: "تم استلام رسالتك بنجاح! سنرد عليك قريباً.",
+        contactId: Date.now().toString(), // معرّف وهمي للاتصال
+        receivedAt: new Date().toISOString()
+      };
+      
       // إرسال رد نجاح
-      return res.status(201).json({ 
-        message: "تم استلام رسالتك بنجاح! سنرد عليك قريباً." 
-      });
+      console.log("إرسال رد إلى العميل:", responseData);
+      return res.status(200).json(responseData);
     } catch (error) {
       console.error("خطأ في معالجة نموذج الاتصال:", error);
       return res.status(500).json({ 
+        success: false, 
         message: "حدث خطأ أثناء معالجة طلبك. يرجى المحاولة مرة أخرى لاحقاً." 
       });
     }

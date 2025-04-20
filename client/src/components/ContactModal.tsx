@@ -52,8 +52,9 @@ export function ContactModal() {
       
       // التحقق من استجابة الخادم
       const data = await response.json();
+      console.log("استجابة الخادم:", data);
       
-      if (!response.ok) {
+      if (!response.ok || !data.success) {
         throw new Error(data.message || 'حدث خطأ أثناء إرسال النموذج');
       }
       
