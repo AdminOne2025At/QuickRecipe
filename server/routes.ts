@@ -492,7 +492,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create a new community post
   app.post("/api/community-posts", async (req, res) => {
     try {
-      const postData = insertCommunityPostSchema.parse(req.body);
+      // جلب البيانات الأساسية من طلب الإنشاء
+      const { userName, userAvatar, ...postPayload } = req.body;
+      const postData = insertCommunityPostSchema.parse(postPayload);
       
       // Ensure user exists
       const user = await storage.getUser(postData.userId);
@@ -500,7 +502,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User not found" });
       }
       
-      const post = await storage.createCommunityPost(postData);
+      // إضافة معلومات المستخدم الإضافية (الاسم والصورة) للمنشور
+      const enrichedPostData = {
+        ...postData,
+        userName: userName || user.username || "User",
+        userAvatar: userAvatar || "",
+      };
+      
+      const post = await storage.createCommunityPost(enrichedPostData);
       return res.status(201).json(post);
     } catch (error) {
       console.error("Error creating post:", error);

@@ -334,6 +334,8 @@ export const communityPosts = pgTable("community_posts", {
   challengeId: integer("challenge_id").references(() => challenges.id),
   isLikedByUser: boolean("is_liked_by_user").default(false),
   isFeatured: boolean("is_featured").default(false),
+  userName: text("user_name"), // اسم المستخدم المقدم من Google
+  userAvatar: text("user_avatar"), // رابط صورة المستخدم المقدمة من Google
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
