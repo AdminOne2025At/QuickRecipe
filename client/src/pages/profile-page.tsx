@@ -9,7 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Camera, LogOut, Save } from "lucide-react";
+import { Loader2, Camera, Save } from "lucide-react";
+import { LogOut } from "lucide-react";
 
 export default function ProfilePage() {
   const { currentUser, isLoading, signOut, updateProfile, uploadPicture, userPreferences, updateUserPreferences } = useAuth();
@@ -93,7 +94,17 @@ export default function ProfilePage() {
 
   return (
     <div className="container max-w-4xl py-8">
-      <h1 className="mb-6 text-3xl font-bold">الملف الشخصي</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-3xl font-bold">الملف الشخصي</h1>
+        <Button 
+          variant="outline" 
+          onClick={() => signOut()}
+          className="gap-2"
+        >
+          <LogOut className="h-4 w-4" />
+          تسجيل الخروج
+        </Button>
+      </div>
       
       <Tabs defaultValue={defaultTab} className="w-full">
         <TabsList className="mb-6 grid w-full grid-cols-2">

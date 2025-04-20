@@ -5,13 +5,13 @@ import AuthPage from "@/pages/auth-page";
 import ProfilePage from "@/pages/profile-page";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect, ReactNode } from "react";
-import { HeaderWithAuth } from "@/components/HeaderWithAuth";
+import { SimpleHeader } from "@/components/SimpleHeader";
 
-// هيكل الصفحة المشترك مع تسجيل الدخول
+// هيكل الصفحة المشترك
 function AppLayout({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col">
-      <HeaderWithAuth />
+      <SimpleHeader />
       <main className="flex-1">
         {children}
       </main>
