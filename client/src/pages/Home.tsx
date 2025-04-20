@@ -13,6 +13,7 @@ import { fetchRecipes, searchRecipesByName as apiSearchRecipesByName } from "@/l
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import translations from "@/lib/translations";
+import { translateText } from "@/lib/translate";
 
 export default function Home() {
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);

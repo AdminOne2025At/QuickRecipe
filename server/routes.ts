@@ -5,7 +5,7 @@ import { generateRecipesMealDB } from "./services/mealdb";
 import { generateRecipesGemini, generateSubstitutionsGemini } from "./services/gemini";
 import { searchYouTubeVideos } from "./services/youtube";
 import { getIngredientSubstitutes } from "./services/substitutions";
-import { translateText } from "./services/translate";
+import { translateText, translateToMultipleLanguages } from "./services/translate";
 import { storage } from "./storage";
 import { insertRecipeCacheSchema, insertIngredientSchema, insertUserSchema, insertRecipeSchema } from "@shared/schema";
 import { z } from "zod";
@@ -410,6 +410,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(500).json({
         message: "حدث خطأ أثناء معالجة طلبك"
       });
+    }
+  });
+
+  // Translation endpoint
+  app.get("/api/translate", async (req, res) => {
+    try {
+      const { text, to } = req.query;
+      
+      if (!text || typeof text !== 'string') {
+        return res.status(400).json({ 
+          message: "Missing or invalid text parameter" 
+        });
+      }
+      
+      if (!to || typeof to !== 'string') {
+        return res.status(400).json({ 
+          message: "Missing or invalid target language parameter" 
+        });
+      }
+      
+      const translatedText = await translateText(text, to);
+      
+      return res.json({ 
+        originalText: text,
+        translatedText,
+        language: to
+      });
+    } catch (error) {
+      console.error("Translation error:", error);
+      return res.status(500).json({ 
+        message: "Failed to translate text",
+        originalText: req.query.text
+      });
+    }
+  });
+  
+  // Multi-language translation endpoint
+  app.get("/api/translate/multi", async (req, res) => {
+    try {
+      const { text } = req.query;
+      
+      if (!text || typeof text !== 'string') {
+        return res.status(400).json({ 
+          message: "Missing or invalid text parameter" 
+        });
+      }
+      
+      const languages = ['ar-EG', 'ar-SA', 'en-US'];
+      const translations = await translateToMultipleLanguages(text, languages);
+      
+      return res.json(translations);
+    } catch (error) {
+      console.error("Multi-language translation error:", error);
+      
+      // Return original text for all languages if translation fails
+      if (req.query.text && typeof req.query.text === 'string') {
+        return res.json({
+          'ar-EG': req.query.text,
+          'ar-SA': req.query.text,
+          'en-US': req.query.text
+        });
+      } else {
+        return res.status(500).json({ 
+          message: "Failed to translate text" 
+        });
+      }
     }
   });
 
