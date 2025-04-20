@@ -6,10 +6,13 @@ import RecipeResults from "@/components/RecipeResults";
 import SuggestedIngredients from "@/components/SuggestedIngredients";
 import CookingTimer from "@/components/CookingTimer";
 import IngredientSubstitution from "@/components/IngredientSubstitution";
+import LanguageSelector, { Language } from "@/components/LanguageSelector";
 import { useCallback, useEffect, useState } from "react";
 import { Ingredient, Recipe } from "@/lib/types";
 import { fetchRecipes, searchRecipesByName as apiSearchRecipesByName } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
+import translations from "@/lib/translations";
 
 export default function Home() {
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
@@ -129,29 +132,45 @@ export default function Home() {
     }
   }, [ingredients]);
 
+  const { language, setLanguage, getLocalizedText } = useLanguage();
+
   return (
-    <div dir="rtl" lang="ar" className="min-h-screen bg-gray-50 text-gray-800 flex flex-col">
+    <div 
+      dir={language.startsWith('ar') ? 'rtl' : 'ltr'} 
+      lang={language} 
+      className="min-h-screen bg-gray-50 text-gray-800 flex flex-col"
+    >
       <header className="bg-primary text-white shadow-md">
         <div className="container mx-auto px-4 py-6 flex justify-between items-center">
           <h1 className="text-3xl md:text-4xl flex items-center gap-3">
             <span className="text-2xl">🍔</span>
-            <span className="font-extrabold text-gray-800 tracking-wide" style={{ fontFamily: 'Comic Sans MS, cursive, sans-serif', textShadow: '1px 1px 2px rgba(255,255,255,0.2)' }}>Fast Recipe</span>
+            <span className="font-extrabold text-gray-800 tracking-wide" style={{ fontFamily: 'Comic Sans MS, cursive, sans-serif', textShadow: '1px 1px 2px rgba(255,255,255,0.2)' }}>
+              {getLocalizedText('appName', translations.appName)}
+            </span>
             <span className="text-2xl">🍕</span>
           </h1>
           <div className="flex items-center gap-3">
-            <span className="hidden md:inline text-sm md:text-base">دوّر على أكلات من المكونات اللي عندك في البيت</span>
-            <Button 
-              onClick={searchRecipes}
-              className="bg-white text-primary hover:bg-gray-100 rounded-full animate-pulse" 
-              disabled={ingredients.length === 0}
-              size="sm"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="11" cy="11" r="8" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              </svg>
-              دوّر
-            </Button>
+            <span className="hidden md:inline text-sm md:text-base">
+              {getLocalizedText('tagline', translations.tagline)}
+            </span>
+            <div className="flex items-center gap-2">
+              <LanguageSelector
+                currentLanguage={language}
+                onLanguageChange={setLanguage}
+              />
+              <Button 
+                onClick={searchRecipes}
+                className="bg-white text-primary hover:bg-gray-100 rounded-full animate-pulse" 
+                disabled={ingredients.length === 0}
+                size="sm"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                {getLocalizedText('searchButton', translations.searchButton)}
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -172,7 +191,7 @@ export default function Home() {
                       searchRecipesByName();
                     }
                   }}
-                  placeholder="ابحث عن وصفة بالاسم..."
+                  placeholder={getLocalizedText('recipeNamePlaceholder', translations.recipeNamePlaceholder)}
                   className="flex-grow py-2 px-3 bg-white text-right focus:outline-none"
                 />
                 <Button
