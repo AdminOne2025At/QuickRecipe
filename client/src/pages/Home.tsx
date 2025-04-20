@@ -329,7 +329,7 @@ export default function Home() {
               <h2 className="text-xl flex items-center gap-2">
                 <span className="text-2xl">🧑‍🍳</span> 
                 <span className="font-extrabold text-white tracking-wide" style={{ fontFamily: 'Comic Sans MS, cursive, sans-serif', textShadow: '1px 1px 2px rgba(0,0,0,0.2)' }}>
-                  وصفات سريعة
+                  Fast Recipe
                 </span>
               </h2>
               <p className="text-gray-400 text-sm mt-1">

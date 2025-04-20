@@ -5,7 +5,7 @@ import { generateRecipesMealDB } from "./services/mealdb";
 import { generateRecipesGemini, generateSubstitutionsGemini } from "./services/gemini";
 import { searchYouTubeVideos } from "./services/youtube";
 import { getIngredientSubstitutes } from "./services/substitutions";
-import { translateText, translateToMultipleLanguages } from "./services/translate";
+// تمت إزالة استيراد الترجمة
 import { storage } from "./storage";
 import { insertRecipeCacheSchema, insertIngredientSchema, insertUserSchema, insertRecipeSchema } from "@shared/schema";
 import { z } from "zod";
