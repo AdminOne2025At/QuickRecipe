@@ -491,29 +491,60 @@ export default function CommunityPostsPage() {
       </div>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className="flex justify-center w-full mb-6">
-          <TabsList className="grid w-full grid-cols-4 max-w-md">
+        {/* نسخة الهاتف */}
+        <div className="flex justify-end w-full mb-6 md:hidden">
+          <TabsList className="grid w-[85%] grid-cols-2 max-w-[320px] mr-0 ml-auto animate-slideInRight bg-gradient-to-l from-orange-50 to-transparent rounded-lg shadow-sm">
             <TabsTrigger 
               value="trending" 
-              className="text-xs sm:text-sm"
+              className="text-xs px-2 py-2 transition-all duration-300 hover:bg-orange-100 data-[state=active]:shadow-md data-[state=active]:font-bold data-[state=active]:bg-orange-100 data-[state=active]:animate-bounceRight"
             >
               {texts.trending}
             </TabsTrigger>
             <TabsTrigger 
               value="recent" 
-              className="text-xs sm:text-sm"
+              className="text-xs px-2 py-2 transition-all duration-300 hover:bg-orange-100 data-[state=active]:shadow-md data-[state=active]:font-bold data-[state=active]:bg-orange-100 data-[state=active]:animate-bounceRight"
             >
               {texts.recent}
             </TabsTrigger>
             <TabsTrigger 
               value="following" 
-              className="text-xs sm:text-sm"
+              className="text-xs px-2 py-2 transition-all duration-300 hover:bg-orange-100 data-[state=active]:shadow-md data-[state=active]:font-bold data-[state=active]:bg-orange-100 data-[state=active]:animate-bounceRight"
             >
               {texts.following}
             </TabsTrigger>
             <TabsTrigger 
               value="challenges" 
-              className="text-xs sm:text-sm"
+              className="text-xs px-2 py-2 transition-all duration-300 hover:bg-orange-100 data-[state=active]:shadow-md data-[state=active]:font-bold data-[state=active]:bg-orange-100 data-[state=active]:animate-bounceRight"
+            >
+              {texts.challenges}
+            </TabsTrigger>
+          </TabsList>
+        </div>
+        
+        {/* نسخة الشاشات الكبيرة */}
+        <div className="hidden md:flex justify-center w-full mb-6">
+          <TabsList className="grid w-full grid-cols-4 max-w-md">
+            <TabsTrigger 
+              value="trending" 
+              className="text-sm transition-all duration-300"
+            >
+              {texts.trending}
+            </TabsTrigger>
+            <TabsTrigger 
+              value="recent" 
+              className="text-sm transition-all duration-300"
+            >
+              {texts.recent}
+            </TabsTrigger>
+            <TabsTrigger 
+              value="following" 
+              className="text-sm transition-all duration-300"
+            >
+              {texts.following}
+            </TabsTrigger>
+            <TabsTrigger 
+              value="challenges" 
+              className="text-sm transition-all duration-300"
             >
               {texts.challenges}
             </TabsTrigger>
