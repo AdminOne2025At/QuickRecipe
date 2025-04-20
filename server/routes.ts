@@ -1,6 +1,7 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { generateRecipesDeepSeek } from "./services/deepseek";
+import { generateRecipesMealDB } from "./services/mealdb";
 import { searchYouTubeVideos } from "./services/youtube";
 import { storage } from "./storage";
 import { insertRecipeCacheSchema, insertIngredientSchema, insertUserSchema, insertRecipeSchema } from "@shared/schema";
@@ -39,10 +40,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Continue execution if cache check fails
       }
 
-      // Generate recipes using DeepSeek (or fallback if API fails)
+      // Generate recipes using TheMealDB (or fallback if API fails)
       let recipesData;
       try {
-        recipesData = await generateRecipesDeepSeek(ingredients);
+        recipesData = await generateRecipesMealDB(ingredients);
 
         if (!recipesData.recipes || !Array.isArray(recipesData.recipes) || recipesData.recipes.length === 0) {
           // No recipes found, but we have suggestions
@@ -65,9 +66,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Fetch YouTube videos for each recipe
+      // Fetch YouTube videos for each recipe that doesn't already have a videoId
       const recipesWithVideos = await Promise.all(
         recipesData.recipes.map(async (recipe: any) => {
+          // If the recipe already has a videoId from TheMealDB, use it
+          if (recipe.videoId) {
+            return recipe;
+          }
+          
+          // Otherwise, try to fetch from YouTube API
           try {
             const videoId = await searchYouTubeVideos(recipe.title + " recipe");
             return { ...recipe, videoId };
