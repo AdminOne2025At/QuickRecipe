@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Ingredient, Recipe } from "@/lib/types";
 import { BookmarkPlus, Loader2, Save } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 import { apiRequest } from "@/lib/queryClient";
 import {
