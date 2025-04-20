@@ -4,7 +4,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ChefProgressCard from "@/components/ChefProgressCard";
 import CookingChallenges from "@/components/CookingChallenges";
 import CulinaryJourneyMap from "@/components/CulinaryJourneyMap";
-import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Loader2 } from "lucide-react";
 
@@ -24,15 +23,10 @@ const SAMPLE_USER_RECIPES_AR = [
 
 export default function GamificationPage() {
   const [, setLocation] = useLocation();
-  // Use the actual auth hook but override the values for demo purposes
-  const auth = useAuth();
   const { language } = useLanguage();
   const isArabic = language.startsWith('ar');
   
-  // For demonstration purposes, we're using mock data
-  const isLoading = false;
-  const currentUser = auth.currentUser || { uid: '123', displayName: 'Demo User' };
-  
+  // Simple demo data
   const userRecipes = isArabic ? SAMPLE_USER_RECIPES_AR : SAMPLE_USER_RECIPES;
   
   // Initial tab to display
