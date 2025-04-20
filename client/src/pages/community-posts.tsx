@@ -147,6 +147,8 @@ export default function CommunityPostsPage() {
   // نسخة من بيانات المنشورات الأصلية
   const [trendingPosts, setTrendingPosts] = useState(isArabic ? SAMPLE_POSTS : SAMPLE_POSTS_EN);
   const [recentPosts, setRecentPosts] = useState<Post[]>([]);
+  const [followingPosts, setFollowingPosts] = useState<Post[]>([]);
+  const [challengePosts, setChallengePosts] = useState<Post[]>([]);
   const [activeTab, setActiveTab] = useState("trending");
   
   // للتبديل بين تبويبات المحتوى
@@ -214,8 +216,11 @@ export default function CommunityPostsPage() {
     
     console.log("Creating new post:", newPost);
     
-    // إضافة المنشور الجديد في بداية قائمة المنشورات الأحدث
+    // إضافة المنشور الجديد في بداية جميع قوائم المنشورات
     setRecentPosts(prevPosts => [newPost, ...prevPosts]);
+    setTrendingPosts(prevPosts => [newPost, ...prevPosts]);
+    setFollowingPosts(prevPosts => [newPost, ...prevPosts]);
+    setChallengePosts(prevPosts => [newPost, ...prevPosts]);
     
     // تحويل المستخدم إلى تبويب "الأحدث" لرؤية منشوره
     setActiveTab("recent");
@@ -338,20 +343,28 @@ export default function CommunityPostsPage() {
           )}
         </TabsContent>
         
-        <TabsContent value="following">
-          <div className="text-center py-12">
-            {isArabic 
-              ? "ستظهر منشورات الطهاة الذين تتابعهم هنا"
-              : "Posts from chefs you follow will appear here"}
-          </div>
+        <TabsContent value="following" className="space-y-6">
+          {followingPosts.length > 0 ? (
+            followingPosts.map(post => renderPostCard(post))
+          ) : (
+            <div className="text-center py-12">
+              {isArabic 
+                ? "ستظهر منشورات الطهاة الذين تتابعهم هنا. تابع بعض الطهاة أو قم بإنشاء منشور!"
+                : "Posts from chefs you follow will appear here. Follow some chefs or create a post!"}
+            </div>
+          )}
         </TabsContent>
         
-        <TabsContent value="challenges">
-          <div className="text-center py-12">
-            {isArabic 
-              ? "ستظهر منشورات تحديات الطبخ الأسبوعية هنا"
-              : "Weekly cooking challenge posts will appear here"}
-          </div>
+        <TabsContent value="challenges" className="space-y-6">
+          {challengePosts.length > 0 ? (
+            challengePosts.map(post => renderPostCard(post))
+          ) : (
+            <div className="text-center py-12">
+              {isArabic 
+                ? "ستظهر منشورات تحديات الطبخ الأسبوعية هنا. شارك في التحديات أو قم بإنشاء منشور!"
+                : "Weekly cooking challenge posts will appear here. Join challenges or create a post!"}
+            </div>
+          )}
         </TabsContent>
       </Tabs>
       
