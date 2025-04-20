@@ -21,9 +21,9 @@ const languages = [
     name: 'العربية المصرية', 
     flagSvg: (
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" className="w-8 h-5">
-        <rect width="900" height="600" fill="#FFFFFF"/>
-        <rect width="900" height="400" fill="#CE1126"/>
-        <rect width="900" height="200" fill="#000000"/>
+        <rect width="900" height="200" fill="#FFFFFF"/>
+        <rect width="900" height="200" y="200" fill="#CE1126"/>
+        <rect width="900" height="200" y="400" fill="#000000"/>
         <g transform="translate(450,300)">
           <g id="eagle" fill="#C09300">
             <path d="M-100,0 C-100,20 -50,20 -50,0 C-50,-20 0,-20 0,0 C0,20 50,20 50,0 C50,-20 100,-20 100,0 L100,-10 L50,-10 L50,-20 L0,-20 L0,-10 L-50,-10 L-50,-20 L-100,-20 Z"/>
