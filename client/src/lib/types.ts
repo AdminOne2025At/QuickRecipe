@@ -4,13 +4,11 @@ export interface Ingredient {
 }
 
 export interface Recipe {
-  id?: number;
   title: string;
   description: string;
   ingredients: string[];
   instructions: string[];
   videoId?: string;
-  image?: string;
 }
 
 export interface RecipeResponse {
