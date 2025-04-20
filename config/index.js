@@ -3,6 +3,62 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+// تعريف الأنواع
+/**
+ * @typedef {Object} DatabaseConfig
+ * @property {string} url - رابط قاعدة البيانات
+ * @property {string} host - مضيف قاعدة البيانات
+ * @property {number} port - منفذ قاعدة البيانات
+ * @property {string} user - اسم مستخدم قاعدة البيانات
+ * @property {string} password - كلمة مرور قاعدة البيانات
+ * @property {string} database - اسم قاعدة البيانات
+ */
+
+/**
+ * @typedef {Object} AppConfig
+ * @property {number} port - منفذ التطبيق
+ * @property {string} environment - بيئة التطبيق
+ * @property {boolean} isProduction - هل التطبيق في وضع الإنتاج
+ */
+
+/**
+ * @typedef {Object} SessionConfig
+ * @property {string} secret - كلمة سر الجلسة
+ * @property {number} maxAge - مدة صلاحية الجلسة بالمللي ثانية
+ */
+
+/**
+ * @typedef {Object} FirebaseConfig
+ * @property {string} apiKey - مفتاح Firebase API
+ * @property {string} projectId - معرف مشروع Firebase
+ * @property {string} appId - معرف تطبيق Firebase
+ */
+
+/**
+ * @typedef {Object} ApiConfig
+ * @property {string} openai - مفتاح OpenAI API
+ * @property {string} gemini - مفتاح Gemini API
+ * @property {string} deepseek - مفتاح Deepseek API
+ * @property {string} youtube - مفتاح YouTube API
+ * @property {string} sendgrid - مفتاح SendGrid API
+ */
+
+/**
+ * @typedef {Object} EmailConfig
+ * @property {string} contactEmail - البريد الإلكتروني للاتصال
+ * @property {string} fromName - اسم المرسل
+ */
+
+/**
+ * @typedef {Object} Config
+ * @property {AppConfig} app - تكوين التطبيق
+ * @property {DatabaseConfig} database - تكوين قاعدة البيانات
+ * @property {SessionConfig} session - تكوين الجلسة
+ * @property {FirebaseConfig} firebase - تكوين Firebase
+ * @property {ApiConfig} api - تكوين واجهات برمجة التطبيقات
+ * @property {EmailConfig} email - تكوين البريد الإلكتروني
+ */
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 

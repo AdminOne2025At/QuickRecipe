@@ -12,22 +12,26 @@ import {
   UserCredential
 } from "firebase/auth";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import env, { logEnvStatus } from "./env-loader";
+
+// تسجيل حالة المتغيرات البيئية
+logEnvStatus();
 
 // Firebase configuration
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY.trim(),
-  authDomain: `${import.meta.env.VITE_FIREBASE_PROJECT_ID.trim()}.firebaseapp.com`,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID.trim(),
-  storageBucket: `${import.meta.env.VITE_FIREBASE_PROJECT_ID.trim()}.appspot.com`,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID.trim(),
+  apiKey: env.VITE_FIREBASE_API_KEY.trim(),
+  authDomain: `${env.VITE_FIREBASE_PROJECT_ID.trim()}.firebaseapp.com`,
+  projectId: env.VITE_FIREBASE_PROJECT_ID.trim(),
+  storageBucket: `${env.VITE_FIREBASE_PROJECT_ID.trim()}.appspot.com`,
+  appId: env.VITE_FIREBASE_APP_ID.trim(),
 };
 
-// تسجيل التكوين في وحدة التحكم للتصحيح
+// تسجيل التكوين في وحدة التحكم للتصحيح (بدون الكشف عن المفاتيح الحساسة)
 console.log("Firebase config (without sensitive keys):", { 
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID.trim(),
-  authDomain: `${import.meta.env.VITE_FIREBASE_PROJECT_ID.trim()}.firebaseapp.com`, 
-  hasApiKey: !!import.meta.env.VITE_FIREBASE_API_KEY,
-  hasAppId: !!import.meta.env.VITE_FIREBASE_APP_ID
+  projectId: env.VITE_FIREBASE_PROJECT_ID.trim(),
+  authDomain: `${env.VITE_FIREBASE_PROJECT_ID.trim()}.firebaseapp.com`, 
+  hasApiKey: !!env.VITE_FIREBASE_API_KEY,
+  hasAppId: !!env.VITE_FIREBASE_APP_ID
 });
 
 // عرض رسالة توضيحية حول مشكلة تكوين Firebase
