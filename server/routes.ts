@@ -7,7 +7,7 @@ import { searchYouTubeVideos } from "./services/youtube";
 import { getIngredientSubstitutes } from "./services/substitutions";
 // تمت إزالة استيراد الترجمة
 import { storage } from "./storage";
-import { insertRecipeCacheSchema, insertIngredientSchema, insertUserSchema, insertRecipeSchema } from "@shared/schema";
+import { insertRecipeCacheSchema, insertIngredientSchema, insertUserSchema, insertRecipeSchema, insertCommunityPostSchema, insertPostCommentSchema } from "@shared/schema";
 import { z } from "zod";
 
 // Import types for recipe interface
@@ -417,6 +417,245 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // تمت إزالة نقطة نهاية الترجمة
   
   // تمت إزالة نقطة نهاية الترجمة متعددة اللغات
+
+  // Community posts endpoints
+  // Get all community posts (with optional pagination)
+  app.get("/api/community-posts", async (req, res) => {
+    try {
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 50;
+      const offset = req.query.offset ? parseInt(req.query.offset as string) : 0;
+      
+      const posts = await storage.getAllCommunityPosts(limit, offset);
+      return res.json(posts);
+    } catch (error) {
+      console.error("Error fetching community posts:", error);
+      return res.status(500).json({ message: "Failed to fetch posts" });
+    }
+  });
+
+  // Get trending community posts
+  app.get("/api/community-posts/trending", async (req, res) => {
+    try {
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 20;
+      const posts = await storage.getTrendingCommunityPosts(limit);
+      return res.json(posts);
+    } catch (error) {
+      console.error("Error fetching trending posts:", error);
+      return res.status(500).json({ message: "Failed to fetch trending posts" });
+    }
+  });
+
+  // Get recent community posts
+  app.get("/api/community-posts/recent", async (req, res) => {
+    try {
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 20;
+      const posts = await storage.getRecentCommunityPosts(limit);
+      return res.json(posts);
+    } catch (error) {
+      console.error("Error fetching recent posts:", error);
+      return res.status(500).json({ message: "Failed to fetch recent posts" });
+    }
+  });
+
+  // Get posts by category/type (e.g. recipe, challenge)
+  app.get("/api/community-posts/types/:type", async (req, res) => {
+    try {
+      const { type } = req.params;
+      const posts = await storage.getPostsByType(type);
+      return res.json(posts);
+    } catch (error) {
+      console.error(`Error fetching posts of type ${req.params.type}:`, error);
+      return res.status(500).json({ message: "Failed to fetch posts" });
+    }
+  });
+
+  // Get a specific post by ID
+  app.get("/api/community-posts/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid post ID" });
+      }
+      
+      const post = await storage.getCommunityPost(id);
+      if (!post) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+      
+      return res.json(post);
+    } catch (error) {
+      console.error("Error fetching post:", error);
+      return res.status(500).json({ message: "Failed to fetch post" });
+    }
+  });
+
+  // Create a new community post
+  app.post("/api/community-posts", async (req, res) => {
+    try {
+      const postData = insertCommunityPostSchema.parse(req.body);
+      
+      // Ensure user exists
+      const user = await storage.getUser(postData.userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      const post = await storage.createCommunityPost(postData);
+      return res.status(201).json(post);
+    } catch (error) {
+      console.error("Error creating post:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ errors: error.errors });
+      }
+      return res.status(500).json({ message: "Failed to create post" });
+    }
+  });
+
+  // Update a community post
+  app.patch("/api/community-posts/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid post ID" });
+      }
+      
+      // Verify the post exists
+      const existingPost = await storage.getCommunityPost(id);
+      if (!existingPost) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+      
+      // Verify the user owns the post (in a real app)
+      // if (existingPost.userId !== req.user.id) {
+      //  return res.status(403).json({ message: "Not authorized to update this post" });
+      // }
+      
+      const updateData = insertCommunityPostSchema.partial().parse(req.body);
+      const updatedPost = await storage.updateCommunityPost(id, updateData);
+      
+      return res.json(updatedPost);
+    } catch (error) {
+      console.error("Error updating post:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ errors: error.errors });
+      }
+      return res.status(500).json({ message: "Failed to update post" });
+    }
+  });
+
+  // Delete a community post
+  app.delete("/api/community-posts/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid post ID" });
+      }
+      
+      // Verify the post exists
+      const existingPost = await storage.getCommunityPost(id);
+      if (!existingPost) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+      
+      // Verify the user owns the post (in a real app)
+      // if (existingPost.userId !== req.user.id) {
+      //  return res.status(403).json({ message: "Not authorized to delete this post" });
+      // }
+      
+      await storage.deleteCommunityPost(id);
+      return res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting post:", error);
+      return res.status(500).json({ message: "Failed to delete post" });
+    }
+  });
+
+  // Like a post
+  app.post("/api/community-posts/:id/like", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid post ID" });
+      }
+      
+      // Verify the post exists
+      const existingPost = await storage.getCommunityPost(id);
+      if (!existingPost) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+      
+      await storage.likePost(id);
+      
+      // Get the updated post
+      const updatedPost = await storage.getCommunityPost(id);
+      return res.json(updatedPost);
+    } catch (error) {
+      console.error("Error liking post:", error);
+      return res.status(500).json({ message: "Failed to like post" });
+    }
+  });
+
+  // Get comments for a post
+  app.get("/api/community-posts/:id/comments", async (req, res) => {
+    try {
+      const postId = parseInt(req.params.id);
+      if (isNaN(postId)) {
+        return res.status(400).json({ message: "Invalid post ID" });
+      }
+      
+      const comments = await storage.getPostComments(postId);
+      return res.json(comments);
+    } catch (error) {
+      console.error("Error fetching comments:", error);
+      return res.status(500).json({ message: "Failed to fetch comments" });
+    }
+  });
+
+  // Add a comment to a post
+  app.post("/api/community-posts/:id/comments", async (req, res) => {
+    try {
+      const postId = parseInt(req.params.id);
+      if (isNaN(postId)) {
+        return res.status(400).json({ message: "Invalid post ID" });
+      }
+      
+      // Verify the post exists
+      const existingPost = await storage.getCommunityPost(postId);
+      if (!existingPost) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+      
+      const commentData = insertPostCommentSchema.parse({
+        ...req.body,
+        postId,
+      });
+      
+      const comment = await storage.createPostComment(commentData);
+      return res.status(201).json(comment);
+    } catch (error) {
+      console.error("Error creating comment:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ errors: error.errors });
+      }
+      return res.status(500).json({ message: "Failed to create comment" });
+    }
+  });
+
+  // Delete a comment
+  app.delete("/api/comments/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid comment ID" });
+      }
+      
+      await storage.deletePostComment(id);
+      return res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+      return res.status(500).json({ message: "Failed to delete comment" });
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;

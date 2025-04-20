@@ -3,10 +3,12 @@ import {
   ingredients, type Ingredient, type InsertIngredient,
   userIngredients, type UserIngredient, type InsertUserIngredient,
   recipes, type Recipe, type InsertRecipe,
-  recipeCaches, type RecipeCache, type InsertRecipeCache
+  recipeCaches, type RecipeCache, type InsertRecipeCache,
+  communityPosts, type CommunityPost, type InsertCommunityPost,
+  postComments, type PostComment, type InsertPostComment
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and } from "drizzle-orm";
+import { eq, and, desc, sql, asc } from "drizzle-orm";
 
 // Expanded interface with CRUD methods for our recipe application
 export interface IStorage {
@@ -35,6 +37,23 @@ export interface IStorage {
   // Recipe cache operations
   getRecipeCache(ingredientsKey: string): Promise<RecipeCache | undefined>;
   createRecipeCache(recipeCache: InsertRecipeCache): Promise<RecipeCache>;
+
+  // Community posts operations
+  getAllCommunityPosts(limit?: number, offset?: number): Promise<CommunityPost[]>;
+  getTrendingCommunityPosts(limit?: number): Promise<CommunityPost[]>;
+  getRecentCommunityPosts(limit?: number): Promise<CommunityPost[]>;
+  getUserPosts(userId: number): Promise<CommunityPost[]>;
+  getPostsByType(postType: string, limit?: number): Promise<CommunityPost[]>;
+  getCommunityPost(id: number): Promise<CommunityPost | undefined>;
+  createCommunityPost(post: InsertCommunityPost): Promise<CommunityPost>;
+  updateCommunityPost(id: number, post: Partial<InsertCommunityPost>): Promise<CommunityPost | undefined>;
+  deleteCommunityPost(id: number): Promise<void>;
+  likePost(id: number): Promise<void>;
+  
+  // Post comments operations
+  getPostComments(postId: number): Promise<PostComment[]>;
+  createPostComment(comment: InsertPostComment): Promise<PostComment>;
+  deletePostComment(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -160,6 +179,138 @@ export class DatabaseStorage implements IStorage {
       .values(recipeCache)
       .returning();
     return newCache;
+  }
+
+  // Community posts operations
+  async getAllCommunityPosts(limit = 50, offset = 0): Promise<CommunityPost[]> {
+    return await db
+      .select()
+      .from(communityPosts)
+      .orderBy(desc(communityPosts.createdAt))
+      .limit(limit)
+      .offset(offset);
+  }
+
+  async getTrendingCommunityPosts(limit = 20): Promise<CommunityPost[]> {
+    return await db
+      .select()
+      .from(communityPosts)
+      .orderBy(desc(communityPosts.likes))
+      .limit(limit);
+  }
+
+  async getRecentCommunityPosts(limit = 20): Promise<CommunityPost[]> {
+    return await db
+      .select()
+      .from(communityPosts)
+      .orderBy(desc(communityPosts.createdAt))
+      .limit(limit);
+  }
+
+  async getUserPosts(userId: number): Promise<CommunityPost[]> {
+    return await db
+      .select()
+      .from(communityPosts)
+      .where(eq(communityPosts.userId, userId))
+      .orderBy(desc(communityPosts.createdAt));
+  }
+
+  async getPostsByType(postType: string, limit = 20): Promise<CommunityPost[]> {
+    return await db
+      .select()
+      .from(communityPosts)
+      .where(eq(communityPosts.postType, postType))
+      .orderBy(desc(communityPosts.createdAt))
+      .limit(limit);
+  }
+
+  async getCommunityPost(id: number): Promise<CommunityPost | undefined> {
+    const [post] = await db
+      .select()
+      .from(communityPosts)
+      .where(eq(communityPosts.id, id));
+    return post;
+  }
+
+  async createCommunityPost(post: InsertCommunityPost): Promise<CommunityPost> {
+    const [newPost] = await db
+      .insert(communityPosts)
+      .values(post)
+      .returning();
+    return newPost;
+  }
+
+  async updateCommunityPost(id: number, post: Partial<InsertCommunityPost>): Promise<CommunityPost | undefined> {
+    const [updatedPost] = await db
+      .update(communityPosts)
+      .set(post)
+      .where(eq(communityPosts.id, id))
+      .returning();
+    return updatedPost;
+  }
+
+  async deleteCommunityPost(id: number): Promise<void> {
+    await db
+      .delete(communityPosts)
+      .where(eq(communityPosts.id, id));
+  }
+
+  async likePost(id: number): Promise<void> {
+    await db
+      .update(communityPosts)
+      .set({ 
+        likes: sql`${communityPosts.likes} + 1` 
+      })
+      .where(eq(communityPosts.id, id));
+  }
+
+  // Post comments operations
+  async getPostComments(postId: number): Promise<PostComment[]> {
+    return await db
+      .select()
+      .from(postComments)
+      .where(eq(postComments.postId, postId))
+      .orderBy(asc(postComments.createdAt));
+  }
+
+  async createPostComment(comment: InsertPostComment): Promise<PostComment> {
+    const [newComment] = await db
+      .insert(postComments)
+      .values(comment)
+      .returning();
+    
+    // Update the comments count on the post
+    await db
+      .update(communityPosts)
+      .set({ 
+        comments: sql`${communityPosts.comments} + 1` 
+      })
+      .where(eq(communityPosts.id, comment.postId));
+      
+    return newComment;
+  }
+
+  async deletePostComment(id: number): Promise<void> {
+    // Get the comment first to know its postId
+    const [comment] = await db
+      .select()
+      .from(postComments)
+      .where(eq(postComments.id, id));
+      
+    if (comment) {
+      // Delete the comment
+      await db
+        .delete(postComments)
+        .where(eq(postComments.id, id));
+        
+      // Update the comments count on the post
+      await db
+        .update(communityPosts)
+        .set({ 
+          comments: sql`${communityPosts.comments} - 1` 
+        })
+        .where(eq(communityPosts.id, comment.postId));
+    }
   }
 }
 

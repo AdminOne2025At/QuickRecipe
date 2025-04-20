@@ -317,3 +317,83 @@ export const insertRecipeSchema = createInsertSchema(recipes).omit({
 
 export type InsertRecipe = z.infer<typeof insertRecipeSchema>;
 export type Recipe = typeof recipes.$inferSelect;
+
+// Community Posts table
+export const communityPosts = pgTable("community_posts", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  imageUrl: text("image_url"),
+  tags: text("tags").array().default([]),
+  likes: integer("likes").default(0).notNull(),
+  comments: integer("comments").default(0).notNull(),
+  shares: integer("shares").default(0).notNull(),
+  postType: text("post_type").default("general").notNull(), // general, recipe, challenge
+  recipeId: integer("recipe_id").references(() => recipes.id),
+  challengeId: integer("challenge_id").references(() => challenges.id),
+  isLikedByUser: boolean("is_liked_by_user").default(false),
+  isFeatured: boolean("is_featured").default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const communityPostsRelations = relations(communityPosts, ({ one }) => ({
+  user: one(users, {
+    fields: [communityPosts.userId],
+    references: [users.id],
+  }),
+  recipe: one(recipes, {
+    fields: [communityPosts.recipeId],
+    references: [recipes.id],
+  }),
+  challenge: one(challenges, {
+    fields: [communityPosts.challengeId],
+    references: [challenges.id],
+  }),
+}));
+
+export const insertCommunityPostSchema = createInsertSchema(communityPosts).omit({
+  id: true,
+  likes: true,
+  comments: true,
+  shares: true,
+  isLikedByUser: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertCommunityPost = z.infer<typeof insertCommunityPostSchema>;
+export type CommunityPost = typeof communityPosts.$inferSelect;
+
+// Community Post Comments table
+export const postComments = pgTable("post_comments", {
+  id: serial("id").primaryKey(),
+  postId: integer("post_id").notNull().references(() => communityPosts.id),
+  userId: integer("user_id").notNull().references(() => users.id),
+  content: text("content").notNull(),
+  likes: integer("likes").default(0).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const postCommentsRelations = relations(postComments, ({ one }) => ({
+  post: one(communityPosts, {
+    fields: [postComments.postId],
+    references: [communityPosts.id],
+  }),
+  user: one(users, {
+    fields: [postComments.userId],
+    references: [users.id],
+  }),
+}));
+
+export const insertPostCommentSchema = createInsertSchema(postComments).omit({
+  id: true,
+  likes: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertPostComment = z.infer<typeof insertPostCommentSchema>;
+export type PostComment = typeof postComments.$inferSelect;
