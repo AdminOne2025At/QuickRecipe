@@ -150,7 +150,7 @@ export function CookingTimer() {
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
         <Button 
-          className="fixed bottom-20 right-4 rounded-full p-3 shadow-lg bg-secondary hover:bg-secondary-dark hover:scale-110 transition-all duration-300 animate-bounce"
+          className="fixed bottom-16 right-4 rounded-full p-3 shadow-lg bg-secondary hover:bg-secondary-dark hover:scale-110 transition-all duration-300 animate-bounce"
           onClick={() => playSound(clickSoundRef)}
         >
           <span className="flex items-center gap-1">
