@@ -55,6 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       // Load user preferences from localStorage if the user is logged in
       if (user) {
+        console.log('User authenticated:', user.displayName);
         const savedPreferences = localStorage.getItem(`userPrefs_${user.uid}`);
         if (savedPreferences) {
           setUserPreferences(JSON.parse(savedPreferences));
@@ -62,7 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         // إذا كان تسجيل دخول جديد، قم بتوجيه المستخدم للصفحة الرئيسية
         if (isNewLogin && location !== '/') {
-          console.log('Redirecting new login to home page');
+          console.log('Redirecting new login to home page from AuthContext');
           setLocation('/');
         }
       }

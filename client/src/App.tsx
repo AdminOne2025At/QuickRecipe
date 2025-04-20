@@ -32,20 +32,20 @@ function AppLayout({ children }: { children: ReactNode }) {
   );
 }
 
-// مكون مخصص لمعالجة نتيجة تسجيل الدخول عبر إعادة التوجيه على الهاتف
-function RedirectHandler() {
+// هنا نقوم بمعالجة المصادقة وتعامل Redux لأجهزة الهاتف المحمول
+function AuthRedirectWrapper({ children }: { children: ReactNode }) {
   const [, setLocation] = useLocation();
 
-  // معالجة نتيجة تسجيل الدخول على أجهزة الموبايل وإعادة التوجيه
+  // معالجة نتيجة تسجيل الدخول عبر إعادة التوجيه من الأجهزة المحمولة
   useEffect(() => {
-    // نتحقق من وجود نتيجة تسجيل دخول عبر إعادة التوجيه
+    // التحقق من وجود نتيجة تسجيل دخول
     const checkRedirectResult = async () => {
       try {
-        console.log("Checking for redirect result...");
+        console.log("Checking for redirect result from mobile login...");
         const user = await handleRedirectResult();
         if (user) {
-          console.log("User logged in via redirect, redirecting to home page");
-          // إذا تم تسجيل الدخول بنجاح، توجيه المستخدم للصفحة الرئيسية
+          console.log("User logged in via redirect, redirecting to home page:", user.displayName);
+          // إعادة توجيه لصفحة الرئيسية بعد التسجيل الناجح
           setLocation('/');
         }
       } catch (error) {
@@ -53,27 +53,30 @@ function RedirectHandler() {
       }
     };
 
+    // تنفيذ التحقق فورًا عند تحميل المكون
     checkRedirectResult();
   }, [setLocation]);
 
-  return null; // هذا المكون لا يرسم أي شيء
+  // إعادة المكونات الفرعية دون تغيير
+  return <>{children}</>;
 }
 
 function App() {
   return (
     <LanguageProvider>
       <AuthProvider>
-        <RedirectHandler />
-        <AppLayout>
-          <Switch>
-            <Route path="/" component={Home} />
-            <Route path="/auth" component={AuthPage} />
-            <Route path="/profile" component={ProfilePage} />
-            <Route path="/cooking-journey" component={GamificationPage} />
-            <Route path="/community-posts" component={CommunityPostsPage} />
-            <Route component={NotFound} />
-          </Switch>
-        </AppLayout>
+        <AuthRedirectWrapper>
+          <AppLayout>
+            <Switch>
+              <Route path="/" component={Home} />
+              <Route path="/auth" component={AuthPage} />
+              <Route path="/profile" component={ProfilePage} />
+              <Route path="/cooking-journey" component={GamificationPage} />
+              <Route path="/community-posts" component={CommunityPostsPage} />
+              <Route component={NotFound} />
+            </Switch>
+          </AppLayout>
+        </AuthRedirectWrapper>
       </AuthProvider>
     </LanguageProvider>
   );
