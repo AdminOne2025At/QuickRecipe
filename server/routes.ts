@@ -414,70 +414,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Translation endpoint
-  app.get("/api/translate", async (req, res) => {
-    try {
-      const { text, to } = req.query;
-      
-      if (!text || typeof text !== 'string') {
-        return res.status(400).json({ 
-          message: "Missing or invalid text parameter" 
-        });
-      }
-      
-      if (!to || typeof to !== 'string') {
-        return res.status(400).json({ 
-          message: "Missing or invalid target language parameter" 
-        });
-      }
-      
-      const translatedText = await translateText(text, to);
-      
-      return res.json({ 
-        originalText: text,
-        translatedText,
-        language: to
-      });
-    } catch (error) {
-      console.error("Translation error:", error);
-      return res.status(500).json({ 
-        message: "Failed to translate text",
-        originalText: req.query.text
-      });
-    }
-  });
+  // تمت إزالة نقطة نهاية الترجمة
   
-  // Multi-language translation endpoint
-  app.get("/api/translate/multi", async (req, res) => {
-    try {
-      const { text } = req.query;
-      
-      if (!text || typeof text !== 'string') {
-        return res.status(400).json({ 
-          message: "Missing or invalid text parameter" 
-        });
-      }
-      
-      const languages = ['ar-EG', 'ar-SA', 'en-US'];
-      const translations = await translateToMultipleLanguages(text, languages);
-      
-      return res.json(translations);
-    } catch (error) {
-      console.error("Multi-language translation error:", error);
-      
-      // Return original text for all languages if translation fails
-      if (req.query.text && typeof req.query.text === 'string') {
-        return res.json({
-          'ar-EG': req.query.text,
-          'ar-SA': req.query.text,
-          'en-US': req.query.text
-        });
-      } else {
-        return res.status(500).json({ 
-          message: "Failed to translate text" 
-        });
-      }
-    }
-  });
+  // تمت إزالة نقطة نهاية الترجمة متعددة اللغات
 
   const httpServer = createServer(app);
   return httpServer;
