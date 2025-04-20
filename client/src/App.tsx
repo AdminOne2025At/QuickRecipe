@@ -3,6 +3,7 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import AuthPage from "@/pages/auth-page";
 import ProfilePage from "@/pages/profile-page";
+import GamificationPage from "@/pages/gamification-page";
 import { ReactNode } from "react";
 import { SimpleHeader } from "@/components/SimpleHeader";
 
@@ -32,6 +33,7 @@ function App() {
         <Route path="/" component={Home} />
         <Route path="/auth" component={AuthPage} />
         <Route path="/profile" component={ProfilePage} />
+        <Route path="/cooking-journey" component={GamificationPage} />
         <Route component={NotFound} />
       </Switch>
     </AppLayout>
