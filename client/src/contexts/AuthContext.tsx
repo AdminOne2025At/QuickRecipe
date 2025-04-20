@@ -9,6 +9,7 @@ import {
   subscribeToAuthChanges 
 } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
+import { useLocation } from 'wouter';
 
 interface AuthContextType {
   currentUser: User | null;
@@ -40,9 +41,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [userPreferences, setUserPreferences] = useState<UserPreferences>(defaultPreferences);
   const { toast } = useToast();
+  
+  // استخدام wouter للتنقل والتوجيه
+  const [location, setLocation] = useLocation();
 
   useEffect(() => {
     const unsubscribe = subscribeToAuthChanges((user) => {
+      // اذا كان المستخدم مسجل دخول حديثًا، سنقوم بتوجيهه للصفحة الرئيسية
+      const isNewLogin = user && !currentUser;
+      
       setCurrentUser(user);
       setIsLoading(false);
       
@@ -52,11 +59,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (savedPreferences) {
           setUserPreferences(JSON.parse(savedPreferences));
         }
+        
+        // إذا كان تسجيل دخول جديد، قم بتوجيه المستخدم للصفحة الرئيسية
+        if (isNewLogin && location !== '/') {
+          console.log('Redirecting new login to home page');
+          setLocation('/');
+        }
       }
     });
 
     return unsubscribe;
-  }, []);
+  }, [currentUser, location, setLocation]);
 
   // Save preferences to localStorage when they change
   useEffect(() => {
