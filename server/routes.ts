@@ -811,6 +811,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // API endpoint لاستقبال رسائل الاتصال والإبلاغ عن الأخطاء
+  app.post("/api/contact", async (req, res) => {
+    try {
+      const { name, email, subject, message } = req.body;
+      
+      // تحقق من صحة البيانات
+      if (!name || !email || !subject || !message) {
+        return res.status(400).json({ 
+          message: "جميع الحقول مطلوبة: الاسم، البريد الإلكتروني، الموضوع، والرسالة" 
+        });
+      }
+      
+      // في بيئة الإنتاج، يمكننا إرسال بريد إلكتروني هنا باستخدام SendGrid أو خدمة مماثلة
+      console.log(`رسالة اتصال جديدة من ${name} (${email}):`);
+      console.log(`الموضوع: ${subject}`);
+      console.log(`الرسالة: ${message}`);
+      console.log(`سيتم إرسال رد إلى البريد الإلكتروني: ${email}`);
+      
+      // إرسال رد نجاح
+      return res.status(201).json({ 
+        message: "تم استلام رسالتك بنجاح! سنرد عليك قريباً." 
+      });
+    } catch (error) {
+      console.error("خطأ في معالجة نموذج الاتصال:", error);
+      return res.status(500).json({ 
+        message: "حدث خطأ أثناء معالجة طلبك. يرجى المحاولة مرة أخرى لاحقاً." 
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

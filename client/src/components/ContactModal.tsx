@@ -36,18 +36,36 @@ export function ContactModal() {
     setIsSubmitting(true);
 
     try {
-      // في البيئة الإنتاجية، يمكن استخدام خدمة بريد إلكتروني لإرسال الرسائل
-      // ولكن هنا سنستخدم mailTo كحل بسيط
-
-      // تنسيق عنوان البريد الإلكتروني
-      const mailtoLink = `mailto:quickrecipe2026@gmail.com?subject=${encodeURIComponent(`[${getSubjectText(subject)}] ${name}: ${subject}`)}&body=${encodeURIComponent(`من: ${name}\nالبريد الإلكتروني: ${email}\n\nالرسالة:\n${message}`)}`;
+      // إرسال البيانات إلى API
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          subject: getSubjectText(subject),
+          message
+        }),
+      });
       
-      // فتح تطبيق البريد الافتراضي
-      window.open(mailtoLink, '_blank');
-
+      // التحقق من استجابة الخادم
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'حدث خطأ أثناء إرسال النموذج');
+      }
+      
+      // عرض معلومات في وحدة التحكم للتأكد من نجاح الإرسال
+      console.log("تم إرسال نموذج الاتصال بنجاح:", {
+        status: response.status,
+        response: data
+      });
+      
       toast({
         title: "تم إرسال رسالتك بنجاح!",
-        description: "شكراً على تواصلك معنا، سنرد عليك في أقرب وقت ممكن.",
+        description: "شكراً على تواصلك معنا، سنرد عليك في أقرب وقت ممكن عبر البريد الإلكتروني.",
         variant: "default",
       });
       
@@ -55,6 +73,7 @@ export function ContactModal() {
       resetForm();
       setOpen(false);
     } catch (error) {
+      console.error("خطأ في إرسال نموذج الاتصال:", error);
       toast({
         title: "حدث خطأ أثناء الإرسال",
         description: "يرجى المحاولة مرة أخرى لاحقاً أو التواصل معنا مباشرة على quickrecipe2026@gmail.com",
