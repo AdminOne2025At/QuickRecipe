@@ -1,15 +1,16 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import AuthPage from "@/pages/auth-page";
 import ProfilePage from "@/pages/profile-page";
 import GamificationPage from "@/pages/gamification-page";
 import CommunityPostsPage from "@/pages/community-posts";
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import { SimpleHeader } from "@/components/SimpleHeader";
 import { MobileMenuButton } from "@/components/MobileMenuButton";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { handleRedirectResult } from "@/lib/firebase";
 
 // هيكل الصفحة المشترك
 function AppLayout({ children }: { children: ReactNode }) {
@@ -31,10 +32,38 @@ function AppLayout({ children }: { children: ReactNode }) {
   );
 }
 
+// مكون مخصص لمعالجة نتيجة تسجيل الدخول عبر إعادة التوجيه على الهاتف
+function RedirectHandler() {
+  const [, setLocation] = useLocation();
+
+  // معالجة نتيجة تسجيل الدخول على أجهزة الموبايل وإعادة التوجيه
+  useEffect(() => {
+    // نتحقق من وجود نتيجة تسجيل دخول عبر إعادة التوجيه
+    const checkRedirectResult = async () => {
+      try {
+        console.log("Checking for redirect result...");
+        const user = await handleRedirectResult();
+        if (user) {
+          console.log("User logged in via redirect, redirecting to home page");
+          // إذا تم تسجيل الدخول بنجاح، توجيه المستخدم للصفحة الرئيسية
+          setLocation('/');
+        }
+      } catch (error) {
+        console.error("Error handling redirect result:", error);
+      }
+    };
+
+    checkRedirectResult();
+  }, [setLocation]);
+
+  return null; // هذا المكون لا يرسم أي شيء
+}
+
 function App() {
   return (
     <LanguageProvider>
       <AuthProvider>
+        <RedirectHandler />
         <AppLayout>
           <Switch>
             <Route path="/" component={Home} />
