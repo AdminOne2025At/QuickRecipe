@@ -226,10 +226,20 @@ const SAMPLE_POSTS_EN: Post[] = [
 
 export default function CommunityPostsPage() {
   const { language } = useLanguage();
+  const { toast } = useToast();
   const isArabic = language.startsWith('ar');
   
-  // نسخة من بيانات المنشورات الأصلية
-  const [trendingPosts, setTrendingPosts] = useState(isArabic ? SAMPLE_POSTS : SAMPLE_POSTS_EN);
+  // استعلامات لجلب البيانات من الخادم
+  const { data: trendingPostsData, isLoading: trendingLoading } = useQuery({
+    queryKey: ["/api/community-posts/trending"],
+  });
+
+  const { data: recentPostsData, isLoading: recentLoading } = useQuery({
+    queryKey: ["/api/community-posts/recent"],
+  });
+
+  // تخزين حالة البيانات
+  const [trendingPosts, setTrendingPosts] = useState<Post[]>(isArabic ? SAMPLE_POSTS : SAMPLE_POSTS_EN);
   const [recentPosts, setRecentPosts] = useState<Post[]>([]);
   const [followingPosts, setFollowingPosts] = useState<Post[]>([]);
   const [challengePosts, setChallengePosts] = useState<Post[]>([]);
@@ -241,6 +251,66 @@ export default function CommunityPostsPage() {
   const [postContent, setPostContent] = useState("");
   const [postTags, setPostTags] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<number>(1); // سنعتبر المستخدم مسجل الدخول برقم 1
+  
+  // mutate لإنشاء منشور جديد
+  const createPostMutation = useMutation({
+    mutationFn: async (postData: {
+      userId: number;
+      title: string;
+      content: string;
+      postType: string;
+      tags: string;
+    }) => {
+      const res = await apiRequest("POST", "/api/community-posts", postData);
+      return await res.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: isArabic ? "تم إنشاء المنشور بنجاح" : "Post created successfully",
+        description: isArabic ? "تم نشر منشورك في مجتمع الطهاة" : "Your post has been published to the chef community",
+        variant: "default",
+      });
+      
+      // إعادة تحميل البيانات
+      queryClient.invalidateQueries({ queryKey: ["/api/community-posts/trending"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/community-posts/recent"] });
+      
+      // إعادة تعيين النموذج
+      setPostTitle("");
+      setPostContent("");
+      setPostTags("");
+      setSelectedFile(null);
+      setNewPostOpen(false);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: isArabic ? "فشل إنشاء المنشور" : "Failed to create post",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+  
+  // mutate للإعجاب بمنشور
+  const likePostMutation = useMutation({
+    mutationFn: async (postId: number) => {
+      const res = await apiRequest("POST", `/api/community-posts/${postId}/like`, {});
+      return await res.json();
+    },
+    onSuccess: () => {
+      // إعادة تحميل البيانات
+      queryClient.invalidateQueries({ queryKey: ["/api/community-posts/trending"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/community-posts/recent"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: isArabic ? "فشل تسجيل الإعجاب" : "Failed to like post",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
   
   // النصوص المترجمة
   const texts = {
@@ -262,10 +332,21 @@ export default function CommunityPostsPage() {
     photoLabel: isArabic ? "إضافة صورة" : "Add Photo"
   };
   
-  // مراقبة تغير اللغة وتحديث المنشورات وفقًا لذلك
+  // تحميل المنشورات من الخادم
   useEffect(() => {
-    setTrendingPosts(isArabic ? SAMPLE_POSTS : SAMPLE_POSTS_EN);
-  }, [isArabic]);
+    if (trendingPostsData) {
+      const mappedPosts = (trendingPostsData as DbPost[]).map(post => mapDbPostToUiPost(post, isArabic));
+      setTrendingPosts(mappedPosts.length > 0 ? mappedPosts : (isArabic ? SAMPLE_POSTS : SAMPLE_POSTS_EN));
+    }
+  }, [trendingPostsData, isArabic]);
+
+  // تحميل المنشورات الأخيرة من الخادم
+  useEffect(() => {
+    if (recentPostsData) {
+      const mappedPosts = (recentPostsData as DbPost[]).map(post => mapDbPostToUiPost(post, isArabic));
+      setRecentPosts(mappedPosts);
+    }
+  }, [recentPostsData, isArabic]);
   
   // وظيفة لمعالجة إنشاء منشور جديد
   const handleCreatePost = () => {
@@ -274,48 +355,31 @@ export default function CommunityPostsPage() {
       return;
     }
     
-    // إنشاء كائن المنشور الجديد
+    // تجهيز الوسوم
     const tagsList = postTags
       .split(',')
       .map((tag: string) => tag.trim())
       .filter((tag: string) => tag.length > 0);
     
-    const newPost: Post = {
-      id: Date.now(),
-      user: {
-        name: isArabic ? "أنت" : "You",
-        level: isArabic ? "طاهي متحمس" : "Enthusiastic Chef",
-        avatar: "https://i.pravatar.cc/150?img=33",
-        initials: isArabic ? "أنت" : "YOU"
-      },
+    if (tagsList.length === 0) {
+      tagsList.push(isArabic ? "وصفة" : "recipe");
+    }
+    
+    // إنشاء كائن المنشور الجديد لإرساله إلى الخادم
+    const postData = {
+      userId: currentUserId,
       title: postTitle,
       content: postContent,
-      postType: "recipe", // نوع المنشور الافتراضي هو وصفة
-      image: selectedFile ? URL.createObjectURL(selectedFile) : undefined,
-      tags: tagsList.length > 0 ? tagsList : [isArabic ? "وصفة" : "recipe"],
-      likes: 0,
-      comments: 0,
-      shares: 0,
-      date: isArabic ? "الآن" : "Just now"
+      postType: "recipe", // النوع الافتراضي هو وصفة
+      tags: JSON.stringify(tagsList),
+      imageUrl: "", // سنحتاج إلى رفع الصورة إلى خدمة تخزين سحابية في التطبيق الكامل
     };
     
-    console.log("Creating new post:", newPost);
+    // إرسال المنشور الجديد إلى الخادم
+    createPostMutation.mutate(postData);
     
-    // إضافة المنشور الجديد في بداية جميع قوائم المنشورات
-    setRecentPosts(prevPosts => [newPost, ...prevPosts]);
-    setTrendingPosts(prevPosts => [newPost, ...prevPosts]);
-    setFollowingPosts(prevPosts => [newPost, ...prevPosts]);
-    setChallengePosts(prevPosts => [newPost, ...prevPosts]);
-    
-    // تحويل المستخدم إلى تبويب "الأحدث" لرؤية منشوره
+    // تحويل المستخدم إلى تبويب "الأحدث" لرؤية منشوره بعد إعادة التحميل
     setActiveTab("recent");
-    
-    // إعادة تعيين النموذج
-    setPostTitle("");
-    setPostContent("");
-    setPostTags("");
-    setSelectedFile(null);
-    setNewPostOpen(false);
   };
   
   // وظيفة لمعالجة تحميل الملفات
@@ -368,10 +432,17 @@ export default function CommunityPostsPage() {
       
       <CardFooter className="border-t px-6 py-3 bg-muted/20">
         <div className="flex gap-4 w-full justify-center md:justify-start">
-          <Button variant="ghost" size="sm" className="flex items-center text-zinc-600 hover:text-green-600 hover:bg-green-50 transition-colors duration-200">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className={`flex items-center ${post.likes > 0 ? 'text-green-600' : 'text-zinc-600'} hover:text-green-600 hover:bg-green-50 transition-colors duration-200`}
+            onClick={() => likePostMutation.mutate(post.id)}
+            disabled={likePostMutation.isPending}
+          >
             <ThumbsUp className="h-4 w-4 mr-1" />
             <span>{post.likes}</span>
             <span className="hidden sm:inline ml-1">{texts.like}</span>
+            {likePostMutation.isPending && <Loader2 className="ml-1 h-3 w-3 animate-spin" />}
           </Button>
           <Button variant="ghost" size="sm" className="flex items-center text-zinc-600 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200">
             <MessageCircle className="h-4 w-4 mr-1" />
@@ -413,11 +484,27 @@ export default function CommunityPostsPage() {
         </div>
         
         <TabsContent value="trending" className="space-y-6">
-          {trendingPosts.map(post => renderPostCard(post))}
+          {trendingLoading ? (
+            <div className="flex justify-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : trendingPosts.length > 0 ? (
+            trendingPosts.map(post => renderPostCard(post))
+          ) : (
+            <div className="text-center py-12">
+              {isArabic 
+                ? "لا توجد منشورات رائجة متاحة حاليًا."
+                : "No trending posts available at the moment."}
+            </div>
+          )}
         </TabsContent>
         
         <TabsContent value="recent" className="space-y-6">
-          {recentPosts.length > 0 ? (
+          {recentLoading ? (
+            <div className="flex justify-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : recentPosts.length > 0 ? (
             recentPosts.map(post => renderPostCard(post))
           ) : (
             <div className="text-center py-12">
