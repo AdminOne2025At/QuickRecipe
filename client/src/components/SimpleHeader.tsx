@@ -48,6 +48,16 @@ export function SimpleHeader() {
         
         {/* قائمة للشاشات الكبيرة */}
         <div className="hidden md:flex items-center space-x-4 space-x-reverse">
+          <Link href="/community-posts">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-green-600 hover:text-green-700 hover:bg-green-50"
+            >
+              منشورات المجتمع
+            </Button>
+          </Link>
+          
           <Link href="/cooking-journey">
             <Button 
               variant="ghost" 
@@ -90,6 +100,11 @@ export function SimpleHeader() {
           <nav className="flex flex-col p-4 space-y-3">
             <Link href="/">
               <span className="block py-2 px-3 hover:bg-gray-100 rounded-md">الرئيسية</span>
+            </Link>
+            <Link href="/community-posts">
+              <span className="block py-2 px-3 hover:bg-gray-100 rounded-md text-green-600">
+                منشورات المجتمع
+              </span>
             </Link>
             <Link href="/cooking-journey">
               <span className="block py-2 px-3 hover:bg-gray-100 rounded-md text-orange-600">

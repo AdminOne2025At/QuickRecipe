@@ -4,6 +4,7 @@ import Home from "@/pages/Home";
 import AuthPage from "@/pages/auth-page";
 import ProfilePage from "@/pages/profile-page";
 import GamificationPage from "@/pages/gamification-page";
+import CommunityPostsPage from "@/pages/community-posts";
 import { ReactNode } from "react";
 import { SimpleHeader } from "@/components/SimpleHeader";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -38,6 +39,7 @@ function App() {
             <Route path="/auth" component={AuthPage} />
             <Route path="/profile" component={ProfilePage} />
             <Route path="/cooking-journey" component={GamificationPage} />
+            <Route path="/community-posts" component={CommunityPostsPage} />
             <Route component={NotFound} />
           </Switch>
         </AppLayout>
