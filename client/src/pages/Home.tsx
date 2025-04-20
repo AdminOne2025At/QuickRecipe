@@ -199,11 +199,11 @@ export default function Home() {
                   disabled={!recipeNameInput.trim() || isLoading}
                   className="px-3 py-2 bg-primary text-white hover:bg-primary-dark transition-all duration-300"
                 >
-                  <span>🔍</span> بحث
+                  <span>🔍</span> {getLocalizedText('search', translations.search)}
                 </Button>
               </div>
               <div className="text-center my-1">
-                <span className="text-gray-500 font-medium">أو</span>
+                <span className="text-gray-500 font-medium">{getLocalizedText('or', translations.or)}</span>
               </div>
             </div>
           </div>
@@ -224,7 +224,7 @@ export default function Home() {
                       }
                     }
                   }}
-                  placeholder="اكتب المكون اللي عندك في البيت..."
+                  placeholder={getLocalizedText('ingredientPlaceholder', translations.ingredientPlaceholder)}
                   className="flex-grow py-2 px-3 bg-white text-right focus:outline-none"
                 />
                 <Button
@@ -236,7 +236,7 @@ export default function Home() {
                   }}
                   className="px-3 py-2 bg-primary text-white hover:bg-primary-dark transition-all duration-300"
                 >
-                  <span className="animate-pulse">✨</span> حطّه
+                  <span className="animate-pulse">✨</span> {getLocalizedText('addIngredient', translations.addIngredient)}
                 </Button>
               </div>
             </div>
@@ -259,7 +259,7 @@ export default function Home() {
                   <span className="animate-pulse">🔍</span>
                 </>
               )}
-              طلّعلي أكلات
+              {getLocalizedText('findRecipes', translations.findRecipes)}
             </Button>
           </div>
         </div>
@@ -331,9 +331,13 @@ export default function Home() {
             <div className="mb-4 md:mb-0">
               <h2 className="text-xl flex items-center gap-2">
                 <span className="text-2xl">🧑‍🍳</span> 
-                <span className="font-extrabold text-white tracking-wide" style={{ fontFamily: 'Comic Sans MS, cursive, sans-serif', textShadow: '1px 1px 2px rgba(0,0,0,0.2)' }}>Fast Recipe</span>
+                <span className="font-extrabold text-white tracking-wide" style={{ fontFamily: 'Comic Sans MS, cursive, sans-serif', textShadow: '1px 1px 2px rgba(0,0,0,0.2)' }}>
+                  {getLocalizedText('appName', translations.appName)}
+                </span>
               </h2>
-              <p className="text-gray-400 text-sm mt-1">ابتكر أكلات جديدة من المكونات اللي موجودة في بيتك</p>
+              <p className="text-gray-400 text-sm mt-1">
+                {getLocalizedText('footerTagline', translations.footerTagline)}
+              </p>
             </div>
             <div className="text-center md:text-right">
               <p className="text-sm text-gray-400">
