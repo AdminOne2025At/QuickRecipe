@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,8 +11,27 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 
+// نمط البوست كامل لتجنب الأخطاء
+type Post = {
+  id: number;
+  user: {
+    name: string;
+    level: string;
+    avatar: string;
+    initials: string;
+  };
+  title: string;
+  content: string;
+  image?: string;
+  tags: string[];
+  likes: number;
+  comments: number;
+  shares: number;
+  date: string;
+};
+
 // بيانات نموذجية للمنشورات
-const SAMPLE_POSTS = [
+const SAMPLE_POSTS: Post[] = [
   {
     id: 1,
     user: {
@@ -67,7 +86,7 @@ const SAMPLE_POSTS = [
 ];
 
 // بيانات نموذجية للمنشورات باللغة الإنجليزية
-const SAMPLE_POSTS_EN = [
+const SAMPLE_POSTS_EN: Post[] = [
   {
     id: 1,
     user: {
@@ -124,7 +143,11 @@ const SAMPLE_POSTS_EN = [
 export default function CommunityPostsPage() {
   const { language } = useLanguage();
   const isArabic = language.startsWith('ar');
-  const posts = isArabic ? SAMPLE_POSTS : SAMPLE_POSTS_EN;
+  
+  // نسخة من بيانات المنشورات الأصلية
+  const [trendingPosts, setTrendingPosts] = useState(isArabic ? SAMPLE_POSTS : SAMPLE_POSTS_EN);
+  const [recentPosts, setRecentPosts] = useState<Post[]>([]);
+  const [activeTab, setActiveTab] = useState("trending");
   
   // للتبديل بين تبويبات المحتوى
   const [newPostOpen, setNewPostOpen] = useState(false);
@@ -153,10 +176,49 @@ export default function CommunityPostsPage() {
     photoLabel: isArabic ? "إضافة صورة" : "Add Photo"
   };
   
+  // مراقبة تغير اللغة وتحديث المنشورات وفقًا لذلك
+  useEffect(() => {
+    setTrendingPosts(isArabic ? SAMPLE_POSTS : SAMPLE_POSTS_EN);
+  }, [isArabic]);
+  
   // وظيفة لمعالجة إنشاء منشور جديد
   const handleCreatePost = () => {
-    console.log("Creating new post:", { postTitle, postContent, postTags, selectedFile });
-    // هنا ستقوم بإرسال البيانات إلى الخادم
+    // التحقق من وجود العنوان والمحتوى
+    if (!postTitle.trim() || !postContent.trim()) {
+      return;
+    }
+    
+    // إنشاء كائن المنشور الجديد
+    const tagsList = postTags
+      .split(',')
+      .map((tag: string) => tag.trim())
+      .filter((tag: string) => tag.length > 0);
+    
+    const newPost: Post = {
+      id: Date.now(),
+      user: {
+        name: isArabic ? "أنت" : "You",
+        level: isArabic ? "طاهي متحمس" : "Enthusiastic Chef",
+        avatar: "https://i.pravatar.cc/150?img=33",
+        initials: isArabic ? "أنت" : "YOU"
+      },
+      title: postTitle,
+      content: postContent,
+      image: selectedFile ? URL.createObjectURL(selectedFile) : undefined,
+      tags: tagsList.length > 0 ? tagsList : [isArabic ? "وصفة" : "recipe"],
+      likes: 0,
+      comments: 0,
+      shares: 0,
+      date: isArabic ? "الآن" : "Just now"
+    };
+    
+    console.log("Creating new post:", newPost);
+    
+    // إضافة المنشور الجديد في بداية قائمة المنشورات الأحدث
+    setRecentPosts(prevPosts => [newPost, ...prevPosts]);
+    
+    // تحويل المستخدم إلى تبويب "الأحدث" لرؤية منشوره
+    setActiveTab("recent");
     
     // إعادة تعيين النموذج
     setPostTitle("");
@@ -174,6 +236,68 @@ export default function CommunityPostsPage() {
     }
   };
   
+  // وظيفة لعرض بطاقة منشور
+  const renderPostCard = (post: Post) => (
+    <Card key={post.id} className="overflow-hidden">
+      <CardHeader className="flex flex-row items-center gap-4 pb-2">
+        <Avatar>
+          <AvatarImage src={post.user.avatar} alt={post.user.name} />
+          <AvatarFallback>{post.user.initials}</AvatarFallback>
+        </Avatar>
+        <div>
+          <CardTitle className="flex items-center text-lg">
+            {post.user.name}
+            {post.user.level === "طاهي محترف" || post.user.level === "Professional Chef" ? (
+              <Award className="h-4 w-4 text-amber-500 ml-2" />
+            ) : null}
+          </CardTitle>
+          <CardDescription className="flex items-center">
+            <span>{post.user.level}</span>
+            <span className="mx-2">•</span>
+            <span>{post.date}</span>
+          </CardDescription>
+        </div>
+      </CardHeader>
+      
+      <CardContent className="p-6 pt-2">
+        <h3 className="text-xl font-semibold mb-2">{post.title}</h3>
+        <p className="mb-4">{post.content}</p>
+        {post.image && (
+          <div className="rounded-md overflow-hidden mb-4 max-h-[400px] w-full">
+            <img src={post.image} alt={post.title} className="w-full h-full object-cover" />
+          </div>
+        )}
+        <div className="flex flex-wrap gap-2 mt-3">
+          {post.tags.map((tag: string) => (
+            <Badge key={tag} variant="outline" className="bg-zinc-100">
+              #{tag}
+            </Badge>
+          ))}
+        </div>
+      </CardContent>
+      
+      <CardFooter className="border-t px-6 py-3 bg-muted/20">
+        <div className="flex gap-6 w-full">
+          <Button variant="ghost" size="sm" className="flex items-center text-zinc-600">
+            <ThumbsUp className="h-4 w-4 mr-1" />
+            <span>{post.likes}</span>
+            <span className="hidden sm:inline ml-1">{texts.like}</span>
+          </Button>
+          <Button variant="ghost" size="sm" className="flex items-center text-zinc-600">
+            <MessageCircle className="h-4 w-4 mr-1" />
+            <span>{post.comments}</span>
+            <span className="hidden sm:inline ml-1">{texts.comment}</span>
+          </Button>
+          <Button variant="ghost" size="sm" className="flex items-center text-zinc-600">
+            <Share className="h-4 w-4 mr-1" />
+            <span>{post.shares}</span>
+            <span className="hidden sm:inline ml-1">{texts.share}</span>
+          </Button>
+        </div>
+      </CardFooter>
+    </Card>
+  );
+  
   return (
     <div className="container py-8">
       <div className="flex items-center justify-between mb-6">
@@ -188,7 +312,7 @@ export default function CommunityPostsPage() {
         </Button>
       </div>
       
-      <Tabs defaultValue="trending" className="w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="mb-6 grid w-full grid-cols-4 md:w-auto">
           <TabsTrigger value="trending">{texts.trending}</TabsTrigger>
           <TabsTrigger value="recent">{texts.recent}</TabsTrigger>
@@ -197,72 +321,19 @@ export default function CommunityPostsPage() {
         </TabsList>
         
         <TabsContent value="trending" className="space-y-6">
-          {posts.map((post) => (
-            <Card key={post.id} className="overflow-hidden">
-              <CardHeader className="flex flex-row items-center gap-4 pb-2">
-                <Avatar>
-                  <AvatarImage src={post.user.avatar} alt={post.user.name} />
-                  <AvatarFallback>{post.user.initials}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <CardTitle className="flex items-center text-lg">
-                    {post.user.name}
-                    <Award className="h-4 w-4 text-amber-500 ml-2" />
-                  </CardTitle>
-                  <CardDescription className="flex items-center">
-                    <span>{post.user.level}</span>
-                    <span className="mx-2">•</span>
-                    <span>{post.date}</span>
-                  </CardDescription>
-                </div>
-              </CardHeader>
-              
-              <CardContent className="p-6 pt-2">
-                <h3 className="text-xl font-semibold mb-2">{post.title}</h3>
-                <p className="mb-4">{post.content}</p>
-                {post.image && (
-                  <div className="rounded-md overflow-hidden mb-4 max-h-[400px] w-full">
-                    <img src={post.image} alt={post.title} className="w-full h-full object-cover" />
-                  </div>
-                )}
-                <div className="flex flex-wrap gap-2 mt-3">
-                  {post.tags.map((tag) => (
-                    <Badge key={tag} variant="outline" className="bg-zinc-100">
-                      #{tag}
-                    </Badge>
-                  ))}
-                </div>
-              </CardContent>
-              
-              <CardFooter className="border-t px-6 py-3 bg-muted/20">
-                <div className="flex gap-6 w-full">
-                  <Button variant="ghost" size="sm" className="flex items-center text-zinc-600">
-                    <ThumbsUp className="h-4 w-4 mr-1" />
-                    <span>{post.likes}</span>
-                    <span className="hidden sm:inline ml-1">{texts.like}</span>
-                  </Button>
-                  <Button variant="ghost" size="sm" className="flex items-center text-zinc-600">
-                    <MessageCircle className="h-4 w-4 mr-1" />
-                    <span>{post.comments}</span>
-                    <span className="hidden sm:inline ml-1">{texts.comment}</span>
-                  </Button>
-                  <Button variant="ghost" size="sm" className="flex items-center text-zinc-600">
-                    <Share className="h-4 w-4 mr-1" />
-                    <span>{post.shares}</span>
-                    <span className="hidden sm:inline ml-1">{texts.share}</span>
-                  </Button>
-                </div>
-              </CardFooter>
-            </Card>
-          ))}
+          {trendingPosts.map(post => renderPostCard(post))}
         </TabsContent>
         
-        <TabsContent value="recent">
-          <div className="text-center py-12">
-            {isArabic 
-              ? "سيتم عرض أحدث المنشورات هنا"
-              : "Latest posts will be displayed here"}
-          </div>
+        <TabsContent value="recent" className="space-y-6">
+          {recentPosts.length > 0 ? (
+            recentPosts.map(post => renderPostCard(post))
+          ) : (
+            <div className="text-center py-12">
+              {isArabic 
+                ? "لا توجد منشورات حديثة بعد. كن أول من ينشر!"
+                : "No recent posts yet. Be the first to post!"}
+            </div>
+          )}
         </TabsContent>
         
         <TabsContent value="following">
