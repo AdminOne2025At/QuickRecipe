@@ -519,25 +519,25 @@ export default function CommunityPostsPage() {
           <TabsList className="grid w-full grid-cols-4 max-w-md">
             <TabsTrigger 
               value="trending" 
-              className="text-sm transition-all duration-300"
+              className="text-sm"
             >
               {texts.trending}
             </TabsTrigger>
             <TabsTrigger 
               value="recent" 
-              className="text-sm transition-all duration-300"
+              className="text-sm"
             >
               {texts.recent}
             </TabsTrigger>
             <TabsTrigger 
               value="following" 
-              className="text-sm transition-all duration-300"
+              className="text-sm"
             >
               {texts.following}
             </TabsTrigger>
             <TabsTrigger 
               value="challenges" 
-              className="text-sm transition-all duration-300"
+              className="text-sm"
             >
               {texts.challenges}
             </TabsTrigger>

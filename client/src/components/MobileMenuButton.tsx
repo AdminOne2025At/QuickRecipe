@@ -54,7 +54,7 @@ export function MobileMenuButton() {
     <>
       {/* زر القائمة الرئيسي */}
       <button 
-        className="block md:hidden fixed top-20 right-4 z-50 rounded-full p-2 transition-all duration-300 animate-slideInRight shadow-md bg-gradient-to-r from-orange-500 to-amber-500 text-white"
+        className="block md:hidden fixed top-20 right-4 z-50 rounded-full p-2 transition-all duration-300 shadow-md bg-gradient-to-r from-orange-500 to-amber-500 text-white"
         onClick={() => {
           setIsOpen(!isOpen);
           setIsFilterOpen(false);
@@ -64,14 +64,14 @@ export function MobileMenuButton() {
         {isOpen ? (
           <X className="h-6 w-6" />
         ) : (
-          <Menu className="h-6 w-6 animate-bounceRight" />
+          <Menu className="h-6 w-6" />
         )}
       </button>
       
       {/* زر التصفية لصفحة المجتمع فقط */}
       {isCommunityPage && (
         <button 
-          className="block md:hidden fixed top-20 right-16 z-50 rounded-full p-2 transition-all duration-300 animate-slideInRight shadow-md bg-gradient-to-r from-amber-400 to-yellow-500 text-white"
+          className="block md:hidden fixed top-20 right-16 z-50 rounded-full p-2 transition-all duration-300 shadow-md bg-gradient-to-r from-amber-400 to-yellow-500 text-white"
           onClick={() => {
             setIsFilterOpen(!isFilterOpen);
             setIsOpen(false);
@@ -81,14 +81,14 @@ export function MobileMenuButton() {
           {isFilterOpen ? (
             <X className="h-6 w-6" />
           ) : (
-            <Filter className="h-6 w-6 animate-bounceRight" />
+            <Filter className="h-6 w-6" />
           )}
         </button>
       )}
       
       {/* القائمة المنسدلة الرئيسية */}
       {isOpen && (
-        <div className="fixed top-32 right-4 z-40 md:hidden animate-slideInRight overflow-hidden rounded-lg shadow-lg">
+        <div className="fixed top-32 right-4 z-40 md:hidden overflow-hidden rounded-lg shadow-lg">
           <div className="bg-gradient-to-b from-orange-50 to-white py-3 px-2 border border-orange-100">
             <nav className="grid gap-2">
               <Link href="/">
@@ -122,7 +122,7 @@ export function MobileMenuButton() {
       
       {/* قائمة التصفية لصفحة المجتمع فقط */}
       {isFilterOpen && isCommunityPage && (
-        <div className="fixed top-32 right-16 z-40 md:hidden animate-slideInRight overflow-hidden rounded-lg shadow-lg">
+        <div className="fixed top-32 right-16 z-40 md:hidden overflow-hidden rounded-lg shadow-lg">
           <div className="bg-gradient-to-b from-amber-50 to-white py-3 px-2 border border-amber-100">
             <div className="grid gap-1">
               <Button 
