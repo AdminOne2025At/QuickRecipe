@@ -208,7 +208,7 @@ export default function ShareModal({ open, onOpenChange, recipe }: ShareModalPro
       navigator.userAgent
     );
     
-    if (platform === 'native' && navigator.share && isMobile) {
+    if (platform === 'native' && typeof navigator.share === 'function' && isMobile) {
       try {
         await navigator.share({
           title: recipe.title,
@@ -347,7 +347,7 @@ export default function ShareModal({ open, onOpenChange, recipe }: ShareModalPro
           <TabsContent value="social" className="py-4">
             <div className="grid grid-cols-2 gap-3">
               {/* إضافة زر المشاركة الأصلي للجهاز (Web Share API) */}
-              {navigator.share && (
+              {'share' in navigator && (
                 <Button 
                   variant="outline" 
                   className="w-full gap-2 flex-1"

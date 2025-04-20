@@ -234,15 +234,7 @@ export default function ProfilePage() {
                 </p>
               </div>
             </CardContent>
-            <CardFooter className="flex justify-between">
-              <Button 
-                variant="outline" 
-                onClick={handleSignOut}
-                className="gap-2"
-              >
-                <LogOut className="h-4 w-4" />
-                تسجيل الخروج
-              </Button>
+            <CardFooter className="flex justify-end">
               <Button 
                 onClick={handleProfileUpdate} 
                 disabled={saving || uploading}
