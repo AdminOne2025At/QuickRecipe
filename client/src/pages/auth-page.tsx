@@ -1,20 +1,37 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/AuthContext";
 import { FcGoogle } from "react-icons/fc";
+import { signInWithGoogle } from "@/lib/firebase";
+import { auth } from "@/lib/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 
 export default function AuthPage() {
-  const { currentUser, signIn, isLoading } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
   const [, setLocation] = useLocation();
-
-  // إذا كان المستخدم مسجل الدخول، قم بتحويله إلى الصفحة الرئيسية
+  
+  // تحقق من حالة تسجيل الدخول
   useEffect(() => {
-    if (currentUser) {
-      setLocation("/");
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setLocation("/");
+      }
+    });
+    
+    return () => unsubscribe();
+  }, [setLocation]);
+  
+  const handleSignIn = async () => {
+    try {
+      setIsLoading(true);
+      await signInWithGoogle();
+    } catch (error) {
+      console.error('Login error:', error);
+    } finally {
+      setIsLoading(false);
     }
-  }, [currentUser, setLocation]);
+  };
 
   return (
     <div className="flex min-h-[80vh] w-full flex-col md:flex-row">
@@ -29,7 +46,7 @@ export default function AuthPage() {
             <Button 
               variant="outline" 
               className="flex items-center gap-2" 
-              onClick={signIn}
+              onClick={handleSignIn}
               disabled={isLoading}
             >
               <FcGoogle className="h-5 w-5" /> 

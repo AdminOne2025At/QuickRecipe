@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
-import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,8 +8,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Camera, Save } from "lucide-react";
-import { LogOut } from "lucide-react";
+import { Loader2, Camera, Save, LogOut } from "lucide-react";
+import { auth, updateUserProfile, uploadProfilePicture } from "@/lib/firebase";
+import { onAuthStateChanged, signOut as firebaseSignOut } from "firebase/auth";
+import { useToast } from "@/hooks/use-toast";
 
 export default function ProfilePage() {
   const { currentUser, isLoading, signOut, updateProfile, uploadPicture, userPreferences, updateUserPreferences } = useAuth();

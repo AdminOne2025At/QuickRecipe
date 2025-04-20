@@ -1,10 +1,9 @@
-import { Switch, Route, useLocation } from "wouter";
+import { Switch, Route } from "wouter";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import AuthPage from "@/pages/auth-page";
 import ProfilePage from "@/pages/profile-page";
-import { useAuth } from "@/contexts/AuthContext";
-import { useEffect, ReactNode } from "react";
+import { ReactNode } from "react";
 import { SimpleHeader } from "@/components/SimpleHeader";
 
 // هيكل الصفحة المشترك
@@ -26,37 +25,13 @@ function AppLayout({ children }: { children: ReactNode }) {
   );
 }
 
-// حماية المسارات التي تتطلب تسجيل الدخول
-function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
-  const { currentUser, isLoading } = useAuth();
-  const [, setLocation] = useLocation();
-
-  useEffect(() => {
-    if (!isLoading && !currentUser) {
-      setLocation("/auth");
-    }
-  }, [currentUser, isLoading, setLocation]);
-
-  if (isLoading) {
-    return <div className="flex h-[80vh] items-center justify-center">جاري التحميل...</div>;
-  }
-
-  if (!currentUser) {
-    return null; // سيتم التوجيه عبر useEffect
-  }
-
-  return <Component />;
-}
-
 function App() {
   return (
     <AppLayout>
       <Switch>
         <Route path="/" component={Home} />
         <Route path="/auth" component={AuthPage} />
-        <Route path="/profile">
-          {() => <ProtectedRoute component={ProfilePage} />}
-        </Route>
+        <Route path="/profile" component={ProfilePage} />
         <Route component={NotFound} />
       </Switch>
     </AppLayout>
