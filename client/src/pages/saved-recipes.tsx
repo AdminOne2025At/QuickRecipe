@@ -59,7 +59,7 @@ interface SavedRecipe {
     videoId?: string;
     imageUrl?: string;
   };
-  tags: string[];
+  tags: string[] | any; // Allowing any due to potential JSON parsing issues
   createdAt: string;
 }
 
@@ -90,8 +90,10 @@ export default function SavedRecipesPage() {
   });
   
   // استخلاص جميع العلامات من الوصفات المحفوظة
-  const allTags = savedRecipes 
-    ? Array.from(new Set(savedRecipes.flatMap((recipe: SavedRecipe) => recipe.tags)))
+  const allTags: string[] = savedRecipes 
+    ? Array.from(new Set(savedRecipes.flatMap((recipe: SavedRecipe) => 
+        Array.isArray(recipe.tags) ? recipe.tags as string[] : []
+      )))
     : [];
     
   // تصفية الوصفات بناءً على كلمة البحث والعلامة المحددة
@@ -286,7 +288,7 @@ export default function SavedRecipesPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">{texts.allTags}</SelectItem>
-                {allTags.map((tag) => (
+                {allTags.map((tag: string) => (
                   <SelectItem key={tag} value={tag}>
                     {tag}
                   </SelectItem>
@@ -339,7 +341,7 @@ export default function SavedRecipesPage() {
                 
                 <CardContent className="pb-2">
                   <div className="flex flex-wrap gap-1 mb-2">
-                    {recipe.tags.map((tag) => (
+                    {recipe.tags.map((tag: string) => (
                       <Badge key={tag} variant="outline" className="bg-muted">
                         {tag}
                       </Badge>
@@ -388,7 +390,7 @@ export default function SavedRecipesPage() {
                 <div className="py-4">
                   {selectedRecipe.tags.length > 0 && (
                     <div className="flex flex-wrap gap-2 mb-4">
-                      {selectedRecipe.tags.map((tag) => (
+                      {selectedRecipe.tags.map((tag: string) => (
                         <Badge key={tag} variant="outline">
                           {tag}
                         </Badge>
