@@ -1,6 +1,6 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
-import { generateRecipes } from "./services/openai";
+import { generateRecipesDeepSeek } from "./services/deepseek";
 import { searchYouTubeVideos } from "./services/youtube";
 import { storage } from "./storage";
 import { insertRecipeCacheSchema, insertIngredientSchema, insertUserSchema, insertRecipeSchema } from "@shared/schema";
@@ -36,18 +36,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Continue execution if cache check fails
       }
 
-      // Generate recipes using OpenAI
-      const recipesData = await generateRecipes(ingredients);
+      // Generate recipes using DeepSeek (or fallback if API fails)
+      let recipesData;
+      try {
+        recipesData = await generateRecipesDeepSeek(ingredients);
 
-      if (!recipesData.recipes || !Array.isArray(recipesData.recipes)) {
-        return res.status(500).json({
-          message: "Failed to generate recipes. Please try again later.",
+        if (!recipesData.recipes || !Array.isArray(recipesData.recipes) || recipesData.recipes.length === 0) {
+          // No recipes found, but we have suggestions
+          return res.status(200).json({
+            recipes: [],
+            suggestedIngredients: recipesData.suggestedIngredients || [
+              "طماطم", "بصل", "بطاطس", "دجاج", "أرز", "ثوم", "زيت زيتون", "بيض", "جزر", "فلفل"
+            ],
+            message: "لم نتمكن من إيجاد وصفات مناسبة للمكونات المدخلة. حاول إضافة المزيد من المكونات الأساسية."
+          });
+        }
+      } catch (recipeError) {
+        console.error("Error generating recipes:", recipeError);
+        return res.status(200).json({
+          recipes: [],
+          suggestedIngredients: [
+            "طماطم", "بصل", "بطاطس", "دجاج", "أرز", "ثوم", "زيت زيتون", "بيض", "جزر", "فلفل"
+          ],
+          message: "حدث خطأ أثناء معالجة طلبك. يرجى إضافة المزيد من المكونات أو المحاولة مرة أخرى لاحقًا."
         });
       }
 
       // Fetch YouTube videos for each recipe
       const recipesWithVideos = await Promise.all(
-        recipesData.recipes.map(async (recipe) => {
+        recipesData.recipes.map(async (recipe: any) => {
           try {
             const videoId = await searchYouTubeVideos(recipe.title + " recipe");
             return { ...recipe, videoId };
