@@ -30,6 +30,13 @@ console.log("Firebase config (without sensitive keys):", {
   hasAppId: !!import.meta.env.VITE_FIREBASE_APP_ID
 });
 
+// عرض رسالة توضيحية حول مشكلة تكوين Firebase
+console.warn(`
+يجب إضافة النطاق: "${window.location.origin}" 
+إلى قائمة النطاقات المصرح بها في لوحة تحكم Firebase:
+- Firebase console -> Authentication -> Settings -> Authorized domains tab
+`);
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);

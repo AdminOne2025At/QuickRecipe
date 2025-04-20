@@ -83,13 +83,26 @@ export default function AuthPage() {
           <CardContent className="flex flex-col gap-4">
             <Button 
               variant="outline" 
-              className="flex items-center gap-2" 
+              className="flex items-center gap-2 mb-2" 
               onClick={handleSignIn}
               disabled={isLoading}
             >
               <FcGoogle className="h-5 w-5" /> 
               <span className="flex-1">تسجيل الدخول باستخدام Google</span>
             </Button>
+            
+            <Button 
+              onClick={() => setLocation('/')} 
+              variant="secondary" 
+              className="w-full mb-2"
+            >
+              تخطي تسجيل الدخول والاستمرار كزائر
+            </Button>
+            
+            <div className="text-xs text-gray-500 text-center p-2 bg-orange-50 rounded-md">
+              <p className="font-semibold">ملاحظة:</p>
+              <p>لاستخدام تسجيل الدخول بجوجل، يجب إضافة رابط الموقع الحالي في إعدادات Firebase</p>
+            </div>
           </CardContent>
           <CardFooter className="text-center text-sm text-muted-foreground">
             بالتسجيل، أنت توافق على شروط الاستخدام وسياسة الخصوصية
