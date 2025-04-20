@@ -6,6 +6,7 @@ import RecipeResults from "@/components/RecipeResults";
 import SuggestedIngredients from "@/components/SuggestedIngredients";
 import CookingTimer from "@/components/CookingTimer";
 import IngredientSubstitution from "@/components/IngredientSubstitution";
+import ContactModal from "@/components/ContactModal";
 import { useCallback, useEffect, useState } from "react";
 import { Ingredient, Recipe } from "@/lib/types";
 import { fetchRecipes, searchRecipesByName as apiSearchRecipesByName } from "@/lib/api";
@@ -346,6 +347,9 @@ export default function Home() {
                 <span className="inline-block animate-bounce ml-1">⭐️</span>
               </p>
               <p className="text-sm text-gray-400 mt-1">© 2025 Egyptco - عملناه عشانك</p>
+              <div className="mt-2">
+                <ContactModal />
+              </div>
             </div>
           </div>
         </div>
