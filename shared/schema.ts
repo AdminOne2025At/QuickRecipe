@@ -28,6 +28,7 @@ export const users = pgTable("users", {
   email: text("email"),
   displayName: text("display_name"),
   photoURL: text("photo_url"),
+  firebaseUid: text("firebase_uid").unique(), // دعم تسجيل الدخول باستخدام Firebase
   // Chef progression system
   chefLevel: integer("chef_level").default(1).notNull(),
   experiencePoints: integer("experience_points").default(0).notNull(),
@@ -56,6 +57,7 @@ export const insertUserSchema = createInsertSchema(users).pick({
   email: true,
   displayName: true,
   photoURL: true,
+  firebaseUid: true,
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
