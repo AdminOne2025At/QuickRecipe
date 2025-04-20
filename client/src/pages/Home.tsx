@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import Ingredients from "@/components/Ingredients";
 import RecipeResults from "@/components/RecipeResults";
 import SuggestedIngredients from "@/components/SuggestedIngredients";
+import CookingTimer from "@/components/CookingTimer";
 import { useCallback, useEffect, useState } from "react";
 import { Ingredient, Recipe } from "@/lib/types";
 import { fetchRecipes } from "@/lib/api";
@@ -230,6 +231,9 @@ export default function Home() {
           </Button>
         </div>
       )}
+      
+      {/* Cooking Timer Component */}
+      <CookingTimer />
 
       <footer className="bg-gray-800 text-white py-8">
         <div className="container mx-auto px-4">
