@@ -327,13 +327,25 @@ export default function CommunityPostsPage() {
     },
   });
   
+  // للمحافظة على قائمة المنشورات التي أبدى المستخدم إعجابه بها
+  const [likedPosts, setLikedPosts] = useState<number[]>([]);
+
   // mutate للإعجاب بمنشور
   const likePostMutation = useMutation({
     mutationFn: async (postId: number) => {
       const res = await apiRequest("POST", `/api/community-posts/${postId}/like`, {});
       return await res.json();
     },
-    onSuccess: () => {
+    onSuccess: (data, postId) => {
+      // إضافة هذا المنشور إلى قائمة المنشورات المعجب بها
+      setLikedPosts(prev => [...prev, postId]);
+      
+      // حفظ المعلومات في التخزين المحلي
+      const storedLikes = localStorage.getItem('likedPosts');
+      const likedPostsArray = storedLikes ? JSON.parse(storedLikes) : [];
+      likedPostsArray.push(postId);
+      localStorage.setItem('likedPosts', JSON.stringify(likedPostsArray));
+      
       // إعادة تحميل البيانات
       queryClient.invalidateQueries({ queryKey: ["/api/community-posts/trending"] });
       queryClient.invalidateQueries({ queryKey: ["/api/community-posts/recent"] });
@@ -346,6 +358,14 @@ export default function CommunityPostsPage() {
       });
     },
   });
+  
+  // تحميل قائمة المنشورات المعجب بها عند بدء التطبيق
+  useEffect(() => {
+    const storedLikes = localStorage.getItem('likedPosts');
+    if (storedLikes) {
+      setLikedPosts(JSON.parse(storedLikes));
+    }
+  }, []);
   
   // mutate لحذف منشور
   const deletePostMutation = useMutation({
@@ -534,32 +554,30 @@ export default function CommunityPostsPage() {
       <CardFooter className="border-t px-6 py-3 bg-muted/20">
         <div className="flex gap-4 w-full justify-center md:justify-start">
           <Button 
-            variant="ghost" 
+            variant={likedPosts.includes(post.id) ? "default" : "ghost"}
             size="sm" 
-            className={`flex items-center ${post.likes > 0 ? 'text-green-600' : 'text-zinc-600'} hover:text-green-600 hover:bg-green-50 transition-colors duration-200`}
-            onClick={() => likePostMutation.mutate(post.id)}
-            disabled={likePostMutation.isPending}
+            className={`flex items-center ${
+              likedPosts.includes(post.id) 
+                ? 'bg-green-600 text-white hover:bg-green-700' 
+                : 'text-zinc-600 hover:text-green-600 hover:bg-green-50'
+            } transition-colors duration-200`}
+            onClick={() => {
+              // منع التكرار إذا كان المستخدم قد سجل إعجابه بالفعل
+              if (!likedPosts.includes(post.id)) {
+                likePostMutation.mutate(post.id);
+                toast({
+                  title: isArabic ? "أعجبني" : "Liked!",
+                  description: isArabic ? "تم تسجيل إعجابك بهذا المنشور" : "Your like has been registered",
+                  variant: "default",
+                });
+              }
+            }}
+            disabled={likePostMutation.isPending || likedPosts.includes(post.id)}
           >
-            <ThumbsUp className="h-4 w-4 mr-1" />
-            <span>{post.likes}</span>
+            <ThumbsUp className={`h-4 w-4 mr-1 ${likedPosts.includes(post.id) ? 'fill-white' : ''}`} />
+            <span className="font-semibold">{post.likes}</span>
             <span className="hidden sm:inline ml-1">{texts.like}</span>
             {likePostMutation.isPending && <Loader2 className="ml-1 h-3 w-3 animate-spin" />}
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="flex items-center text-zinc-600 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200"
-            onClick={() => {
-              // سيتم إضافة منطق التعليقات لاحقًا
-              toast({
-                title: isArabic ? "قريبًا" : "Coming soon",
-                description: isArabic ? "ميزة التعليقات قيد التطوير" : "Comments feature is under development",
-              });
-            }}
-          >
-            <MessageCircle className="h-4 w-4 mr-1" />
-            <span>{post.comments}</span>
-            <span className="hidden sm:inline ml-1">{texts.comment}</span>
           </Button>
           <Button 
             variant="ghost" 
@@ -574,7 +592,8 @@ export default function CommunityPostsPage() {
                   url: window.location.href
                 }).catch((error) => console.log('Error sharing', error));
               } else {
-                // سيتم إضافة خيارات المشاركة الأخرى لاحقًا
+                // نسخ الرابط 
+                navigator.clipboard.writeText(window.location.href);
                 toast({
                   title: isArabic ? "تمت نسخ الرابط" : "Link copied",
                   description: isArabic ? "تم نسخ رابط المنشور إلى الحافظة" : "Post link copied to clipboard",
