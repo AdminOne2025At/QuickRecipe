@@ -5,13 +5,34 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { ThumbsUp, MessageCircle, Share, Award, PlusCircle } from "lucide-react";
+import { ThumbsUp, MessageCircle, Share, Award, PlusCircle, Loader2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { queryClient, apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
-// نمط البوست كامل لتجنب الأخطاء
+// نوع البيانات القادمة من قاعدة البيانات
+type DbPost = {
+  id: number;
+  userId: number;
+  title: string;
+  content: string;
+  postType: string;
+  imageUrl?: string;
+  tags: string;
+  likesCount: number;
+  commentsCount: number;
+  sharesCount: number;
+  createdAt: string;
+  userName?: string;
+  userLevel?: string;
+  userAvatar?: string;
+};
+
+// نمط البوست المستخدم في واجهة المستخدم
 type Post = {
   id: number;
   user: {
@@ -22,12 +43,69 @@ type Post = {
   };
   title: string;
   content: string;
+  postType: string;
   image?: string;
   tags: string[];
   likes: number;
   comments: number;
   shares: number;
   date: string;
+};
+
+// تحويل بيانات قاعدة البيانات إلى نموذج Post
+const mapDbPostToUiPost = (dbPost: DbPost, isArabic: boolean): Post => {
+  // استخراج الاسم الأول والحرف الأول من الاسم الأخير إن وجد
+  const userName = dbPost.userName || (isArabic ? "مستخدم" : "User");
+  const nameParts = userName.split(' ');
+  const initials = nameParts.length > 1 
+    ? `${nameParts[0][0]}${nameParts[1][0]}` 
+    : userName.substring(0, 2);
+
+  // معالجة تاريخ الإنشاء
+  const createdAt = new Date(dbPost.createdAt);
+  const now = new Date();
+  const diffMs = now.getTime() - createdAt.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
+  
+  let dateDisplay = '';
+  if (diffMins < 60) {
+    dateDisplay = isArabic 
+      ? `منذ ${diffMins} دقيقة` 
+      : `${diffMins} minutes ago`;
+  } else if (diffHours < 24) {
+    dateDisplay = isArabic 
+      ? `منذ ${diffHours} ساعة` 
+      : `${diffHours} hours ago`;
+  } else {
+    dateDisplay = isArabic 
+      ? `منذ ${diffDays} يوم` 
+      : `${diffDays} days ago`;
+  }
+  
+  if (diffMins < 5) {
+    dateDisplay = isArabic ? "الآن" : "Just now";
+  }
+
+  return {
+    id: dbPost.id,
+    user: {
+      name: userName,
+      level: dbPost.userLevel || (isArabic ? "طاهي متحمس" : "Cooking Enthusiast"),
+      avatar: dbPost.userAvatar || "https://i.pravatar.cc/150?img=33",
+      initials: initials
+    },
+    title: dbPost.title,
+    content: dbPost.content,
+    postType: dbPost.postType,
+    image: dbPost.imageUrl,
+    tags: dbPost.tags ? JSON.parse(dbPost.tags) : [],
+    likes: dbPost.likesCount,
+    comments: dbPost.commentsCount,
+    shares: dbPost.sharesCount,
+    date: dateDisplay
+  };
 };
 
 // بيانات نموذجية للمنشورات
@@ -42,6 +120,7 @@ const SAMPLE_POSTS: Post[] = [
     },
     title: "طريقة عمل كيكة الشوكولاتة بالصوص السائل",
     content: "اليوم شاركت في تحدي الحلويات وأحببت أن أشارككم وصفتي المفضلة لكيكة الشوكولاتة بالصوص السائل...",
+    postType: "recipe",
     image: "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80",
     tags: ["حلويات", "شوكولاتة", "تحدي الأسبوع"],
     likes: 42,
@@ -59,6 +138,7 @@ const SAMPLE_POSTS: Post[] = [
     },
     title: "وجبة إيطالية خفيفة: سباغيتي بصوص البيستو محلي الصنع",
     content: "اليوم أشارككم وصفتي لسباغيتي البيستو بمكونات بسيطة متوفرة في كل مطبخ. الوصفة سهلة وسريعة...",
+    postType: "recipe",
     image: "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
     tags: ["مكرونة", "إيطالي", "نباتي"],
     likes: 36,
@@ -76,6 +156,7 @@ const SAMPLE_POSTS: Post[] = [
     },
     title: "أول تجربة مع خبز التنور - شاركوني رأيكم!",
     content: "بعد عدة محاولات أخيرًا نجحت في صنع خبز التنور في المنزل. استخدمت دقيق القمح الكامل واتبعت خطوات ووقت التخمير بدقة...",
+    postType: "experience",
     image: "https://images.unsplash.com/photo-1586765501019-cbe3294228fe?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
     tags: ["خبز", "مخبوزات", "تجارب"],
     likes: 28,
@@ -97,6 +178,7 @@ const SAMPLE_POSTS_EN: Post[] = [
     },
     title: "How to Make Chocolate Lava Cake",
     content: "Today I participated in the dessert challenge and wanted to share my favorite recipe for chocolate lava cake...",
+    postType: "recipe",
     image: "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80",
     tags: ["Desserts", "Chocolate", "Weekly Challenge"],
     likes: 42,
@@ -114,6 +196,7 @@ const SAMPLE_POSTS_EN: Post[] = [
     },
     title: "Light Italian Meal: Spaghetti with Homemade Pesto",
     content: "Today I'm sharing my recipe for pesto spaghetti with simple ingredients available in every kitchen. The recipe is easy and quick...",
+    postType: "recipe",
     image: "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
     tags: ["Pasta", "Italian", "Vegetarian"],
     likes: 36,
@@ -131,6 +214,7 @@ const SAMPLE_POSTS_EN: Post[] = [
     },
     title: "First Attempt at Tandoor Bread - Share Your Thoughts!",
     content: "After several attempts, I finally succeeded in making tandoor bread at home. I used whole wheat flour and followed the fermentation steps and timing precisely...",
+    postType: "experience",
     image: "https://images.unsplash.com/photo-1586765501019-cbe3294228fe?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
     tags: ["Bread", "Baking", "Experiments"],
     likes: 28,
@@ -206,6 +290,7 @@ export default function CommunityPostsPage() {
       },
       title: postTitle,
       content: postContent,
+      postType: "recipe", // نوع المنشور الافتراضي هو وصفة
       image: selectedFile ? URL.createObjectURL(selectedFile) : undefined,
       tags: tagsList.length > 0 ? tagsList : [isArabic ? "وصفة" : "recipe"],
       likes: 0,
