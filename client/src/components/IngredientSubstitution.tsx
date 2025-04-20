@@ -5,15 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, Search, AlertCircle } from "lucide-react";
-
-interface SubstitutionResult {
-  originalIngredient: string;
-  substitutes: {
-    name: string;
-    ratio: string;
-    notes?: string;
-  }[];
-}
+import { getIngredientSubstitutes } from "@/lib/api";
+import { SubstitutionResponse } from "@/lib/types";
 
 export function IngredientSubstitution() {
   const [ingredientQuery, setIngredientQuery] = useState("");
