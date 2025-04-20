@@ -17,6 +17,7 @@ export default function Home() {
   const [suggestedIngredients, setSuggestedIngredients] = useState<string[]>([]);
   const [recipesCache, setRecipesCache] = useState<Record<string, any>>({});
   const [ingredientInput, setIngredientInput] = useState<string>("");
+  const [recipeNameInput, setRecipeNameInput] = useState<string>("");
   const { toast } = useToast();
 
   const addIngredient = (name: string) => {
@@ -90,6 +91,40 @@ export default function Home() {
     addIngredient(ingredient);
   };
 
+  // Search recipes by name
+  const searchRecipesByName = useCallback(async () => {
+    if (!recipeNameInput.trim()) {
+      toast({
+        title: "لا يوجد اسم وصفة",
+        description: "الرجاء إدخال اسم الوصفة للبحث",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await fetch(`/api/recipes/search?query=${encodeURIComponent(recipeNameInput)}`);
+      
+      if (!response.ok) {
+        throw new Error("Failed to fetch recipes by name");
+      }
+      
+      const data = await response.json();
+      setRecipes(data.recipes || []);
+      setSuggestedIngredients(data.suggestedIngredients || []);
+    } catch (error) {
+      console.error('Error searching recipes by name:', error);
+      toast({
+        title: "حدث خطأ",
+        description: "فشل في البحث عن الوصفات. يرجى المحاولة مرة أخرى.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [recipeNameInput, toast]);
+
   // Effect to clear recipes if ingredients are emptied
   useEffect(() => {
     if (ingredients.length === 0) {
@@ -104,7 +139,7 @@ export default function Home() {
         <div className="container mx-auto px-4 py-6 flex justify-between items-center">
           <h1 className="text-3xl md:text-4xl flex items-center gap-3">
             <span className="text-2xl">🍔</span>
-            <span className="font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary tracking-wide" style={{ fontFamily: 'Comic Sans MS, cursive, sans-serif', textShadow: '1px 1px 2px rgba(0,0,0,0.1)' }}>Fast Recipe</span>
+            <span className="font-extrabold text-gray-800 tracking-wide" style={{ fontFamily: 'Comic Sans MS, cursive, sans-serif', textShadow: '1px 1px 2px rgba(255,255,255,0.2)' }}>Fast Recipe</span>
             <span className="text-2xl">🍕</span>
           </h1>
           <div className="flex items-center gap-3">
@@ -127,58 +162,82 @@ export default function Home() {
 
       {/* Quick Search Bar */}
       <div className="bg-white shadow-md py-3 sticky top-0 z-20 border-b border-gray-200">
-        <div className="container mx-auto px-4 flex items-center gap-2">
-          <div className="flex-grow">
-            <div className="flex rounded-lg border border-gray-300 overflow-hidden">
-              <input
-                type="text"
-                value={ingredientInput}
-                onChange={(e) => setIngredientInput(e.target.value)} 
-                onKeyPress={(e) => {
-                  if (e.key === "Enter") {
+        <div className="container mx-auto px-4 flex flex-col gap-2">
+          {/* Recipe name search */}
+          <div className="flex items-center gap-2">
+            <div className="flex-grow">
+              <div className="flex rounded-lg border border-gray-300 overflow-hidden">
+                <input
+                  type="text"
+                  placeholder="ابحث عن وصفة بالاسم..."
+                  className="flex-grow py-2 px-3 bg-white text-right focus:outline-none"
+                />
+                <Button
+                  className="px-3 py-2 bg-primary text-white hover:bg-primary-dark transition-all duration-300"
+                >
+                  <span>🔍</span> بحث
+                </Button>
+              </div>
+              <div className="text-center my-1">
+                <span className="text-gray-500 font-medium">أو</span>
+              </div>
+            </div>
+          </div>
+          
+          {/* Ingredient search */}
+          <div className="flex items-center gap-2">
+            <div className="flex-grow">
+              <div className="flex rounded-lg border border-gray-300 overflow-hidden">
+                <input
+                  type="text"
+                  value={ingredientInput}
+                  onChange={(e) => setIngredientInput(e.target.value)} 
+                  onKeyPress={(e) => {
+                    if (e.key === "Enter") {
+                      if (ingredientInput.trim()) {
+                        addIngredient(ingredientInput);
+                        setIngredientInput("");
+                      }
+                    }
+                  }}
+                  placeholder="اكتب المكون اللي عندك في البيت..."
+                  className="flex-grow py-2 px-3 bg-white text-right focus:outline-none"
+                />
+                <Button
+                  onClick={() => {
                     if (ingredientInput.trim()) {
                       addIngredient(ingredientInput);
                       setIngredientInput("");
                     }
-                  }
-                }}
-                placeholder="اكتب المكون اللي عندك في المطبخ..."
-                className="flex-grow py-2 px-3 bg-white text-right focus:outline-none"
-              />
-              <Button
-                onClick={() => {
-                  if (ingredientInput.trim()) {
-                    addIngredient(ingredientInput);
-                    setIngredientInput("");
-                  }
-                }}
-                className="px-3 py-2 bg-primary text-white hover:bg-primary-dark transition-all duration-300"
-              >
-                <span className="animate-pulse">✨</span> حطّه
-              </Button>
+                  }}
+                  className="px-3 py-2 bg-primary text-white hover:bg-primary-dark transition-all duration-300"
+                >
+                  <span className="animate-pulse">✨</span> حطّه
+                </Button>
+              </div>
             </div>
-          </div>
-          <Button
-            onClick={searchRecipes}
-            className="bg-secondary text-white py-2 px-5 rounded-lg flex items-center gap-1 hover:bg-secondary-dark hover:scale-105 transition-all duration-300"
-            disabled={ingredients.length === 0 || isLoading}
-          >
-            {isLoading ? (
-              <svg className="animate-spin h-5 w-5 ml-2" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-            ) : (
-              <>
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="11" cy="11" r="8" />
-                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            <Button
+              onClick={searchRecipes}
+              className="bg-secondary text-white py-2 px-5 rounded-lg flex items-center gap-1 hover:bg-secondary-dark hover:scale-105 transition-all duration-300"
+              disabled={ingredients.length === 0 || isLoading}
+            >
+              {isLoading ? (
+                <svg className="animate-spin h-5 w-5 ml-2" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                <span className="animate-pulse">🔍</span>
-              </>
-            )}
-            طلّعلي أكلات
-          </Button>
+              ) : (
+                <>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                  </svg>
+                  <span className="animate-pulse">🔍</span>
+                </>
+              )}
+              طلّعلي أكلات
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -243,7 +302,7 @@ export default function Home() {
             <div className="mb-4 md:mb-0">
               <h2 className="text-xl flex items-center gap-2">
                 <span className="text-2xl">🧑‍🍳</span> 
-                <span className="font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary tracking-wide" style={{ fontFamily: 'Comic Sans MS, cursive, sans-serif', textShadow: '1px 1px 2px rgba(0,0,0,0.1)' }}>Fast Recipe</span>
+                <span className="font-extrabold text-white tracking-wide" style={{ fontFamily: 'Comic Sans MS, cursive, sans-serif', textShadow: '1px 1px 2px rgba(0,0,0,0.2)' }}>Fast Recipe</span>
               </h2>
               <p className="text-gray-400 text-sm mt-1">ابتكر أكلات جديدة من المكونات اللي موجودة في بيتك</p>
             </div>
