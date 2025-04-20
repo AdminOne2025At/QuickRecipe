@@ -491,29 +491,29 @@ export default function CommunityPostsPage() {
       </div>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className="flex justify-center w-full mb-6 overflow-x-auto">
-          <TabsList className="flex min-w-[300px] w-full sm:max-w-md">
+        <div className="flex justify-center w-full mb-6">
+          <TabsList className="grid w-full grid-cols-4 max-w-md">
             <TabsTrigger 
               value="trending" 
-              className="flex-1 text-xs sm:text-sm whitespace-nowrap px-1 sm:px-4"
+              className="text-xs sm:text-sm"
             >
               {texts.trending}
             </TabsTrigger>
             <TabsTrigger 
               value="recent" 
-              className="flex-1 text-xs sm:text-sm whitespace-nowrap px-1 sm:px-4"
+              className="text-xs sm:text-sm"
             >
               {texts.recent}
             </TabsTrigger>
             <TabsTrigger 
               value="following" 
-              className="flex-1 text-xs sm:text-sm whitespace-nowrap px-1 sm:px-4"
+              className="text-xs sm:text-sm"
             >
               {texts.following}
             </TabsTrigger>
             <TabsTrigger 
               value="challenges" 
-              className="flex-1 text-xs sm:text-sm whitespace-nowrap px-1 sm:px-4"
+              className="text-xs sm:text-sm"
             >
               {texts.challenges}
             </TabsTrigger>
