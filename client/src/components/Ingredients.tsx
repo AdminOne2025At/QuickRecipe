@@ -68,12 +68,12 @@ export default function Ingredients({
           {ingredients.map((ingredient) => (
             <div
               key={ingredient.id}
-              className="bg-gradient-to-r from-primary-light to-primary-light/60 px-3 py-1 rounded-full text-white flex items-center text-sm shadow-sm hover:shadow-md transition-all duration-300"
+              className="bg-gradient-to-r from-primary-light to-primary-light/60 px-3 py-1 rounded-full text-gray-800 flex items-center text-sm shadow-sm hover:shadow-md transition-all duration-300"
             >
               {ingredient.name}
               <button
                 onClick={() => onRemoveIngredient(ingredient.id)}
-                className="mr-1 text-white hover:text-red-200 font-bold"
+                className="mr-1 text-gray-800 hover:text-red-500 font-bold"
                 aria-label="إزالة المكون"
               >
                 ×

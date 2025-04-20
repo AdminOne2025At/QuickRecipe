@@ -106,7 +106,7 @@ export default function Home() {
             <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 ml-2" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M6 3a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm.293 4.793a1 1 0 011.414 0L10 10.086l2.293-2.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414zM6 9a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm0 4a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1z" clipRule="evenodd" />
             </svg>
-            <span className="animate-bounce">🍲</span> مطبخك وأكلك <span className="animate-bounce">🍲</span>
+            <span className="animate-bounce">🍲</span> Fast Recipe <span className="animate-bounce">🍲</span>
           </h1>
           <div className="flex items-center gap-3">
             <span className="hidden md:inline text-sm md:text-base">دوّر على أكلات من المكونات اللي عندك في البيت</span>
@@ -243,7 +243,7 @@ export default function Home() {
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-4 md:mb-0">
               <h2 className="text-xl font-bold flex items-center gap-2">
-                <span className="text-2xl">🧑‍🍳</span> مطبخك وأكلك
+                <span className="text-2xl">🧑‍🍳</span> Fast Recipe
               </h2>
               <p className="text-gray-400 text-sm mt-1">ابتكر أكلات جديدة من المكونات اللي موجودة في بيتك</p>
             </div>
