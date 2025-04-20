@@ -282,12 +282,12 @@ export default function SavedRecipesPage() {
           </div>
           
           <div className="flex gap-2">
-            <Select value={selectedTag || ""} onValueChange={(value) => setSelectedTag(value || null)}>
+            <Select value={selectedTag || "all"} onValueChange={(value) => setSelectedTag(value === "all" ? null : value)}>
               <SelectTrigger className="w-[180px] flex-shrink-0">
                 <SelectValue placeholder={texts.filterByTag} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">{texts.allTags}</SelectItem>
+                <SelectItem value="all">{texts.allTags}</SelectItem>
                 {allTags.map((tag: string) => (
                   <SelectItem key={tag} value={tag}>
                     {tag}
