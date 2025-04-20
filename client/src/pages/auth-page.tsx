@@ -3,32 +3,70 @@ import { useLocation } from "wouter";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FcGoogle } from "react-icons/fc";
-import { signInWithGoogle } from "@/lib/firebase";
+import { signInWithGoogle, handleRedirectResult } from "@/lib/firebase";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
+import { Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function AuthPage() {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [, setLocation] = useLocation();
+  const { toast } = useToast();
   
-  // تحقق من حالة تسجيل الدخول
+  // تحقق من حالة تسجيل الدخول ومعالجة نتيجة إعادة التوجيه
   useEffect(() => {
+    const checkAuthAndRedirect = async () => {
+      try {
+        // التحقق من نتيجة إعادة التوجيه عند تحميل الصفحة
+        const user = await handleRedirectResult();
+        
+        if (user) {
+          // تم تسجيل الدخول بنجاح من خلال إعادة التوجيه
+          toast({
+            title: "تم تسجيل الدخول",
+            description: `مرحبًا ${user.displayName || 'بك'}!`,
+          });
+          setLocation("/");
+        }
+      } catch (error) {
+        console.error("Error handling auth redirect:", error);
+        toast({
+          title: "خطأ في تسجيل الدخول",
+          description: "حدث خطأ أثناء محاولة تسجيل الدخول بحساب Google",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    // التحقق من نتيجة إعادة التوجيه
+    checkAuthAndRedirect();
+    
+    // الاستماع لتغييرات حالة المصادقة
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setLocation("/");
       }
+      setIsLoading(false);
     });
     
     return () => unsubscribe();
-  }, [setLocation]);
+  }, [setLocation, toast]);
   
   const handleSignIn = async () => {
     try {
       setIsLoading(true);
       await signInWithGoogle();
+      // لن يعود للتنفيذ هنا لأن signInWithRedirect يقوم بتحويل الصفحة
     } catch (error) {
       console.error('Login error:', error);
-    } finally {
+      toast({
+        title: "خطأ في تسجيل الدخول",
+        description: "حدث خطأ أثناء محاولة تسجيل الدخول بحساب Google",
+        variant: "destructive",
+      });
       setIsLoading(false);
     }
   };

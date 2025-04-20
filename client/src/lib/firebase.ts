@@ -1,7 +1,9 @@
 import { initializeApp } from "firebase/app";
 import { 
   getAuth, 
-  signInWithPopup, 
+  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   GoogleAuthProvider, 
   onAuthStateChanged,
   signOut,
@@ -26,13 +28,37 @@ const auth = getAuth(app);
 const storage = getStorage(app);
 const googleProvider = new GoogleAuthProvider();
 
-// Sign in with Google
-export const signInWithGoogle = async (): Promise<UserCredential> => {
+// Sign in with Google - using redirect for better mobile support
+export const signInWithGoogle = async (): Promise<void> => {
   try {
-    const result = await signInWithPopup(auth, googleProvider);
-    return result;
+    // يضيف نطاق للوصول إلى قائمة الاسماء والصور الشخصية
+    googleProvider.addScope('profile');
+    googleProvider.addScope('email');
+    
+    // Force account selection every time to prevent automatic login 
+    // and user confusion if multiple Google accounts exist
+    googleProvider.setCustomParameters({
+      prompt: 'select_account'
+    });
+    
+    await signInWithRedirect(auth, googleProvider);
   } catch (error) {
-    console.error("Error signing in with Google:", error);
+    console.error("Error initiating sign-in with Google:", error);
+    throw error;
+  }
+};
+
+// Handle redirect result
+export const handleRedirectResult = async (): Promise<User | null> => {
+  try {
+    const result = await getRedirectResult(auth);
+    if (result) {
+      // تم تسجيل الدخول بنجاح
+      return result.user;
+    }
+    return null;
+  } catch (error) {
+    console.error("Error handling redirect result:", error);
     throw error;
   }
 };

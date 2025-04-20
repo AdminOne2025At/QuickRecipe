@@ -14,27 +14,53 @@ import { onAuthStateChanged, signOut as firebaseSignOut } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
 
 export default function ProfilePage() {
-  const { currentUser, isLoading, signOut, updateProfile, uploadPicture, userPreferences, updateUserPreferences } = useAuth();
   const [location, setLocation] = useLocation();
+  const { toast } = useToast();
   
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [displayName, setDisplayName] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   
-  const [preferences, setPreferences] = useState(userPreferences);
+  // التفضيلات الافتراضية
+  const defaultUserPreferences = {
+    theme: 'system' as 'light' | 'dark' | 'system',
+    notificationsEnabled: true,
+    favoriteCuisine: 'عربية'
+  };
+  
+  const [preferences, setPreferences] = useState(defaultUserPreferences);
   
   // استخراج علامة التبويب من عنوان URL
   const urlParams = new URLSearchParams(location.split('?')[1] || '');
   const defaultTab = urlParams.get('tab') === 'preferences' ? 'preferences' : 'profile';
 
-  // إذا لم يكن المستخدم مسجل الدخول، قم بتحويله إلى صفحة تسجيل الدخول
+  // التحقق من حالة تسجيل الدخول
   useEffect(() => {
-    if (!isLoading && !currentUser) {
-      setLocation("/auth");
-    }
-  }, [currentUser, isLoading, setLocation]);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+      setIsLoading(false);
+      
+      if (!user) {
+        setLocation("/auth");
+      } else {
+        // تحميل التفضيلات من localStorage
+        const savedPreferences = localStorage.getItem(`preferences_${user.uid}`);
+        if (savedPreferences) {
+          try {
+            setPreferences(JSON.parse(savedPreferences));
+          } catch (error) {
+            console.error("Error parsing saved preferences:", error);
+          }
+        }
+      }
+    });
+    
+    return () => unsubscribe();
+  }, [setLocation]);
 
   // تحديث بيانات النموذج عندما يتم تحميل بيانات المستخدم
   useEffect(() => {
@@ -68,29 +94,69 @@ export default function ProfilePage() {
     }
   };
 
+  const handleSignOut = async () => {
+    try {
+      await firebaseSignOut(auth);
+      setLocation("/auth");
+    } catch (error) {
+      console.error("Error signing out:", error);
+      toast({
+        title: "خطأ",
+        description: "حدث خطأ أثناء تسجيل الخروج",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleProfileUpdate = async () => {
     try {
       setSaving(true);
       
       if (imageFile) {
         setUploading(true);
-        await uploadPicture(imageFile);
+        const downloadURL = await uploadProfilePicture(imageFile);
+        await updateUserProfile(displayName, downloadURL);
         setUploading(false);
         setImageFile(null);
-      }
-      
-      if (displayName !== currentUser.displayName) {
-        await updateProfile(displayName);
+        toast({
+          title: "تم التحديث",
+          description: "تم رفع الصورة بنجاح",
+        });
+      } else if (displayName !== currentUser.displayName) {
+        await updateUserProfile(displayName);
+        toast({
+          title: "تم التحديث",
+          description: "تم تحديث الاسم بنجاح",
+        });
       }
     } catch (error) {
       console.error("Error updating profile:", error);
+      toast({
+        title: "خطأ",
+        description: "حدث خطأ أثناء تحديث الملف الشخصي",
+        variant: "destructive",
+      });
     } finally {
       setSaving(false);
     }
   };
 
   const handlePreferencesUpdate = () => {
-    updateUserPreferences(preferences);
+    try {
+      // حفظ التفضيلات في localStorage
+      localStorage.setItem(`preferences_${currentUser.uid}`, JSON.stringify(preferences));
+      toast({
+        title: "تم الحفظ",
+        description: "تم حفظ التفضيلات بنجاح",
+      });
+    } catch (error) {
+      console.error("Error saving preferences:", error);
+      toast({
+        title: "خطأ",
+        description: "حدث خطأ أثناء حفظ التفضيلات",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -99,7 +165,7 @@ export default function ProfilePage() {
         <h1 className="text-3xl font-bold">الملف الشخصي</h1>
         <Button 
           variant="outline" 
-          onClick={() => signOut()}
+          onClick={handleSignOut}
           className="gap-2"
         >
           <LogOut className="h-4 w-4" />
@@ -171,7 +237,7 @@ export default function ProfilePage() {
             <CardFooter className="flex justify-between">
               <Button 
                 variant="outline" 
-                onClick={() => signOut()}
+                onClick={handleSignOut}
                 className="gap-2"
               >
                 <LogOut className="h-4 w-4" />
