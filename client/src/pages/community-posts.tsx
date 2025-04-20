@@ -357,7 +357,7 @@ export default function CommunityPostsPage() {
       
       {/* نافذة حوار إنشاء منشور جديد */}
       <Dialog open={newPostOpen} onOpenChange={setNewPostOpen}>
-        <DialogContent className="sm:max-w-[550px] p-6">
+        <DialogContent className="sm:max-w-[550px] p-6 overflow-y-auto max-h-[90vh]">
           <DialogHeader className="mb-4 text-center">
             <DialogTitle className="text-2xl font-bold text-green-600">{texts.createPost}</DialogTitle>
             <DialogDescription className="mt-2">
@@ -367,15 +367,22 @@ export default function CommunityPostsPage() {
             </DialogDescription>
           </DialogHeader>
           
-          <div className="space-y-5">
+          <form 
+            className="space-y-5"
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleCreatePost();
+            }}
+          >
             <div className="space-y-2">
               <Label htmlFor="post-title" className="text-sm font-medium">{texts.postTitle}</Label>
               <Input 
                 id="post-title" 
                 value={postTitle} 
                 onChange={(e) => setPostTitle(e.target.value)} 
-                className="focus-visible:ring-green-500 transition-shadow"
+                className="focus-visible:ring-green-500 transition-shadow w-full"
                 placeholder={isArabic ? "عنوان الوصفة أو المنشور..." : "Recipe or post title..."}
+                required
               />
             </div>
             
@@ -386,8 +393,9 @@ export default function CommunityPostsPage() {
                 rows={5} 
                 value={postContent} 
                 onChange={(e) => setPostContent(e.target.value)} 
-                className="focus-visible:ring-green-500 transition-shadow resize-none"
+                className="focus-visible:ring-green-500 transition-shadow resize-none w-full"
                 placeholder={isArabic ? "شارك تفاصيل وصفتك أو تجربتك في الطبخ..." : "Share details about your recipe or cooking experience..."}
+                required
               />
             </div>
             
@@ -398,26 +406,28 @@ export default function CommunityPostsPage() {
                 placeholder={isArabic ? "حلويات، وصفات سريعة..." : "desserts, quick recipes..."}
                 value={postTags} 
                 onChange={(e) => setPostTags(e.target.value)} 
-                className="focus-visible:ring-green-500 transition-shadow"
+                className="focus-visible:ring-green-500 transition-shadow w-full"
               />
             </div>
             
             <div className="space-y-2">
               <Label htmlFor="post-photo" className="text-sm font-medium">{texts.photoLabel}</Label>
-              <div className="border-2 border-dashed border-gray-300 rounded-md p-4 transition-colors hover:border-green-400">
-                <Input 
-                  id="post-photo" 
-                  type="file" 
-                  accept="image/*" 
-                  onChange={handleFileChange} 
-                  className="cursor-pointer opacity-0 absolute inset-0 w-full h-full"
-                />
-                <div className="text-center">
-                  <PlusCircle className="mx-auto h-8 w-8 text-gray-400" />
-                  <p className="mt-2 text-sm text-gray-500">
-                    {isArabic ? "انقر لاختيار صورة أو اسحبها هنا" : "Click to select an image or drag it here"}
-                  </p>
-                </div>
+              <div className="relative border-2 border-dashed border-gray-300 rounded-md p-6 transition-colors hover:border-green-400">
+                <label htmlFor="post-photo" className="block cursor-pointer">
+                  <div className="text-center">
+                    <PlusCircle className="mx-auto h-8 w-8 text-gray-400" />
+                    <p className="mt-2 text-sm text-gray-500">
+                      {isArabic ? "انقر لاختيار صورة أو اسحبها هنا" : "Click to select an image or drag it here"}
+                    </p>
+                  </div>
+                  <Input 
+                    id="post-photo" 
+                    type="file" 
+                    accept="image/*" 
+                    onChange={handleFileChange} 
+                    className="sr-only"
+                  />
+                </label>
               </div>
               {selectedFile && (
                 <div className="text-sm text-green-600 mt-2 flex items-center">
@@ -428,24 +438,25 @@ export default function CommunityPostsPage() {
                 </div>
               )}
             </div>
-          </div>
-          
-          <DialogFooter className="mt-6 gap-3 flex-col sm:flex-row-reverse">
-            <Button 
-              onClick={handleCreatePost}
-              disabled={!postTitle.trim() || !postContent.trim()}
-              className="bg-green-600 hover:bg-green-700 text-white w-full sm:w-auto transition-colors"
-            >
-              {texts.post}
-            </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => setNewPostOpen(false)} 
-              className="w-full sm:w-auto border-gray-300"
-            >
-              {texts.cancel}
-            </Button>
-          </DialogFooter>
+            
+            <DialogFooter className="mt-6 gap-3 flex-col sm:flex-row-reverse pt-4 border-t">
+              <Button 
+                type="submit"
+                disabled={!postTitle.trim() || !postContent.trim()}
+                className="bg-green-600 hover:bg-green-700 text-white w-full sm:w-auto transition-colors"
+              >
+                {texts.post}
+              </Button>
+              <Button 
+                type="button"
+                variant="outline" 
+                onClick={() => setNewPostOpen(false)} 
+                className="w-full sm:w-auto border-gray-300"
+              >
+                {texts.cancel}
+              </Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
     </div>
