@@ -23,6 +23,13 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const savedLanguage = localStorage.getItem('app-language');
     return (savedLanguage as Language) || defaultLanguage;
   });
+  
+  // Wrapper around setLanguage to ensure proper state update and localStorage save
+  const handleSetLanguage = (lang: Language) => {
+    console.log('Setting language to:', lang);
+    setLanguage(lang);
+    localStorage.setItem('app-language', lang);
+  };
 
   useEffect(() => {
     // Save to localStorage when language changes
@@ -38,7 +45,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, getLocalizedText }}>
+    <LanguageContext.Provider value={{ language, setLanguage: handleSetLanguage, getLocalizedText }}>
       {children}
     </LanguageContext.Provider>
   );

@@ -26,8 +26,10 @@ const languages = [
         <rect width="900" height="200" y="400" fill="#000000"/>
         <g transform="translate(450,300)">
           <g id="eagle" fill="#C09300">
-            <path d="M-100,0 C-100,20 -50,20 -50,0 C-50,-20 0,-20 0,0 C0,20 50,20 50,0 C50,-20 100,-20 100,0 L100,-10 L50,-10 L50,-20 L0,-20 L0,-10 L-50,-10 L-50,-20 L-100,-20 Z"/>
-            <path d="M-60,-40 L60,-40 L0,10 Z"/>
+            <path d="M0,-50 L-15,-20 L15,-20 Z" />
+            <path d="M-70,0 L-60,-10 L-50,0 L-40,-10 L-30,0 L-20,-10 L-10,0 L0,-10 L10,0 L20,-10 L30,0 L40,-10 L50,0 L60,-10 L70,0" />
+            <ellipse cx="0" cy="0" rx="20" ry="30" />
+            <path d="M-60,20 L-40,40 L0,20 L40,40 L60,20" />
           </g>
         </g>
       </svg>
@@ -90,7 +92,13 @@ export function LanguageSelector({ onLanguageChange, currentLanguage }: Language
   };
 
   const handleLanguageChange = (language: Language) => {
+    console.log('LanguageSelector: changing language to', language);
     onLanguageChange(language);
+    
+    // Force refresh to ensure UI updates properly
+    setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+    }, 100);
   };
 
   return (
