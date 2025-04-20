@@ -2,8 +2,7 @@
  * Service to handle ingredient substitution recommendations
  */
 
-import { RecipeResult } from "./openai"; 
-import { generateSubstitutionsGemini } from "./gemini";
+import { RecipeResult } from "./openai";
 
 // Define the structure of a substitution response
 export interface SubstitutionResponse {
@@ -263,19 +262,11 @@ export async function getIngredientSubstitutes(ingredient: string): Promise<Subs
     }
   }
   
-  try {
-    // Try to get substitutions using Gemini API
-    const substitutions = await generateSubstitutionsGemini(ingredient);
-    return substitutions;
-  } catch (error) {
-    console.error("Error generating substitutions with Gemini:", error);
-    
-    // Return a generic response if no match found and API fails
-    return {
-      originalIngredient: ingredient,
-      substitutes: [
-        { name: "لم نتمكن من إيجاد بدائل محددة لهذا المكون", ratio: "غير متوفر" }
-      ]
-    };
-  }
+  // If no match was found in our common substitutes, return a generic message
+  return {
+    originalIngredient: ingredient,
+    substitutes: [
+      { name: "لم نتمكن من إيجاد بدائل محددة لهذا المكون", ratio: "غير متوفر" }
+    ]
+  };
 }

@@ -328,6 +328,89 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(500).json({ message: "Failed to delete ingredient" });
     }
   });
+  
+  // Get ingredient substitutes
+  app.get("/api/substitutes", async (req, res) => {
+    try {
+      const { ingredient } = req.query;
+      
+      if (!ingredient || typeof ingredient !== 'string') {
+        return res.status(400).json({ 
+          message: "Missing or invalid ingredient parameter"
+        });
+      }
+      
+      // Get ingredient substitutes
+      const substitutes = await getIngredientSubstitutes(ingredient);
+      return res.json(substitutes);
+    } catch (error) {
+      console.error("Error getting ingredient substitutes:", error);
+      return res.status(500).json({ 
+        message: "فشل في العثور على بدائل. يرجى المحاولة مرة أخرى."
+      });
+    }
+  });
+  
+  // Search for recipes by name
+  app.get("/api/recipes/search", async (req, res) => {
+    try {
+      const { query } = req.query;
+      
+      if (!query || typeof query !== 'string') {
+        return res.status(400).json({ 
+          message: "Missing or invalid query parameter"
+        });
+      }
+      
+      // Simple validation
+      if (query.trim().length < 2) {
+        return res.status(400).json({
+          message: "Query must be at least 2 characters long"
+        });
+      }
+      
+      // Generate recipes using Google Gemini AI
+      try {
+        // Here we're using the same Gemini function but with a modified prompt
+        // In a production app, you'd create a separate function for search by name
+        const recipesData = await generateRecipesGemini([query]);
+        
+        // Add videos to recipes
+        const recipesWithVideos = await Promise.all(
+          recipesData.recipes.map(async (recipe: any) => {
+            if (recipe.videoId) return recipe;
+            
+            try {
+              const videoId = await searchYouTubeVideos(recipe.title + " recipe");
+              return { ...recipe, videoId };
+            } catch (error) {
+              console.error(`Error fetching video for ${recipe.title}:`, error);
+              return recipe;
+            }
+          })
+        );
+        
+        return res.json({
+          recipes: recipesWithVideos,
+          suggestedIngredients: recipesData.suggestedIngredients || []
+        });
+      } catch (error) {
+        console.error("Error searching recipes by name:", error);
+        return res.status(200).json({
+          recipes: [],
+          suggestedIngredients: [
+            "طماطم", "بصل", "بطاطس", "دجاج", "أرز", "ثوم", "زيت زيتون", "بيض", "جزر", "فلفل"
+          ],
+          message: "حدث خطأ أثناء البحث عن الوصفات. يرجى المحاولة مرة أخرى لاحقًا."
+        });
+      }
+    } catch (error) {
+      console.error("Error in recipe search:", error);
+      return res.status(500).json({
+        message: "حدث خطأ أثناء معالجة طلبك"
+      });
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;
