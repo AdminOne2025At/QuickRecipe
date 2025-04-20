@@ -2,6 +2,7 @@ import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { generateRecipesDeepSeek } from "./services/deepseek";
 import { generateRecipesMealDB } from "./services/mealdb";
+import { generateRecipesGemini } from "./services/gemini";
 import { searchYouTubeVideos } from "./services/youtube";
 import { storage } from "./storage";
 import { insertRecipeCacheSchema, insertIngredientSchema, insertUserSchema, insertRecipeSchema } from "@shared/schema";
@@ -40,10 +41,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Continue execution if cache check fails
       }
 
-      // Generate recipes using TheMealDB (or fallback if API fails)
+      // Generate recipes using Google Gemini AI (or fallback if API fails)
       let recipesData;
       try {
-        recipesData = await generateRecipesMealDB(ingredients);
+        recipesData = await generateRecipesGemini(ingredients);
 
         if (!recipesData.recipes || !Array.isArray(recipesData.recipes) || recipesData.recipes.length === 0) {
           // No recipes found, but we have suggestions
@@ -69,7 +70,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Fetch YouTube videos for each recipe that doesn't already have a videoId
       const recipesWithVideos = await Promise.all(
         recipesData.recipes.map(async (recipe: any) => {
-          // If the recipe already has a videoId from TheMealDB, use it
+          // If the recipe already has a videoId, use it
           if (recipe.videoId) {
             return recipe;
           }
