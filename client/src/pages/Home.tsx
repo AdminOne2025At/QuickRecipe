@@ -102,11 +102,10 @@ export default function Home() {
     <div dir="rtl" lang="ar" className="min-h-screen bg-gray-50 text-gray-800 flex flex-col">
       <header className="bg-primary text-white shadow-md">
         <div className="container mx-auto px-4 py-6 flex justify-between items-center">
-          <h1 className="text-2xl md:text-3xl font-bold flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 ml-2" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M6 3a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm.293 4.793a1 1 0 011.414 0L10 10.086l2.293-2.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414zM6 9a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm0 4a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1z" clipRule="evenodd" />
-            </svg>
-            <span className="animate-bounce">🍲</span> Fast Recipe <span className="animate-bounce">🍲</span>
+          <h1 className="text-3xl md:text-4xl flex items-center gap-3">
+            <span className="text-2xl">🍔</span>
+            <span className="font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary tracking-wide" style={{ fontFamily: 'Comic Sans MS, cursive, sans-serif', textShadow: '1px 1px 2px rgba(0,0,0,0.1)' }}>Fast Recipe</span>
+            <span className="text-2xl">🍕</span>
           </h1>
           <div className="flex items-center gap-3">
             <span className="hidden md:inline text-sm md:text-base">دوّر على أكلات من المكونات اللي عندك في البيت</span>
@@ -242,8 +241,9 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-4 md:mb-0">
-              <h2 className="text-xl font-bold flex items-center gap-2">
-                <span className="text-2xl">🧑‍🍳</span> Fast Recipe
+              <h2 className="text-xl flex items-center gap-2">
+                <span className="text-2xl">🧑‍🍳</span> 
+                <span className="font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary tracking-wide" style={{ fontFamily: 'Comic Sans MS, cursive, sans-serif', textShadow: '1px 1px 2px rgba(0,0,0,0.1)' }}>Fast Recipe</span>
               </h2>
               <p className="text-gray-400 text-sm mt-1">ابتكر أكلات جديدة من المكونات اللي موجودة في بيتك</p>
             </div>
