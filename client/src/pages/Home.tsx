@@ -106,13 +106,13 @@ export default function Home() {
             <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 ml-2" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M6 3a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm.293 4.793a1 1 0 011.414 0L10 10.086l2.293-2.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414zM6 9a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm0 4a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1z" clipRule="evenodd" />
             </svg>
-            طباخ الوصفات
+            <span className="animate-bounce">🍲</span> مطبخك وأكلك <span className="animate-bounce">🍲</span>
           </h1>
           <div className="flex items-center gap-3">
-            <span className="hidden md:inline text-sm md:text-base">ابحث عن وصفات من المكونات المتوفرة لديك</span>
+            <span className="hidden md:inline text-sm md:text-base">دوّر على أكلات من المكونات اللي عندك في البيت</span>
             <Button 
               onClick={searchRecipes}
-              className="bg-white text-primary hover:bg-gray-100 rounded-full" 
+              className="bg-white text-primary hover:bg-gray-100 rounded-full animate-pulse" 
               disabled={ingredients.length === 0}
               size="sm"
             >
@@ -120,7 +120,7 @@ export default function Home() {
                 <circle cx="11" cy="11" r="8" />
                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
-              بحث
+              دوّر
             </Button>
           </div>
         </div>
@@ -143,7 +143,7 @@ export default function Home() {
                     }
                   }
                 }}
-                placeholder="أدخل المكون للإضافة السريعة..."
+                placeholder="اكتب المكون اللي عندك في المطبخ..."
                 className="flex-grow py-2 px-3 bg-white text-right focus:outline-none"
               />
               <Button
@@ -153,15 +153,15 @@ export default function Home() {
                     setIngredientInput("");
                   }
                 }}
-                className="px-3 py-2 bg-primary text-white"
+                className="px-3 py-2 bg-primary text-white hover:bg-primary-dark transition-all duration-300"
               >
-                إضافة
+                <span className="animate-pulse">✨</span> حطّه
               </Button>
             </div>
           </div>
           <Button
             onClick={searchRecipes}
-            className="bg-secondary text-white py-2 px-5 rounded-lg flex items-center gap-1"
+            className="bg-secondary text-white py-2 px-5 rounded-lg flex items-center gap-1 hover:bg-secondary-dark hover:scale-105 transition-all duration-300"
             disabled={ingredients.length === 0 || isLoading}
           >
             {isLoading ? (
@@ -170,12 +170,15 @@ export default function Home() {
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
             ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="11" cy="11" r="8" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              </svg>
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                <span className="animate-pulse">🔍</span>
+              </>
             )}
-            بحث عن وصفات
+            طلّعلي أكلات
           </Button>
         </div>
       </div>
@@ -235,15 +238,25 @@ export default function Home() {
       {/* Cooking Timer Component */}
       <CookingTimer />
 
-      <footer className="bg-gray-800 text-white py-8">
+      <footer className="bg-gray-800 text-white py-8 border-t-4 border-secondary">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-4 md:mb-0">
-              <h2 className="text-xl font-bold">طباخ الوصفات</h2>
-              <p className="text-gray-400 text-sm mt-1">اكتشف وصفات جديدة من المكونات المتوفرة لديك</p>
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                <span className="text-2xl">🧑‍🍳</span> مطبخك وأكلك
+              </h2>
+              <p className="text-gray-400 text-sm mt-1">ابتكر أكلات جديدة من المكونات اللي موجودة في بيتك</p>
             </div>
             <div className="text-center md:text-right">
-              <p className="text-sm text-gray-400">تم التطوير بواسطة فريق طباخ الوصفات © {new Date().getFullYear()}</p>
+              <p className="text-sm text-gray-400">
+                متنساش تديلنا تقييم لو الموقع عجبك 
+                <span className="inline-block animate-bounce ml-2">⭐️</span>
+                <span className="inline-block animate-bounce ml-1">⭐️</span>
+                <span className="inline-block animate-bounce ml-1">⭐️</span>
+                <span className="inline-block animate-bounce ml-1">⭐️</span>
+                <span className="inline-block animate-bounce ml-1">⭐️</span>
+              </p>
+              <p className="text-sm text-gray-400 mt-1">عملناه عشانك © {new Date().getFullYear()}</p>
             </div>
           </div>
         </div>
