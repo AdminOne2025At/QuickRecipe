@@ -265,7 +265,7 @@ export default function ProfilePage() {
             <CardHeader>
               <CardTitle>الإعدادات والتفضيلات</CardTitle>
               <CardDescription>
-                خصص تجربتك في تطبيق Fast Recipe حسب اختياراتك.
+                خصص تجربتك في تطبيق Quick Recipe حسب اختياراتك.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">

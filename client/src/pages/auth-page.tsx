@@ -77,7 +77,7 @@ export default function AuthPage() {
       <div className="flex w-full flex-1 items-center justify-center p-4 md:w-1/2">
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-1 text-center">
-            <CardTitle className="text-3xl font-bold">مرحباً بك في Fast Recipe</CardTitle>
+            <CardTitle className="text-3xl font-bold">مرحباً بك في Quick Recipe</CardTitle>
             <CardDescription>سجل دخولك للوصول إلى مميزات خاصة</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
@@ -104,7 +104,7 @@ export default function AuthPage() {
             اكتشف وصفات جديدة وشهية
           </h1>
           <p className="mb-6 text-lg text-gray-700">
-            مع Fast Recipe، يمكنك إيجاد وصفات لذيذة باستخدام المكونات المتاحة لديك.
+            مع Quick Recipe، يمكنك إيجاد وصفات لذيذة باستخدام المكونات المتاحة لديك.
             سجّل دخولك للحصول على إمكانية حفظ وصفاتك المفضلة، وتخصيص تفضيلاتك، والمزيد!
           </p>
           <div className="grid grid-cols-2 gap-3">
