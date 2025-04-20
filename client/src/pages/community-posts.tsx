@@ -228,6 +228,7 @@ const SAMPLE_POSTS_EN: Post[] = [
 export default function CommunityPostsPage() {
   const { language } = useLanguage();
   const { toast } = useToast();
+  const { currentUser } = useAuth();
   const isArabic = language.startsWith('ar');
   
   // استعلامات لجلب البيانات من الخادم
@@ -252,7 +253,11 @@ export default function CommunityPostsPage() {
   const [postContent, setPostContent] = useState("");
   const [postTags, setPostTags] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [currentUserId, setCurrentUserId] = useState<number>(1); // سنعتبر المستخدم مسجل الدخول برقم 1
+  const [currentUserId, setCurrentUserId] = useState<number>(1); // المستخدم الافتراضي 
+  
+  // معلومات المستخدم من حساب Google (اسم المستخدم وصورته)
+  const [userName, setUserName] = useState<string>("");
+  const [userAvatar, setUserAvatar] = useState<string>("");
   
   // mutate لإنشاء منشور جديد
   const createPostMutation = useMutation({
@@ -334,6 +339,14 @@ export default function CommunityPostsPage() {
     photoLabel: isArabic ? "إضافة صورة" : "Add Photo"
   };
   
+  // جلب معلومات المستخدم من حساب Google
+  useEffect(() => {
+    if (currentUser) {
+      setUserName(currentUser.displayName || "");
+      setUserAvatar(currentUser.photoURL || "");
+    }
+  }, [currentUser]);
+
   // تحميل المنشورات من الخادم
   useEffect(() => {
     if (trendingPostsData) {
@@ -375,6 +388,8 @@ export default function CommunityPostsPage() {
       postType: "recipe", // النوع الافتراضي هو وصفة
       tags: tagsList, // إرسال المصفوفة مباشرة بدلاً من تحويلها إلى نص
       imageUrl: "", // سنحتاج إلى رفع الصورة إلى خدمة تخزين سحابية في التطبيق الكامل
+      userName: userName || (isArabic ? "مستخدم" : "User"),
+      userAvatar: userAvatar || "https://i.pravatar.cc/150?img=33",
     };
     
     // إرسال المنشور الجديد إلى الخادم
