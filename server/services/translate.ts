@@ -1,4 +1,4 @@
-import * as googleTranslate from '@vitalets/google-translate-api';
+import { translate } from '@vitalets/google-translate-api';
 
 /**
  * Translate text using Google Translate API
@@ -16,7 +16,7 @@ export async function translateText(text: string, targetLang: string): Promise<s
       return text;
     }
     
-    const result = await googleTranslate.translate(text, { to: langCode });
+    const result = await translate(text, { to: langCode });
     return result.text;
   } catch (error) {
     console.error('Translation error:', error);

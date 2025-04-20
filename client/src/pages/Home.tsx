@@ -134,6 +134,14 @@ export default function Home() {
   }, [ingredients]);
 
   const { language, setLanguage, getLocalizedText } = useLanguage();
+  
+  // Effect to update document direction when language changes
+  useEffect(() => {
+    document.documentElement.dir = language.startsWith('ar') ? 'rtl' : 'ltr';
+    document.documentElement.lang = language;
+    
+    console.log('Language changed to:', language);
+  }, [language]);
 
   return (
     <div 
