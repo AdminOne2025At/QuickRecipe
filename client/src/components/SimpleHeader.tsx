@@ -58,15 +58,7 @@ export function SimpleHeader() {
             </Button>
           </Link>
           
-          <Link href="/cooking-journey">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
-            >
-              رحلة الطهي التفاعلية
-            </Button>
-          </Link>
+
           
           {!isLoading && currentUser && (
             <Link href="/saved-recipes">
@@ -119,11 +111,7 @@ export function SimpleHeader() {
                 منشورات المجتمع
               </span>
             </Link>
-            <Link href="/cooking-journey">
-              <span className="block py-2 px-3 hover:bg-gray-100 rounded-md text-orange-600">
-                رحلة الطهي التفاعلية
-              </span>
-            </Link>
+
             {!isLoading && currentUser && (
               <Link href="/saved-recipes">
                 <span className="block py-2 px-3 hover:bg-gray-100 rounded-md text-purple-600 flex items-center gap-2">
