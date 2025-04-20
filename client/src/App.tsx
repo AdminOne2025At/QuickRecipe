@@ -7,6 +7,7 @@ import GamificationPage from "@/pages/gamification-page";
 import CommunityPostsPage from "@/pages/community-posts";
 import { ReactNode } from "react";
 import { SimpleHeader } from "@/components/SimpleHeader";
+import { MobileMenuButton } from "@/components/MobileMenuButton";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 
@@ -15,6 +16,7 @@ function AppLayout({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col">
       <SimpleHeader />
+      <MobileMenuButton />
       <main className="flex-1">
         {children}
       </main>

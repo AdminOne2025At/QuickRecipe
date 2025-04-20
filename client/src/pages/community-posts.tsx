@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { ThumbsUp, MessageCircle, Share, Award, PlusCircle, Loader2, Menu, X, Filter } from "lucide-react";
+import { ThumbsUp, MessageCircle, Share, Award, PlusCircle, Loader2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -262,6 +262,23 @@ export default function CommunityPostsPage() {
   const [userName, setUserName] = useState<string>("");
   const [userAvatar, setUserAvatar] = useState<string>("");
   
+  // الاستماع لحدث تغيير التبويب من مكون MobileMenuButton
+  useEffect(() => {
+    const handleCommunityTabChange = (event: CustomEvent) => {
+      if (event.detail && event.detail.tab) {
+        setActiveTab(event.detail.tab);
+      }
+    };
+    
+    // إضافة مستمع الحدث
+    document.addEventListener('communityTabChange', handleCommunityTabChange as EventListener);
+    
+    // إزالة مستمع الحدث عند تفكيك المكون
+    return () => {
+      document.removeEventListener('communityTabChange', handleCommunityTabChange as EventListener);
+    };
+  }, []);
+  
   // mutate لإنشاء منشور جديد
   const createPostMutation = useMutation({
     mutationFn: async (postData: {
@@ -482,22 +499,7 @@ export default function CommunityPostsPage() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-5xl">
       <div className="flex flex-col md:flex-row items-center justify-between mb-8 gap-4">
-        <div className="w-full flex items-center justify-between mb-4 md:mb-0">
-          <h1 className="text-3xl font-bold text-center md:text-right">{texts.title}</h1>
-          
-          {/* زر القائمة للهواتف - على اليمين */}
-          <button 
-            className="block md:hidden bg-orange-50 hover:bg-orange-100 rounded-full p-2 transition-all duration-300 animate-slideInRight fixed top-20 right-4 z-30 shadow-md"
-            onClick={() => setMobileTabsMenuOpen(!mobileTabsMenuOpen)}
-            aria-label={isArabic ? "قائمة التصفية" : "Filter menu"}
-          >
-            {mobileTabsMenuOpen ? (
-              <X className="h-6 w-6 text-orange-600" />
-            ) : (
-              <Filter className="h-6 w-6 text-orange-600 animate-bounceRight" />
-            )}
-          </button>
-        </div>
+        <h1 className="text-3xl font-bold text-center md:text-right">{texts.title}</h1>
         
         <Button 
           onClick={() => setNewPostOpen(true)}
@@ -510,59 +512,7 @@ export default function CommunityPostsPage() {
       </div>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        {/* قائمة جانبية للهواتف */}
-        {mobileTabsMenuOpen && (
-          <div className="fixed top-32 right-4 z-30 md:hidden animate-slideInRight overflow-hidden rounded-lg shadow-lg">
-            <div className="bg-white py-2 px-1 border border-orange-100">
-              <div className="grid gap-1">
-                <Button 
-                  variant={activeTab === "trending" ? "default" : "ghost"}
-                  size="sm"
-                  className={`text-sm w-full justify-start ${activeTab === "trending" ? "bg-orange-500 hover:bg-orange-600" : "hover:bg-orange-50"}`}
-                  onClick={() => {
-                    setActiveTab("trending");
-                    setMobileTabsMenuOpen(false);
-                  }}
-                >
-                  {texts.trending}
-                </Button>
-                <Button 
-                  variant={activeTab === "recent" ? "default" : "ghost"}
-                  size="sm"
-                  className={`text-sm w-full justify-start ${activeTab === "recent" ? "bg-orange-500 hover:bg-orange-600" : "hover:bg-orange-50"}`}
-                  onClick={() => {
-                    setActiveTab("recent");
-                    setMobileTabsMenuOpen(false);
-                  }}
-                >
-                  {texts.recent}
-                </Button>
-                <Button 
-                  variant={activeTab === "following" ? "default" : "ghost"}
-                  size="sm"
-                  className={`text-sm w-full justify-start ${activeTab === "following" ? "bg-orange-500 hover:bg-orange-600" : "hover:bg-orange-50"}`}
-                  onClick={() => {
-                    setActiveTab("following");
-                    setMobileTabsMenuOpen(false);
-                  }}
-                >
-                  {texts.following}
-                </Button>
-                <Button 
-                  variant={activeTab === "challenges" ? "default" : "ghost"}
-                  size="sm"
-                  className={`text-sm w-full justify-start ${activeTab === "challenges" ? "bg-orange-500 hover:bg-orange-600" : "hover:bg-orange-50"}`}
-                  onClick={() => {
-                    setActiveTab("challenges");
-                    setMobileTabsMenuOpen(false);
-                  }}
-                >
-                  {texts.challenges}
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* سيستخدم زر القائمة العمومي بدلاً من هذا - ولا توجد حاجة لوجود قائمة منسدلة هنا */}
         
         {/* نسخة الشاشات الكبيرة */}
         <div className="hidden md:flex justify-center w-full mb-6">
