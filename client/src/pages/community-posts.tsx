@@ -415,33 +415,33 @@ export default function CommunityPostsPage() {
   
   // جلب معلومات المستخدم من حساب Google
   useEffect(() => {
-    if (currentUser) {
-      setUserName(currentUser.displayName || "");
-      setUserAvatar(currentUser.photoURL || "");
+    if (user) {
+      setUserName(user.displayName || "");
+      setUserAvatar(user.photoURL || "");
     }
-  }, [currentUser]);
+  }, [user]);
 
   // تحميل المنشورات من الخادم
   useEffect(() => {
     if (trendingPostsData) {
-      const userId = currentUser?.uid || '';
+      const userId = user?.id || 0;
       const mappedPosts = (trendingPostsData as DbPost[]).map(post => 
-        mapDbPostToUiPost(post, isArabic, userId)
+        mapDbPostToUiPost(post, isArabic, userId.toString())
       );
       setTrendingPosts(mappedPosts.length > 0 ? mappedPosts : (isArabic ? SAMPLE_POSTS : SAMPLE_POSTS_EN));
     }
-  }, [trendingPostsData, isArabic, currentUser]);
+  }, [trendingPostsData, isArabic, user]);
 
   // تحميل المنشورات الأخيرة من الخادم
   useEffect(() => {
     if (recentPostsData) {
-      const userId = currentUser?.uid || '';
+      const userId = user?.id || 0;
       const mappedPosts = (recentPostsData as DbPost[]).map(post => 
-        mapDbPostToUiPost(post, isArabic, userId)
+        mapDbPostToUiPost(post, isArabic, userId.toString())
       );
       setRecentPosts(mappedPosts);
     }
-  }, [recentPostsData, isArabic, currentUser]);
+  }, [recentPostsData, isArabic, user]);
   
   // وظيفة لمعالجة إنشاء منشور جديد
   const handleCreatePost = () => {

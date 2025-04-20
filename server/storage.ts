@@ -191,11 +191,26 @@ export class DatabaseStorage implements IStorage {
 
   // Saved recipes operations
   async getUserSavedRecipes(userId: number): Promise<SavedRecipe[]> {
-    return await db
+    const recipes = await db
       .select()
       .from(savedRecipes)
       .where(eq(savedRecipes.userId, userId))
       .orderBy(desc(savedRecipes.createdAt));
+    
+    // Parse the recipeData JSON for each recipe
+    return recipes.map(recipe => {
+      if (typeof recipe.recipeData === 'string') {
+        try {
+          return {
+            ...recipe,
+            recipeData: JSON.parse(recipe.recipeData)
+          };
+        } catch (e) {
+          console.error("Error parsing recipeData:", e);
+        }
+      }
+      return recipe;
+    });
   }
   
   async getSavedRecipe(id: number): Promise<SavedRecipe | undefined> {
@@ -207,9 +222,16 @@ export class DatabaseStorage implements IStorage {
   }
   
   async createSavedRecipe(recipe: InsertSavedRecipe): Promise<SavedRecipe> {
+    // Ensure recipeData is properly formatted as a JSON string if it's an object
+    let formattedRecipe = { ...recipe };
+    
+    if (typeof formattedRecipe.recipeData === 'object') {
+      formattedRecipe.recipeData = JSON.stringify(formattedRecipe.recipeData);
+    }
+    
     const [newRecipe] = await db
       .insert(savedRecipes)
-      .values(recipe)
+      .values(formattedRecipe)
       .returning();
     return newRecipe;
   }
