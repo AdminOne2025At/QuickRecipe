@@ -4,7 +4,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { FcGoogle } from "react-icons/fc";
-import { UserMenu } from "@/components/UserMenu";
 
 export default function AuthPage() {
   const { currentUser, signIn, isLoading } = useAuth();
