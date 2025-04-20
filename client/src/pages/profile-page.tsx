@@ -163,14 +163,6 @@ export default function ProfilePage() {
     <div className="container max-w-4xl py-8">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold">الملف الشخصي</h1>
-        <Button 
-          variant="outline" 
-          onClick={handleSignOut}
-          className="gap-2"
-        >
-          <LogOut className="h-4 w-4" />
-          تسجيل الخروج
-        </Button>
       </div>
       
       <Tabs defaultValue={defaultTab} className="w-full">
@@ -232,6 +224,17 @@ export default function ProfilePage() {
                 <p className="text-sm text-muted-foreground">
                   لا يمكن تغيير البريد الإلكتروني المرتبط بحساب Google.
                 </p>
+              </div>
+              
+              <div className="pt-2 border-t border-gray-100">
+                <Button 
+                  variant="ghost" 
+                  onClick={handleSignOut}
+                  className="gap-2 text-red-500 hover:text-red-600 hover:bg-red-50 w-full justify-start"
+                >
+                  <LogOut className="h-4 w-4" />
+                  تسجيل الخروج من الحساب
+                </Button>
               </div>
             </CardContent>
             <CardFooter className="flex justify-end">
