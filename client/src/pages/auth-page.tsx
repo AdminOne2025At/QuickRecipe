@@ -98,11 +98,6 @@ export default function AuthPage() {
             >
               تخطي تسجيل الدخول والاستمرار كزائر
             </Button>
-            
-            <div className="text-xs text-gray-500 text-center p-2 bg-orange-50 rounded-md">
-              <p className="font-semibold">ملاحظة:</p>
-              <p>لاستخدام تسجيل الدخول بجوجل، يجب إضافة رابط الموقع الحالي في إعدادات Firebase</p>
-            </div>
           </CardContent>
           <CardFooter className="text-center text-sm text-muted-foreground">
             بالتسجيل، أنت توافق على شروط الاستخدام وسياسة الخصوصية
