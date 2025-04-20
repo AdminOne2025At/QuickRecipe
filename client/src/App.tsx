@@ -9,6 +9,7 @@ import SavedRecipesPage from "@/pages/saved-recipes";
 import { ReactNode, useEffect } from "react";
 import { SimpleHeader } from "@/components/SimpleHeader";
 import { MobileMenuButton } from "@/components/MobileMenuButton";
+import { ContactModal } from "@/components/ContactModal";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { handleRedirectResult } from "@/lib/firebase";
@@ -27,6 +28,9 @@ function AppLayout({ children }: { children: ReactNode }) {
           <p className="text-center text-sm leading-loose text-muted-foreground md:text-right">
             &copy; 2025 Quick Recipe by Egyptco. جميع الحقوق محفوظة.
           </p>
+          <div className="flex items-center">
+            <ContactModal />
+          </div>
         </div>
       </footer>
     </div>
