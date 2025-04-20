@@ -12,7 +12,7 @@ export function IngredientSubstitution() {
   const [ingredientQuery, setIngredientQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [results, setResults] = useState<SubstitutionResult | null>(null);
+  const [results, setResults] = useState<SubstitutionResponse | null>(null);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [commonIngredients, setCommonIngredients] = useState<string[]>([
     "دقيق", "سكر", "زبدة", "بيض", "حليب", "زيت زيتون", 
@@ -26,13 +26,8 @@ export function IngredientSubstitution() {
     setError(null);
     
     try {
-      const response = await fetch(`/api/substitutes?ingredient=${encodeURIComponent(ingredient)}`);
-      
-      if (!response.ok) {
-        throw new Error("فشل في العثور على بدائل. حاول مرة أخرى.");
-      }
-      
-      const data = await response.json();
+      // Use the API function instead of direct fetch
+      const data = await getIngredientSubstitutes(ingredient);
       setResults(data);
       
       // Add to recent searches

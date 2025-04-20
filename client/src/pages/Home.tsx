@@ -8,7 +8,7 @@ import CookingTimer from "@/components/CookingTimer";
 import IngredientSubstitution from "@/components/IngredientSubstitution";
 import { useCallback, useEffect, useState } from "react";
 import { Ingredient, Recipe } from "@/lib/types";
-import { fetchRecipes } from "@/lib/api";
+import { fetchRecipes, searchRecipesByName as apiSearchRecipesByName } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Home() {
@@ -105,13 +105,8 @@ export default function Home() {
 
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/recipes/search?query=${encodeURIComponent(recipeNameInput)}`);
-      
-      if (!response.ok) {
-        throw new Error("Failed to fetch recipes by name");
-      }
-      
-      const data = await response.json();
+      // Use the API function instead of direct fetch
+      const data = await apiSearchRecipesByName(recipeNameInput);
       setRecipes(data.recipes || []);
       setSuggestedIngredients(data.suggestedIngredients || []);
     } catch (error) {
