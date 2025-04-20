@@ -1,5 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 import Ingredients from "@/components/Ingredients";
 import RecipeResults from "@/components/RecipeResults";
 import SuggestedIngredients from "@/components/SuggestedIngredients";
@@ -14,6 +15,7 @@ export default function Home() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [suggestedIngredients, setSuggestedIngredients] = useState<string[]>([]);
   const [recipesCache, setRecipesCache] = useState<Record<string, any>>({});
+  const [ingredientInput, setIngredientInput] = useState<string>("");
   const { toast } = useToast();
 
   const addIngredient = (name: string) => {
@@ -105,11 +107,77 @@ export default function Home() {
             </svg>
             طباخ الوصفات
           </h1>
-          <div className="text-sm md:text-base">
-            <span className="hidden md:inline">ابحث عن وصفات من المكونات المتوفرة لديك</span>
+          <div className="flex items-center gap-3">
+            <span className="hidden md:inline text-sm md:text-base">ابحث عن وصفات من المكونات المتوفرة لديك</span>
+            <Button 
+              onClick={searchRecipes}
+              className="bg-white text-primary hover:bg-gray-100 rounded-full" 
+              disabled={ingredients.length === 0}
+              size="sm"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              بحث
+            </Button>
           </div>
         </div>
       </header>
+
+      {/* Quick Search Bar */}
+      <div className="bg-white shadow-md py-3 sticky top-0 z-20 border-b border-gray-200">
+        <div className="container mx-auto px-4 flex items-center gap-2">
+          <div className="flex-grow">
+            <div className="flex rounded-lg border border-gray-300 overflow-hidden">
+              <input
+                type="text"
+                value={ingredientInput}
+                onChange={(e) => setIngredientInput(e.target.value)} 
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") {
+                    if (ingredientInput.trim()) {
+                      addIngredient(ingredientInput);
+                      setIngredientInput("");
+                    }
+                  }
+                }}
+                placeholder="أدخل المكون للإضافة السريعة..."
+                className="flex-grow py-2 px-3 bg-white text-right focus:outline-none"
+              />
+              <Button
+                onClick={() => {
+                  if (ingredientInput.trim()) {
+                    addIngredient(ingredientInput);
+                    setIngredientInput("");
+                  }
+                }}
+                className="px-3 py-2 bg-primary text-white"
+              >
+                إضافة
+              </Button>
+            </div>
+          </div>
+          <Button
+            onClick={searchRecipes}
+            className="bg-secondary text-white py-2 px-5 rounded-lg flex items-center gap-1"
+            disabled={ingredients.length === 0 || isLoading}
+          >
+            {isLoading ? (
+              <svg className="animate-spin h-5 w-5 ml-2" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+            )}
+            بحث عن وصفات
+          </Button>
+        </div>
+      </div>
 
       <main className="container mx-auto px-4 py-8 flex-grow">
         <Card className="mb-10 shadow-md">
@@ -137,6 +205,31 @@ export default function Home() {
           />
         )}
       </main>
+
+      {/* Fixed Search Button for Mobile */}
+      {ingredients.length > 0 && (
+        <div className="fixed bottom-20 left-4 md:hidden z-10">
+          <Button
+            onClick={searchRecipes}
+            className="rounded-full w-14 h-14 shadow-lg bg-primary hover:bg-primary-dark text-white flex items-center justify-center"
+            disabled={isLoading}
+          >
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              className="h-6 w-6" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+          </Button>
+        </div>
+      )}
 
       <footer className="bg-gray-800 text-white py-8">
         <div className="container mx-auto px-4">
