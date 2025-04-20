@@ -46,7 +46,8 @@ export const usersRelations = relations(users, ({ many }) => ({
   recipes: many(recipes),
   contestEntries: many(contestEntries),
   achievedBadges: many(userBadges),
-  userJourneyEvents: many(userJourneyEvents)
+  userJourneyEvents: many(userJourneyEvents),
+  savedRecipes: many(savedRecipes)
 }));
 
 export const insertUserSchema = createInsertSchema(users).pick({
@@ -399,3 +400,35 @@ export const insertPostCommentSchema = createInsertSchema(postComments).omit({
 
 export type InsertPostComment = z.infer<typeof insertPostCommentSchema>;
 export type PostComment = typeof postComments.$inferSelect;
+
+// جدول الوصفات المحفوظة للمستخدم
+export const savedRecipes = pgTable("saved_recipes", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  recipeData: json("recipe_data").$type<{
+    title: string;
+    description: string;
+    ingredients: string[];
+    instructions: string[];
+    imageUrl?: string;
+    source?: string;
+    videoId?: string;
+  }>().notNull(),
+  tags: text("tags").array().default([]),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const savedRecipesRelations = relations(savedRecipes, ({ one }) => ({
+  user: one(users, {
+    fields: [savedRecipes.userId],
+    references: [users.id],
+  }),
+}));
+
+export const insertSavedRecipeSchema = createInsertSchema(savedRecipes).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertSavedRecipe = z.infer<typeof insertSavedRecipeSchema>;
+export type SavedRecipe = typeof savedRecipes.$inferSelect;

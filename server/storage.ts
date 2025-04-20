@@ -5,7 +5,8 @@ import {
   recipes, type Recipe, type InsertRecipe,
   recipeCaches, type RecipeCache, type InsertRecipeCache,
   communityPosts, type CommunityPost, type InsertCommunityPost,
-  postComments, type PostComment, type InsertPostComment
+  postComments, type PostComment, type InsertPostComment,
+  savedRecipes, type SavedRecipe, type InsertSavedRecipe
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, sql, asc } from "drizzle-orm";
@@ -37,6 +38,13 @@ export interface IStorage {
   // Recipe cache operations
   getRecipeCache(ingredientsKey: string): Promise<RecipeCache | undefined>;
   createRecipeCache(recipeCache: InsertRecipeCache): Promise<RecipeCache>;
+
+  // Saved recipes operations
+  getUserSavedRecipes(userId: number): Promise<SavedRecipe[]>;
+  getSavedRecipe(id: number): Promise<SavedRecipe | undefined>;
+  createSavedRecipe(recipe: InsertSavedRecipe): Promise<SavedRecipe>;
+  deleteSavedRecipe(id: number): Promise<void>;
+  isSavedRecipe(userId: number, recipeData: any): Promise<boolean>;
 
   // Community posts operations
   getAllCommunityPosts(limit?: number, offset?: number): Promise<CommunityPost[]>;
@@ -179,6 +187,52 @@ export class DatabaseStorage implements IStorage {
       .values(recipeCache)
       .returning();
     return newCache;
+  }
+
+  // Saved recipes operations
+  async getUserSavedRecipes(userId: number): Promise<SavedRecipe[]> {
+    return await db
+      .select()
+      .from(savedRecipes)
+      .where(eq(savedRecipes.userId, userId))
+      .orderBy(desc(savedRecipes.createdAt));
+  }
+  
+  async getSavedRecipe(id: number): Promise<SavedRecipe | undefined> {
+    const [recipe] = await db
+      .select()
+      .from(savedRecipes)
+      .where(eq(savedRecipes.id, id));
+    return recipe;
+  }
+  
+  async createSavedRecipe(recipe: InsertSavedRecipe): Promise<SavedRecipe> {
+    const [newRecipe] = await db
+      .insert(savedRecipes)
+      .values(recipe)
+      .returning();
+    return newRecipe;
+  }
+  
+  async deleteSavedRecipe(id: number): Promise<void> {
+    await db
+      .delete(savedRecipes)
+      .where(eq(savedRecipes.id, id));
+  }
+  
+  async isSavedRecipe(userId: number, recipeData: any): Promise<boolean> {
+    // التحقق من وجود وصفة محفوظة بنفس العنوان والمحتوى للمستخدم
+    const saved = await db
+      .select()
+      .from(savedRecipes)
+      .where(
+        and(
+          eq(savedRecipes.userId, userId),
+          sql`${savedRecipes.recipeData}->>'title' = ${recipeData.title}`
+        )
+      );
+    
+    return saved.length > 0;
   }
 
   // Community posts operations
