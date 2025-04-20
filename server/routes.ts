@@ -6,6 +6,9 @@ import { storage } from "./storage";
 import { insertRecipeCacheSchema, insertIngredientSchema, insertUserSchema, insertRecipeSchema } from "@shared/schema";
 import { z } from "zod";
 
+// Import types for recipe interface
+import type { RecipeResult } from "./services/openai";
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Route to fetch recipes based on ingredients
   app.post("/api/recipes", async (req, res) => {

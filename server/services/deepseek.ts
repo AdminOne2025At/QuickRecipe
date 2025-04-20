@@ -67,8 +67,14 @@ export async function generateRecipesDeepSeek(ingredients: string[]): Promise<Re
         throw new Error(`DeepSeek API error: ${response.status} ${response.statusText}`);
       }
 
-      const data = await response.json();
-      const result = JSON.parse(data.choices[0].message.content || "{}");
+      const data: any = await response.json();
+      let result;
+      try {
+        result = JSON.parse(data.choices[0].message.content || "{}");
+      } catch (parseError) {
+        console.error("Failed to parse DeepSeek response JSON:", parseError);
+        result = { recipes: [], suggestedIngredients: [] };
+      }
       
       return {
         recipes: result.recipes || [],
