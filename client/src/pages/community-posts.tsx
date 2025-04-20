@@ -238,20 +238,20 @@ export default function CommunityPostsPage() {
   
   // وظيفة لعرض بطاقة منشور
   const renderPostCard = (post: Post) => (
-    <Card key={post.id} className="overflow-hidden">
-      <CardHeader className="flex flex-row items-center gap-4 pb-2">
-        <Avatar>
+    <Card key={post.id} className="overflow-hidden max-w-3xl mx-auto shadow-md hover:shadow-lg transition-shadow duration-300">
+      <CardHeader className="flex flex-row items-center gap-4 pb-2 border-b">
+        <Avatar className="h-12 w-12 border-2 border-gray-100">
           <AvatarImage src={post.user.avatar} alt={post.user.name} />
           <AvatarFallback>{post.user.initials}</AvatarFallback>
         </Avatar>
         <div>
-          <CardTitle className="flex items-center text-lg">
+          <CardTitle className="flex items-center text-lg font-bold">
             {post.user.name}
             {post.user.level === "طاهي محترف" || post.user.level === "Professional Chef" ? (
               <Award className="h-4 w-4 text-amber-500 ml-2" />
             ) : null}
           </CardTitle>
-          <CardDescription className="flex items-center">
+          <CardDescription className="flex items-center text-sm">
             <span>{post.user.level}</span>
             <span className="mx-2">•</span>
             <span>{post.date}</span>
@@ -259,17 +259,17 @@ export default function CommunityPostsPage() {
         </div>
       </CardHeader>
       
-      <CardContent className="p-6 pt-2">
-        <h3 className="text-xl font-semibold mb-2">{post.title}</h3>
-        <p className="mb-4">{post.content}</p>
+      <CardContent className="p-6 pt-4">
+        <h3 className="text-xl font-semibold mb-3">{post.title}</h3>
+        <p className="mb-4 text-gray-700">{post.content}</p>
         {post.image && (
-          <div className="rounded-md overflow-hidden mb-4 max-h-[400px] w-full">
+          <div className="rounded-md overflow-hidden mb-4 max-h-[400px] w-full border border-gray-100">
             <img src={post.image} alt={post.title} className="w-full h-full object-cover" />
           </div>
         )}
         <div className="flex flex-wrap gap-2 mt-3">
           {post.tags.map((tag: string) => (
-            <Badge key={tag} variant="outline" className="bg-zinc-100">
+            <Badge key={tag} variant="outline" className="bg-zinc-100 hover:bg-zinc-200 transition-colors duration-200">
               #{tag}
             </Badge>
           ))}
@@ -277,18 +277,18 @@ export default function CommunityPostsPage() {
       </CardContent>
       
       <CardFooter className="border-t px-6 py-3 bg-muted/20">
-        <div className="flex gap-6 w-full">
-          <Button variant="ghost" size="sm" className="flex items-center text-zinc-600">
+        <div className="flex gap-4 w-full justify-center md:justify-start">
+          <Button variant="ghost" size="sm" className="flex items-center text-zinc-600 hover:text-green-600 hover:bg-green-50 transition-colors duration-200">
             <ThumbsUp className="h-4 w-4 mr-1" />
             <span>{post.likes}</span>
             <span className="hidden sm:inline ml-1">{texts.like}</span>
           </Button>
-          <Button variant="ghost" size="sm" className="flex items-center text-zinc-600">
+          <Button variant="ghost" size="sm" className="flex items-center text-zinc-600 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200">
             <MessageCircle className="h-4 w-4 mr-1" />
             <span>{post.comments}</span>
             <span className="hidden sm:inline ml-1">{texts.comment}</span>
           </Button>
-          <Button variant="ghost" size="sm" className="flex items-center text-zinc-600">
+          <Button variant="ghost" size="sm" className="flex items-center text-zinc-600 hover:text-orange-600 hover:bg-orange-50 transition-colors duration-200">
             <Share className="h-4 w-4 mr-1" />
             <span>{post.shares}</span>
             <span className="hidden sm:inline ml-1">{texts.share}</span>
@@ -299,12 +299,12 @@ export default function CommunityPostsPage() {
   );
   
   return (
-    <div className="container py-8">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold">{texts.title}</h1>
+    <div className="container mx-auto px-4 py-8 max-w-5xl">
+      <div className="flex flex-col md:flex-row items-center justify-between mb-8 gap-4">
+        <h1 className="text-3xl font-bold text-center md:text-right">{texts.title}</h1>
         <Button 
           onClick={() => setNewPostOpen(true)}
-          className="bg-green-600 hover:bg-green-700 text-white"
+          className="bg-green-600 hover:bg-green-700 text-white w-full md:w-auto"
           size="sm"
         >
           <PlusCircle className="mr-2 h-4 w-4" />
@@ -313,12 +313,14 @@ export default function CommunityPostsPage() {
       </div>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="mb-6 grid w-full grid-cols-4 md:w-auto">
-          <TabsTrigger value="trending">{texts.trending}</TabsTrigger>
-          <TabsTrigger value="recent">{texts.recent}</TabsTrigger>
-          <TabsTrigger value="following">{texts.following}</TabsTrigger>
-          <TabsTrigger value="challenges">{texts.challenges}</TabsTrigger>
-        </TabsList>
+        <div className="flex justify-center w-full mb-6">
+          <TabsList className="grid w-full max-w-md grid-cols-4">
+            <TabsTrigger value="trending">{texts.trending}</TabsTrigger>
+            <TabsTrigger value="recent">{texts.recent}</TabsTrigger>
+            <TabsTrigger value="following">{texts.following}</TabsTrigger>
+            <TabsTrigger value="challenges">{texts.challenges}</TabsTrigger>
+          </TabsList>
+        </div>
         
         <TabsContent value="trending" className="space-y-6">
           {trendingPosts.map(post => renderPostCard(post))}
@@ -355,73 +357,93 @@ export default function CommunityPostsPage() {
       
       {/* نافذة حوار إنشاء منشور جديد */}
       <Dialog open={newPostOpen} onOpenChange={setNewPostOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>{texts.createPost}</DialogTitle>
-            <DialogDescription>
+        <DialogContent className="sm:max-w-[550px] p-6">
+          <DialogHeader className="mb-4 text-center">
+            <DialogTitle className="text-2xl font-bold text-green-600">{texts.createPost}</DialogTitle>
+            <DialogDescription className="mt-2">
               {isArabic 
                 ? "شارك وصفاتك المفضلة أو تجاربك في الطبخ مع مجتمع الطهاة"
                 : "Share your favorite recipes or cooking experiments with the chef community"}
             </DialogDescription>
           </DialogHeader>
           
-          <div className="space-y-4">
+          <div className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="post-title">{texts.postTitle}</Label>
+              <Label htmlFor="post-title" className="text-sm font-medium">{texts.postTitle}</Label>
               <Input 
                 id="post-title" 
                 value={postTitle} 
                 onChange={(e) => setPostTitle(e.target.value)} 
+                className="focus-visible:ring-green-500 transition-shadow"
+                placeholder={isArabic ? "عنوان الوصفة أو المنشور..." : "Recipe or post title..."}
               />
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="post-content">{texts.postContent}</Label>
+              <Label htmlFor="post-content" className="text-sm font-medium">{texts.postContent}</Label>
               <Textarea 
                 id="post-content" 
                 rows={5} 
                 value={postContent} 
                 onChange={(e) => setPostContent(e.target.value)} 
+                className="focus-visible:ring-green-500 transition-shadow resize-none"
+                placeholder={isArabic ? "شارك تفاصيل وصفتك أو تجربتك في الطبخ..." : "Share details about your recipe or cooking experience..."}
               />
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="post-tags">{texts.postTags}</Label>
+              <Label htmlFor="post-tags" className="text-sm font-medium">{texts.postTags}</Label>
               <Input 
                 id="post-tags" 
                 placeholder={isArabic ? "حلويات، وصفات سريعة..." : "desserts, quick recipes..."}
                 value={postTags} 
                 onChange={(e) => setPostTags(e.target.value)} 
+                className="focus-visible:ring-green-500 transition-shadow"
               />
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="post-photo">{texts.photoLabel}</Label>
-              <Input 
-                id="post-photo" 
-                type="file" 
-                accept="image/*" 
-                onChange={handleFileChange} 
-                className="cursor-pointer"
-              />
+              <Label htmlFor="post-photo" className="text-sm font-medium">{texts.photoLabel}</Label>
+              <div className="border-2 border-dashed border-gray-300 rounded-md p-4 transition-colors hover:border-green-400">
+                <Input 
+                  id="post-photo" 
+                  type="file" 
+                  accept="image/*" 
+                  onChange={handleFileChange} 
+                  className="cursor-pointer opacity-0 absolute inset-0 w-full h-full"
+                />
+                <div className="text-center">
+                  <PlusCircle className="mx-auto h-8 w-8 text-gray-400" />
+                  <p className="mt-2 text-sm text-gray-500">
+                    {isArabic ? "انقر لاختيار صورة أو اسحبها هنا" : "Click to select an image or drag it here"}
+                  </p>
+                </div>
+              </div>
               {selectedFile && (
-                <div className="text-sm text-green-600">
-                  {isArabic ? "تم اختيار: " : "Selected: "} 
-                  {selectedFile.name}
+                <div className="text-sm text-green-600 mt-2 flex items-center">
+                  <span className="bg-green-100 text-green-800 px-2 py-1 rounded-md">
+                    {isArabic ? "تم اختيار: " : "Selected: "} 
+                    {selectedFile.name}
+                  </span>
                 </div>
               )}
             </div>
           </div>
           
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setNewPostOpen(false)}>
-              {texts.cancel}
-            </Button>
+          <DialogFooter className="mt-6 gap-3 flex-col sm:flex-row-reverse">
             <Button 
-              onClick={handleCreatePost} 
-              className="bg-green-600 hover:bg-green-700 text-white"
+              onClick={handleCreatePost}
+              disabled={!postTitle.trim() || !postContent.trim()}
+              className="bg-green-600 hover:bg-green-700 text-white w-full sm:w-auto transition-colors"
             >
               {texts.post}
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => setNewPostOpen(false)} 
+              className="w-full sm:w-auto border-gray-300"
+            >
+              {texts.cancel}
             </Button>
           </DialogFooter>
         </DialogContent>
