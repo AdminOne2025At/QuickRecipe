@@ -404,18 +404,24 @@ export default function CommunityPostsPage() {
   // تحميل المنشورات من الخادم
   useEffect(() => {
     if (trendingPostsData) {
-      const mappedPosts = (trendingPostsData as DbPost[]).map(post => mapDbPostToUiPost(post, isArabic));
+      const userId = currentUser?.uid || '';
+      const mappedPosts = (trendingPostsData as DbPost[]).map(post => 
+        mapDbPostToUiPost(post, isArabic, userId)
+      );
       setTrendingPosts(mappedPosts.length > 0 ? mappedPosts : (isArabic ? SAMPLE_POSTS : SAMPLE_POSTS_EN));
     }
-  }, [trendingPostsData, isArabic]);
+  }, [trendingPostsData, isArabic, currentUser]);
 
   // تحميل المنشورات الأخيرة من الخادم
   useEffect(() => {
     if (recentPostsData) {
-      const mappedPosts = (recentPostsData as DbPost[]).map(post => mapDbPostToUiPost(post, isArabic));
+      const userId = currentUser?.uid || '';
+      const mappedPosts = (recentPostsData as DbPost[]).map(post => 
+        mapDbPostToUiPost(post, isArabic, userId)
+      );
       setRecentPosts(mappedPosts);
     }
-  }, [recentPostsData, isArabic]);
+  }, [recentPostsData, isArabic, currentUser]);
   
   // وظيفة لمعالجة إنشاء منشور جديد
   const handleCreatePost = () => {
@@ -464,24 +470,48 @@ export default function CommunityPostsPage() {
   // وظيفة لعرض بطاقة منشور
   const renderPostCard = (post: Post) => (
     <Card key={post.id} className="overflow-hidden max-w-3xl mx-auto shadow-md hover:shadow-lg transition-shadow duration-300">
-      <CardHeader className="flex flex-row items-center gap-4 pb-2 border-b">
-        <Avatar className="h-12 w-12 border-2 border-gray-100">
-          <AvatarImage src={post.user.avatar} alt={post.user.name} />
-          <AvatarFallback>{post.user.initials}</AvatarFallback>
-        </Avatar>
-        <div>
-          <CardTitle className="flex items-center text-lg font-bold">
-            {post.user.name}
-            {post.user.level === "طاهي محترف" || post.user.level === "Professional Chef" ? (
-              <Award className="h-4 w-4 text-amber-500 ml-2" />
-            ) : null}
-          </CardTitle>
-          <CardDescription className="flex items-center text-sm">
-            <span>{post.user.level}</span>
-            <span className="mx-2">•</span>
-            <span>{post.date}</span>
-          </CardDescription>
+      <CardHeader className="flex flex-row items-center justify-between pb-2 border-b">
+        <div className="flex items-center gap-4">
+          <Avatar className="h-12 w-12 border-2 border-gray-100">
+            <AvatarImage src={post.user.avatar} alt={post.user.name} />
+            <AvatarFallback>{post.user.initials}</AvatarFallback>
+          </Avatar>
+          <div>
+            <CardTitle className="flex items-center text-lg font-bold">
+              {post.user.name}
+              {post.user.level === "طاهي محترف" || post.user.level === "Professional Chef" ? (
+                <Award className="h-4 w-4 text-amber-500 ml-2" />
+              ) : null}
+            </CardTitle>
+            <CardDescription className="flex items-center text-sm">
+              <span>{post.user.level}</span>
+              <span className="mx-2">•</span>
+              <span>{post.date}</span>
+            </CardDescription>
+          </div>
         </div>
+        
+        {/* زر حذف المنشور - يظهر فقط إذا كان المنشور للمستخدم الحالي */}
+        {post.isOwnPost && (
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="text-red-500 hover:text-red-700 hover:bg-red-100"
+            onClick={() => {
+              if (window.confirm(isArabic ? "هل أنت متأكد من حذف هذا المنشور؟" : "Are you sure you want to delete this post?")) {
+                deletePostMutation.mutate(post.id);
+              }
+            }}
+            disabled={deletePostMutation.isPending}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+              <path d="M3 6h18"></path>
+              <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+              <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+            </svg>
+            {deletePostMutation.isPending && <Loader2 className="ml-1 h-3 w-3 animate-spin" />}
+          </Button>
+        )}
       </CardHeader>
       
       <CardContent className="p-6 pt-4">
@@ -515,12 +545,43 @@ export default function CommunityPostsPage() {
             <span className="hidden sm:inline ml-1">{texts.like}</span>
             {likePostMutation.isPending && <Loader2 className="ml-1 h-3 w-3 animate-spin" />}
           </Button>
-          <Button variant="ghost" size="sm" className="flex items-center text-zinc-600 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="flex items-center text-zinc-600 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200"
+            onClick={() => {
+              // سيتم إضافة منطق التعليقات لاحقًا
+              toast({
+                title: isArabic ? "قريبًا" : "Coming soon",
+                description: isArabic ? "ميزة التعليقات قيد التطوير" : "Comments feature is under development",
+              });
+            }}
+          >
             <MessageCircle className="h-4 w-4 mr-1" />
             <span>{post.comments}</span>
             <span className="hidden sm:inline ml-1">{texts.comment}</span>
           </Button>
-          <Button variant="ghost" size="sm" className="flex items-center text-zinc-600 hover:text-orange-600 hover:bg-orange-50 transition-colors duration-200">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="flex items-center text-zinc-600 hover:text-orange-600 hover:bg-orange-50 transition-colors duration-200"
+            onClick={() => {
+              // استخدام واجهة المشاركة المدمجة في المتصفح إذا كانت متوفرة
+              if (navigator.share) {
+                navigator.share({
+                  title: post.title,
+                  text: post.content.substring(0, 100) + '...',
+                  url: window.location.href
+                }).catch((error) => console.log('Error sharing', error));
+              } else {
+                // سيتم إضافة خيارات المشاركة الأخرى لاحقًا
+                toast({
+                  title: isArabic ? "تمت نسخ الرابط" : "Link copied",
+                  description: isArabic ? "تم نسخ رابط المنشور إلى الحافظة" : "Post link copied to clipboard",
+                });
+              }
+            }}
+          >
             <Share className="h-4 w-4 mr-1" />
             <span>{post.shares}</span>
             <span className="hidden sm:inline ml-1">{texts.share}</span>
