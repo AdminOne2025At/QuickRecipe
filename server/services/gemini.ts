@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
 import { RecipeResult } from './openai';
+import { SubstitutionResponse } from './substitutions';
 
 // Initialize the Gemini API
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
@@ -148,6 +149,107 @@ export async function generateRecipesGemini(ingredients: string[]): Promise<Reci
   } catch (error) {
     console.error("Error generating recipes with Gemini:", error);
     return getFallbackRecipes(ingredients);
+  }
+}
+
+/**
+ * Generate ingredient substitution suggestions using Google Gemini API
+ */
+export async function generateSubstitutionsGemini(ingredient: string): Promise<SubstitutionResponse> {
+  try {
+    if (!process.env.GEMINI_API_KEY) {
+      throw new Error("GEMINI_API_KEY environment variable not set");
+    }
+
+    // Create prompt for Gemini
+    const prompt = `
+    أنا عندي مكون اسمه "${ingredient}" ومش موجود عندي. اقترح عليّ 3 بدائل ممكن استخدمها مكانه.
+    
+    اعرض النتائج بالعامية المصرية وقدم المعلومات دي لكل بديل:
+    1. اسم البديل
+    2. النسبة المقابلة (مثال: 1:1 أو 3/4 كوب عوض كل كوب)
+    3. ملاحظات اختيارية عن كيفية استخدام البديل
+    
+    اعرض الإجابة بصيغة JSON فقط بهذا الشكل:
+    {
+      "originalIngredient": "اسم المكون الأصلي",
+      "substitutes": [
+        {
+          "name": "اسم البديل الأول",
+          "ratio": "النسبة البديلة",
+          "notes": "ملاحظات (اختياري)"
+        },
+        {
+          "name": "اسم البديل الثاني",
+          "ratio": "النسبة البديلة",
+          "notes": "ملاحظات (اختياري)"
+        },
+        {
+          "name": "اسم البديل الثالث",
+          "ratio": "النسبة البديلة",
+          "notes": "ملاحظات (اختياري)"
+        }
+      ]
+    }
+    `;
+
+    // Get the Gemini model
+    const model = genAI.getGenerativeModel({
+      model: MODEL_NAME,
+      safetySettings: [
+        {
+          category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+          threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+        },
+        {
+          category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+          threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+        },
+        {
+          category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+          threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+        },
+        {
+          category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+          threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+        },
+      ],
+      generationConfig: {
+        temperature: 0.7,
+        topP: 0.8,
+        topK: 40,
+        maxOutputTokens: 1024,
+      },
+    });
+
+    // Generate content
+    const result = await model.generateContent({
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+    });
+
+    // Process response
+    const response = result.response;
+    const textResponse = response.text();
+    
+    console.log("Gemini API substitution response:", textResponse);
+
+    // Parse the JSON response
+    try {
+      // Extract the JSON part from the response
+      const jsonMatch = textResponse.match(/{[\s\S]*}/);
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0]);
+        return parsed as SubstitutionResponse;
+      } else {
+        throw new Error("No valid JSON found in response");
+      }
+    } catch (error) {
+      console.error("Failed to parse Gemini API response for substitutions:", error);
+      throw error;
+    }
+  } catch (error) {
+    console.error("Error generating substitutions with Gemini:", error);
+    throw error;
   }
 }
 

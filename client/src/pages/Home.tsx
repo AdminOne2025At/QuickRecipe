@@ -5,6 +5,7 @@ import Ingredients from "@/components/Ingredients";
 import RecipeResults from "@/components/RecipeResults";
 import SuggestedIngredients from "@/components/SuggestedIngredients";
 import CookingTimer from "@/components/CookingTimer";
+import IngredientSubstitution from "@/components/IngredientSubstitution";
 import { useCallback, useEffect, useState } from "react";
 import { Ingredient, Recipe } from "@/lib/types";
 import { fetchRecipes } from "@/lib/api";
@@ -169,10 +170,19 @@ export default function Home() {
               <div className="flex rounded-lg border border-gray-300 overflow-hidden">
                 <input
                   type="text"
+                  value={recipeNameInput}
+                  onChange={(e) => setRecipeNameInput(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === "Enter") {
+                      searchRecipesByName();
+                    }
+                  }}
                   placeholder="ابحث عن وصفة بالاسم..."
                   className="flex-grow py-2 px-3 bg-white text-right focus:outline-none"
                 />
                 <Button
+                  onClick={searchRecipesByName}
+                  disabled={!recipeNameInput.trim() || isLoading}
                   className="px-3 py-2 bg-primary text-white hover:bg-primary-dark transition-all duration-300"
                 >
                   <span>🔍</span> بحث
@@ -266,6 +276,11 @@ export default function Home() {
             onClick={handleSuggestedIngredientClick}
           />
         )}
+        
+        {/* Ingredient Substitution Component */}
+        <div className="mt-10">
+          <IngredientSubstitution />
+        </div>
       </main>
 
       {/* Fixed Search Button for Mobile */}
