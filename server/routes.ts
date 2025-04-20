@@ -177,6 +177,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(500).json({ message: "Login failed" });
     }
   });
+  
+  // Login with Firebase endpoint - for existing Firebase users
+  app.post("/api/login", async (req, res) => {
+    try {
+      const loginSchema = z.object({
+        username: z.string().min(1),
+        password: z.string().min(1)
+      });
+
+      const validatedData = loginSchema.parse(req.body);
+      
+      // Find user by username
+      const user = await storage.getUserByUsername(validatedData.username);
+      
+      if (!user || user.password !== validatedData.password) {
+        return res.status(401).json({ message: "Invalid username or password" });
+      }
+
+      // Return user without password
+      const { password, ...userWithoutPassword } = user;
+      return res.status(200).json(userWithoutPassword);
+    } catch (error) {
+      console.error("Firebase login error:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ errors: error.errors });
+      }
+      return res.status(500).json({ message: "Login failed" });
+    }
+  });
 
   // Save a favorite recipe
   app.post("/api/recipes/save", async (req, res) => {

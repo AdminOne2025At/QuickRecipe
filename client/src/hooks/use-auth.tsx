@@ -54,17 +54,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             
             // In a real app, send the token to the backend and verify it there
             // For this demo, we'll just create a user record with Firebase data
-            const response = await apiRequest("POST", "/api/users/register", {
-              username: firebaseUser.displayName || firebaseUser.email || `user_${firebaseUser.uid.substring(0, 8)}`,
-              password: `firebase_${firebaseUser.uid}`, // Not a real password, just a placeholder
-              confirmPassword: `firebase_${firebaseUser.uid}`,
-              email: firebaseUser.email,
-              firebaseUid: firebaseUser.uid,
-              photoURL: firebaseUser.photoURL
-            });
-            
-            if (response.ok) {
-              const userData = await response.json();
+            try {
+              // أولاً، نحاول تسجيل مستخدم جديد
+              const registerResponse = await apiRequest("POST", "/api/users/register", {
+                username: firebaseUser.displayName || firebaseUser.email || `user_${firebaseUser.uid.substring(0, 8)}`,
+                password: `firebase_${firebaseUser.uid}`, 
+                confirmPassword: `firebase_${firebaseUser.uid}`,
+                email: firebaseUser.email,
+                firebaseUid: firebaseUser.uid,
+                photoURL: firebaseUser.photoURL
+              });
+              
+              let userData;
+              
+              if (registerResponse.ok) {
+                // نجح التسجيل
+                userData = await registerResponse.json();
+              } else {
+                // إذا فشل التسجيل لأن المستخدم موجود بالفعل
+                const errorData = await registerResponse.json();
+                
+                if (errorData.message === "Username already exists") {
+                  // نحاول تسجيل الدخول
+                  const loginResponse = await apiRequest("POST", "/api/login", {
+                    username: firebaseUser.displayName || firebaseUser.email || `user_${firebaseUser.uid.substring(0, 8)}`,
+                    password: `firebase_${firebaseUser.uid}`
+                  });
+                  
+                  if (loginResponse.ok) {
+                    userData = await loginResponse.json();
+                  } else {
+                    throw new Error("Failed to login with existing Firebase account");
+                  }
+                } else {
+                  throw new Error("Failed to register with Firebase account: " + errorData.message);
+                }
+              }
+              
+              // حفظ بيانات المستخدم
               setUser({
                 ...userData,
                 displayName: firebaseUser.displayName || undefined,
@@ -78,8 +105,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 photoURL: firebaseUser.photoURL || undefined,
                 email: firebaseUser.email || undefined
               }));
-            } else {
-              throw new Error("Failed to register/login with Firebase account");
+            } catch (err) {
+              console.error("Authentication error:", err);
+              throw err;
             }
           } catch (err) {
             console.error("Error authenticating with backend:", err);
