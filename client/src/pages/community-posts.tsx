@@ -41,6 +41,7 @@ type Post = {
     level: string;
     avatar: string;
     initials: string;
+    id?: number; // إضافة معرف المستخدم للتحقق من صلاحية الحذف
   };
   title: string;
   content: string;
@@ -51,10 +52,11 @@ type Post = {
   comments: number;
   shares: number;
   date: string;
+  isOwnPost?: boolean; // إضافة حقل للتحقق مما إذا كان المنشور ملكًا للمستخدم الحالي
 };
 
 // تحويل بيانات قاعدة البيانات إلى نموذج Post
-const mapDbPostToUiPost = (dbPost: DbPost, isArabic: boolean): Post => {
+const mapDbPostToUiPost = (dbPost: DbPost, isArabic: boolean, currentUserId?: string): Post => {
   // استخراج الاسم الأول والحرف الأول من الاسم الأخير إن وجد
   const userName = dbPost.userName || (isArabic ? "مستخدم" : "User");
   const nameParts = userName.split(' ');
@@ -89,12 +91,17 @@ const mapDbPostToUiPost = (dbPost: DbPost, isArabic: boolean): Post => {
     dateDisplay = isArabic ? "الآن" : "Just now";
   }
 
+  // صورة ضيف فيسبوك للمستخدمين بدون صورة
+  const guestAvatarUrl = "https://static.xx.fbcdn.net/rsrc.php/v1/yi/r/odA9sNLrE86.jpg";
+  
   return {
     id: dbPost.id,
     user: {
+      id: dbPost.userId, // إضافة معرف المستخدم
       name: userName,
       level: dbPost.userLevel || (isArabic ? "طاهي متحمس" : "Cooking Enthusiast"),
-      avatar: dbPost.userAvatar || "https://i.pravatar.cc/150?img=33",
+      // استخدام صورة ضيف الفيسبوك إذا لم تكن هناك صورة
+      avatar: dbPost.userAvatar || guestAvatarUrl,
       initials: initials
     },
     title: dbPost.title,
@@ -105,7 +112,8 @@ const mapDbPostToUiPost = (dbPost: DbPost, isArabic: boolean): Post => {
     likes: dbPost.likesCount,
     comments: dbPost.commentsCount,
     shares: dbPost.sharesCount,
-    date: dateDisplay
+    date: dateDisplay,
+    isOwnPost: currentUserId ? String(dbPost.userId) === currentUserId : false // إضافة علامة إذا كان المنشور ملكًا للمستخدم الحالي
   };
 };
 
@@ -333,6 +341,32 @@ export default function CommunityPostsPage() {
     onError: (error: Error) => {
       toast({
         title: isArabic ? "فشل تسجيل الإعجاب" : "Failed to like post",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+  
+  // mutate لحذف منشور
+  const deletePostMutation = useMutation({
+    mutationFn: async (postId: number) => {
+      const res = await apiRequest("DELETE", `/api/community-posts/${postId}`, {});
+      return await res.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: isArabic ? "تم حذف المنشور" : "Post deleted",
+        description: isArabic ? "تم حذف المنشور بنجاح" : "Your post has been deleted successfully",
+        variant: "default",
+      });
+      
+      // إعادة تحميل البيانات
+      queryClient.invalidateQueries({ queryKey: ["/api/community-posts/trending"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/community-posts/recent"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: isArabic ? "فشل حذف المنشور" : "Failed to delete post",
         description: error.message,
         variant: "destructive",
       });
