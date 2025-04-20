@@ -15,12 +15,20 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 // Firebase configuration
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.firebaseapp.com`,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.appspot.com`,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY.trim(),
+  authDomain: `${import.meta.env.VITE_FIREBASE_PROJECT_ID.trim()}.firebaseapp.com`,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID.trim(),
+  storageBucket: `${import.meta.env.VITE_FIREBASE_PROJECT_ID.trim()}.appspot.com`,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID.trim(),
 };
+
+// تسجيل التكوين في وحدة التحكم للتصحيح
+console.log("Firebase config (without sensitive keys):", { 
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID.trim(),
+  authDomain: `${import.meta.env.VITE_FIREBASE_PROJECT_ID.trim()}.firebaseapp.com`, 
+  hasApiKey: !!import.meta.env.VITE_FIREBASE_API_KEY,
+  hasAppId: !!import.meta.env.VITE_FIREBASE_APP_ID
+});
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -28,7 +36,7 @@ const auth = getAuth(app);
 const storage = getStorage(app);
 const googleProvider = new GoogleAuthProvider();
 
-// Sign in with Google - using redirect for better mobile support
+// Sign in with Google - using both methods for better compatibility
 export const signInWithGoogle = async (): Promise<void> => {
   try {
     // يضيف نطاق للوصول إلى قائمة الاسماء والصور الشخصية
@@ -40,8 +48,22 @@ export const signInWithGoogle = async (): Promise<void> => {
     googleProvider.setCustomParameters({
       prompt: 'select_account'
     });
+
+    // نجرب طريقة النافذة المنبثقة أولاً على الأجهزة المكتبية
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     
-    await signInWithRedirect(auth, googleProvider);
+    if (isMobile) {
+      console.log("Using redirect method for mobile device");
+      await signInWithRedirect(auth, googleProvider);
+    } else {
+      console.log("Using popup method for desktop device");
+      try {
+        await signInWithPopup(auth, googleProvider);
+      } catch (popupError) {
+        console.log("Popup failed, falling back to redirect:", popupError);
+        await signInWithRedirect(auth, googleProvider);
+      }
+    }
   } catch (error) {
     console.error("Error initiating sign-in with Google:", error);
     throw error;
