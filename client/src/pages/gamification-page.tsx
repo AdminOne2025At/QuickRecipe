@@ -4,7 +4,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ChefProgressCard from "@/components/ChefProgressCard";
 import CookingChallenges from "@/components/CookingChallenges";
 import CulinaryJourneyMap from "@/components/CulinaryJourneyMap";
-import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Loader2 } from "lucide-react";
 

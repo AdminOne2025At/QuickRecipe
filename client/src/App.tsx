@@ -6,6 +6,8 @@ import ProfilePage from "@/pages/profile-page";
 import GamificationPage from "@/pages/gamification-page";
 import { ReactNode } from "react";
 import { SimpleHeader } from "@/components/SimpleHeader";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 
 // هيكل الصفحة المشترك
 function AppLayout({ children }: { children: ReactNode }) {
@@ -28,15 +30,19 @@ function AppLayout({ children }: { children: ReactNode }) {
 
 function App() {
   return (
-    <AppLayout>
-      <Switch>
-        <Route path="/" component={Home} />
-        <Route path="/auth" component={AuthPage} />
-        <Route path="/profile" component={ProfilePage} />
-        <Route path="/cooking-journey" component={GamificationPage} />
-        <Route component={NotFound} />
-      </Switch>
-    </AppLayout>
+    <LanguageProvider>
+      <AuthProvider>
+        <AppLayout>
+          <Switch>
+            <Route path="/" component={Home} />
+            <Route path="/auth" component={AuthPage} />
+            <Route path="/profile" component={ProfilePage} />
+            <Route path="/cooking-journey" component={GamificationPage} />
+            <Route component={NotFound} />
+          </Switch>
+        </AppLayout>
+      </AuthProvider>
+    </LanguageProvider>
   );
 }
 

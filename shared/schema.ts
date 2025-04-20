@@ -193,7 +193,7 @@ export const userJourneyEvents = pgTable("user_journey_events", {
     cuisineType?: string;
     difficulty?: string;
     challenge?: string;
-  }>().default({}), // Structured data about the event
+  }>().default({name: ""}), // Structured data about the event
   cuisineType: text("cuisine_type"), // If applicable
   recipeCategory: text("recipe_category"), // If applicable
   recipeId: integer("recipe_id").references(() => recipes.id),

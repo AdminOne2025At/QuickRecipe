@@ -86,6 +86,7 @@ export class DatabaseStorage implements IStorage {
       .select({
         id: ingredients.id,
         name: ingredients.name,
+        category: ingredients.category,
         createdAt: ingredients.createdAt
       })
       .from(userIngredients)

@@ -46,8 +46,18 @@ export function SimpleHeader() {
           )}
         </button>
         
-        {/* زر تسجيل الدخول أو الملف الشخصي للشاشات الكبيرة */}
-        <div className="hidden md:block">
+        {/* قائمة للشاشات الكبيرة */}
+        <div className="hidden md:flex items-center space-x-4 space-x-reverse">
+          <Link href="/cooking-journey">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+            >
+              رحلة الطهي التفاعلية
+            </Button>
+          </Link>
+          
           {!isLoading && !currentUser ? (
             <Link href="/auth">
               <Button 
@@ -80,6 +90,11 @@ export function SimpleHeader() {
           <nav className="flex flex-col p-4 space-y-3">
             <Link href="/">
               <span className="block py-2 px-3 hover:bg-gray-100 rounded-md">الرئيسية</span>
+            </Link>
+            <Link href="/cooking-journey">
+              <span className="block py-2 px-3 hover:bg-gray-100 rounded-md text-orange-600">
+                رحلة الطهي التفاعلية
+              </span>
             </Link>
             {!isLoading && !currentUser ? (
               <Link href="/auth">
