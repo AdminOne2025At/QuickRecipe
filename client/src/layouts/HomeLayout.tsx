@@ -25,7 +25,7 @@ export default function HomeLayout({ children, showUserMenu = false }: HomeLayou
       <footer className="border-t py-6 md:py-0">
         <div className="container flex flex-col items-center justify-between gap-4 md:h-16 md:flex-row">
           <p className="text-center text-sm leading-loose text-muted-foreground md:text-right">
-            &copy; 2025 Fast Recipe by Egyptco. جميع الحقوق محفوظة.
+            &copy; 2025 Quick Recipe by Egyptco. جميع الحقوق محفوظة.
           </p>
         </div>
       </footer>

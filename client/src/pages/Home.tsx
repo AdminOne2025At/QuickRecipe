@@ -146,7 +146,7 @@ export default function Home() {
           <h1 className="text-3xl md:text-4xl flex items-center gap-3">
             <span className="text-2xl">🍔</span>
             <span className="font-extrabold text-gray-800 tracking-wide" style={{ fontFamily: 'Comic Sans MS, cursive, sans-serif', textShadow: '1px 1px 2px rgba(255,255,255,0.2)' }}>
-              Fast Recipe
+           Recipes
             </span>
             <span className="text-2xl">🍕</span>
           </h1>
@@ -329,7 +329,7 @@ export default function Home() {
               <h2 className="text-xl flex items-center gap-2">
                 <span className="text-2xl">🧑‍🍳</span> 
                 <span className="font-extrabold text-white tracking-wide" style={{ fontFamily: 'Comic Sans MS, cursive, sans-serif', textShadow: '1px 1px 2px rgba(0,0,0,0.2)' }}>
-                  Fast Recipe
+                  Quick Recipe
                 </span>
               </h2>
               <p className="text-gray-400 text-sm mt-1">
