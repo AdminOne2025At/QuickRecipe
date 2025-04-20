@@ -150,24 +150,29 @@ export function CookingTimer() {
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
         <Button 
-          className="fixed bottom-4 right-4 rounded-full p-3 shadow-lg"
+          className="fixed bottom-4 right-4 rounded-full p-3 shadow-lg bg-secondary hover:bg-secondary-dark hover:scale-110 transition-all duration-300 animate-bounce"
           onClick={() => playSound(clickSoundRef)}
         >
-          <Timer className="h-6 w-6" />
+          <span className="flex items-center gap-1">
+            <Timer className="h-6 w-6" />
+            <span className="text-xl">⏱️</span>
+          </span>
         </Button>
       </DialogTrigger>
       
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="text-xl text-center">مؤقت الطبخ</DialogTitle>
+      <DialogContent className="sm:max-w-md bg-gradient-to-br from-white to-primary/5 border-2 border-primary/30">
+        <DialogHeader className="pb-2 border-b border-primary/20">
+          <DialogTitle className="text-xl text-center flex items-center justify-center gap-2">
+            <span className="text-2xl">⏰</span> مؤقت المطبخ <span className="text-2xl">⏰</span>
+          </DialogTitle>
           <DialogDescription className="text-center">
-            ضبط المؤقت لتحضير وصفتك المفضلة
+            ظبط الوقت عشان ماتحرقش الأكل يا حلو 👨‍🍳
           </DialogDescription>
         </DialogHeader>
         
         <div className="flex flex-col items-center justify-center gap-6 py-4">
           {/* Timer Display */}
-          <div className="relative flex items-center justify-center w-32 h-32 rounded-full border-4 border-primary">
+          <div className="relative flex items-center justify-center w-36 h-36 rounded-full border-4 border-primary shadow-lg">
             <div
               className="absolute inset-0 rounded-full"
               style={{
@@ -175,18 +180,21 @@ export function CookingTimer() {
                 opacity: 0.3
               }}
             />
-            <div className="text-3xl font-bold">
-              {formatTime(remainingSeconds)}
+            <div className="absolute inset-1 rounded-full bg-white/80 flex items-center justify-center">
+              <div className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
+                {formatTime(remainingSeconds)}
+              </div>
             </div>
           </div>
           
           {/* Timer Controls */}
-          <div className="flex gap-3">
+          <div className="flex gap-4">
             <Button 
               variant="outline" 
               size="icon" 
               onClick={resetTimer} 
-              title="إعادة ضبط"
+              title="ابدأ من جديد"
+              className="bg-white hover:bg-gray-100 hover:scale-110 transition-all duration-300 shadow-sm"
             >
               <RotateCcw className="h-5 w-5" />
             </Button>
@@ -196,7 +204,8 @@ export function CookingTimer() {
                 variant="default" 
                 size="icon" 
                 onClick={pauseTimer} 
-                title="إيقاف مؤقت"
+                title="وقف شوية"
+                className="bg-secondary text-white hover:bg-secondary-dark hover:scale-110 transition-all duration-300 shadow-md"
               >
                 <Pause className="h-5 w-5" />
               </Button>
@@ -206,7 +215,8 @@ export function CookingTimer() {
                 size="icon" 
                 onClick={startTimer} 
                 disabled={remainingSeconds === 0} 
-                title="تشغيل المؤقت"
+                title="يلا نبدأ"
+                className="bg-primary text-white hover:bg-primary-dark hover:scale-110 transition-all duration-300 shadow-md"
               >
                 <Play className="h-5 w-5" />
               </Button>
@@ -216,7 +226,8 @@ export function CookingTimer() {
               variant="outline" 
               size="icon" 
               onClick={toggleMute} 
-              title={isMuted ? "تشغيل الصوت" : "كتم الصوت"}
+              title={isMuted ? "شغل الصوت" : "اقفل الصوت"}
+              className="bg-white hover:bg-gray-100 hover:scale-110 transition-all duration-300 shadow-sm"
             >
               {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
             </Button>
@@ -224,7 +235,9 @@ export function CookingTimer() {
           
           {/* Preset Times */}
           <div className="w-full">
-            <h3 className="text-center mb-2">أوقات سريعة</h3>
+            <h3 className="text-center mb-3 font-medium flex items-center justify-center gap-2">
+              <span className="text-lg">⚡</span> أوقات على السريع <span className="text-lg">⚡</span>
+            </h3>
             <div className="grid grid-cols-3 gap-2">
               {PRESET_TIMES.map(minutes => (
                 <Button
@@ -232,8 +245,9 @@ export function CookingTimer() {
                   variant="outline"
                   size="sm"
                   onClick={() => setPresetTime(minutes)}
+                  className="border border-primary/30 bg-white hover:bg-primary hover:text-white transition-all duration-300 hover:shadow-md"
                 >
-                  {minutes} دقيقة
+                  {minutes} {minutes === 1 ? "دقيقة" : "دقايق"}
                 </Button>
               ))}
             </div>

@@ -87,7 +87,7 @@ export default function Ingredients({
       </div>
       
       {ingredients.length === 0 && (
-        <Alert variant="warning" className="mb-4 bg-yellow-50 border-yellow-500 text-yellow-800">
+        <Alert className="mb-4 bg-yellow-50 border border-yellow-500 text-yellow-800">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
             محتاجين تدخل المكونات الأول عشان نقدر نطلعلك أكلات حلوة
