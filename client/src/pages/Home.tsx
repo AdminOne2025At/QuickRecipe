@@ -142,7 +142,7 @@ export default function Home() {
       className="min-h-screen bg-gray-50 text-gray-800 flex flex-col"
     >
       <header className="bg-primary text-white shadow-md">
-        <div className="container mx-auto px-4 py-6 flex justify-between items-center">
+        <div className="container mx-auto px-4 py-6 flex justify-between items-center max-w-5xl">
           <h1 className="text-3xl md:text-4xl flex items-center gap-3">
             <span className="text-2xl">🍔</span>
             <span className="font-extrabold text-gray-800 tracking-wide" style={{ fontFamily: 'Comic Sans MS, cursive, sans-serif', textShadow: '1px 1px 2px rgba(255,255,255,0.2)' }}>
@@ -157,7 +157,7 @@ export default function Home() {
             <div className="flex items-center gap-2">
               <Button 
                 onClick={searchRecipes}
-                className="bg-white text-primary hover:bg-gray-100 rounded-full animate-pulse" 
+                className="bg-white text-primary hover:bg-gray-100 rounded-full" 
                 disabled={ingredients.length === 0}
                 size="sm"
               >
@@ -174,11 +174,11 @@ export default function Home() {
 
       {/* Quick Search Bar */}
       <div className="bg-white shadow-md py-3 sticky top-0 z-20 border-b border-gray-200">
-        <div className="container mx-auto px-4 flex flex-col gap-2">
+        <div className="container mx-auto px-4 flex flex-col gap-2 max-w-3xl">
           {/* Recipe name search */}
           <div className="flex items-center gap-2">
             <div className="flex-grow">
-              <div className="flex rounded-lg border border-gray-300 overflow-hidden">
+              <div className="flex rounded-lg border border-gray-300 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
                 <input
                   type="text"
                   value={recipeNameInput}
@@ -189,7 +189,7 @@ export default function Home() {
                     }
                   }}
                   placeholder="ابحث عن وصفة بالاسم..."
-                  className="flex-grow py-2 px-3 bg-white text-right focus:outline-none"
+                  className="flex-grow py-2 px-3 bg-white text-right focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50"
                 />
                 <Button
                   onClick={searchRecipesByName}
@@ -199,16 +199,16 @@ export default function Home() {
                   <span>🔍</span> بحث
                 </Button>
               </div>
-              <div className="text-center my-1">
-                <span className="text-gray-500 font-medium">أو</span>
+              <div className="text-center my-2">
+                <span className="text-gray-500 font-medium bg-gray-100 px-4 py-1 rounded-full text-xs">أو</span>
               </div>
             </div>
           </div>
           
           {/* Ingredient search */}
-          <div className="flex items-center gap-2">
-            <div className="flex-grow">
-              <div className="flex rounded-lg border border-gray-300 overflow-hidden">
+          <div className="flex flex-col md:flex-row items-center gap-2">
+            <div className="flex-grow w-full">
+              <div className="flex rounded-lg border border-gray-300 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
                 <input
                   type="text"
                   value={ingredientInput}
@@ -222,7 +222,7 @@ export default function Home() {
                     }
                   }}
                   placeholder="اكتب المكون اللي عندك في البيت..."
-                  className="flex-grow py-2 px-3 bg-white text-right focus:outline-none"
+                  className="flex-grow py-2 px-3 bg-white text-right focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50"
                 />
                 <Button
                   onClick={() => {
@@ -233,13 +233,13 @@ export default function Home() {
                   }}
                   className="px-3 py-2 bg-primary text-white hover:bg-primary-dark transition-all duration-300"
                 >
-                  <span className="animate-pulse">✨</span> حطّه
+                  <span>✨</span> حطّه
                 </Button>
               </div>
             </div>
             <Button
               onClick={searchRecipes}
-              className="bg-secondary text-white py-2 px-5 rounded-lg flex items-center gap-1 hover:bg-secondary-dark hover:scale-105 transition-all duration-300"
+              className="bg-secondary text-white py-2 px-5 rounded-lg flex items-center gap-1 hover:bg-secondary-dark hover:scale-105 transition-all duration-300 w-full md:w-auto mt-2 md:mt-0"
               disabled={ingredients.length === 0 || isLoading}
             >
               {isLoading ? (
@@ -253,7 +253,7 @@ export default function Home() {
                     <circle cx="11" cy="11" r="8" />
                     <line x1="21" y1="21" x2="16.65" y2="16.65" />
                   </svg>
-                  <span className="animate-pulse">🔍</span>
+                  <span>🔍</span>
                 </>
               )}
               طلّعلي أكلات
@@ -262,8 +262,8 @@ export default function Home() {
         </div>
       </div>
 
-      <main className="container mx-auto px-4 py-8 flex-grow">
-        <Card className="mb-10 shadow-md">
+      <main className="container mx-auto px-4 py-8 flex-grow max-w-5xl">
+        <Card className="mb-10 shadow-md hover:shadow-lg transition-shadow duration-300">
           <CardContent className="p-6">
             <Ingredients 
               ingredients={ingredients}
@@ -323,7 +323,7 @@ export default function Home() {
       <CookingTimer />
 
       <footer className="bg-gray-800 text-white py-8 border-t-4 border-secondary">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 max-w-5xl">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-4 md:mb-0">
               <h2 className="text-xl flex items-center gap-2">

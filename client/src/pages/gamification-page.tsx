@@ -98,15 +98,17 @@ export default function GamificationPage() {
   */
   
   return (
-    <div className="container py-8">
-      <h1 className="mb-8 text-3xl font-bold">{texts.gamification}</h1>
+    <div className="container mx-auto px-4 py-8 max-w-5xl">
+      <h1 className="mb-8 text-3xl font-bold text-center md:text-right">{texts.gamification}</h1>
       
       <Tabs defaultValue={defaultTab} className="w-full">
-        <TabsList className="mb-6 grid w-full grid-cols-3">
-          <TabsTrigger value="progress" data-value="progress">{texts.progress}</TabsTrigger>
-          <TabsTrigger value="challenges" data-value="challenges">{texts.challenges}</TabsTrigger>
-          <TabsTrigger value="journey" data-value="journey">{texts.journey}</TabsTrigger>
-        </TabsList>
+        <div className="flex justify-center w-full mb-6">
+          <TabsList className="grid w-full max-w-md grid-cols-3 mb-6">
+            <TabsTrigger value="progress" data-value="progress">{texts.progress}</TabsTrigger>
+            <TabsTrigger value="challenges" data-value="challenges">{texts.challenges}</TabsTrigger>
+            <TabsTrigger value="journey" data-value="journey">{texts.journey}</TabsTrigger>
+          </TabsList>
+        </div>
         
         {/* Chef Progress */}
         <TabsContent value="progress" className="space-y-6">

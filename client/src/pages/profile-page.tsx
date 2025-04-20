@@ -160,16 +160,18 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="container max-w-4xl py-8">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold">الملف الشخصي</h1>
+    <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="flex items-center justify-center md:justify-between mb-8">
+        <h1 className="text-3xl font-bold text-center md:text-right">الملف الشخصي</h1>
       </div>
       
       <Tabs defaultValue={defaultTab} className="w-full">
-        <TabsList className="mb-6 grid w-full grid-cols-2">
-          <TabsTrigger value="profile">المعلومات الشخصية</TabsTrigger>
-          <TabsTrigger value="preferences">الإعدادات</TabsTrigger>
-        </TabsList>
+        <div className="flex justify-center w-full mb-6">
+          <TabsList className="grid w-full max-w-md grid-cols-2 mb-6">
+            <TabsTrigger value="profile">المعلومات الشخصية</TabsTrigger>
+            <TabsTrigger value="preferences">الإعدادات</TabsTrigger>
+          </TabsList>
+        </div>
         
         {/* المعلومات الشخصية */}
         <TabsContent value="profile">
