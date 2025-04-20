@@ -236,7 +236,7 @@ const SAMPLE_POSTS_EN: Post[] = [
 export default function CommunityPostsPage() {
   const { language } = useLanguage();
   const { toast } = useToast();
-  const { currentUser } = useAuth();
+  const { user } = useAuth();
   const isArabic = language.startsWith('ar');
   
   // استعلامات لجلب البيانات من الخادم

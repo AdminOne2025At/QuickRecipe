@@ -1,6 +1,17 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Ingredient, Recipe } from "@/lib/types";
-import { Loader2 } from "lucide-react";
+import { BookmarkPlus, Loader2, Save } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
+import { useState } from "react";
+import { apiRequest } from "@/lib/queryClient";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface RecipeResultsProps {
   recipes: Recipe[];
@@ -13,6 +24,79 @@ export default function RecipeResults({
   isLoading,
   ingredients,
 }: RecipeResultsProps) {
+  const { user } = useAuth();
+  const [savingRecipes, setSavingRecipes] = useState<{ [key: number]: boolean }>({});
+  const [savedRecipes, setSavedRecipes] = useState<{ [key: number]: boolean }>({});
+  
+  const saveRecipe = async (recipe: Recipe, index: number) => {
+    if (!user) {
+      toast({
+        title: "عذراً! لازم تعمل حساب الأول",
+        description: "علشان تقدر تحفظ الوصفات، لازم تسجل دخول أو تعمل حساب جديد",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    try {
+      setSavingRecipes(prev => ({ ...prev, [index]: true }));
+      
+      // تحقق ما إذا كانت الوصفة محفوظة بالفعل
+      const checkResponse = await apiRequest("POST", `/api/users/${user.id}/saved-recipes/check`, {
+        recipeData: recipe
+      });
+      
+      const { isSaved } = await checkResponse.json();
+      
+      if (isSaved) {
+        toast({
+          title: "الوصفة محفوظة بالفعل!",
+          description: "لقد قمت بحفظ هذه الوصفة من قبل",
+        });
+        setSavedRecipes(prev => ({ ...prev, [index]: true }));
+        setSavingRecipes(prev => ({ ...prev, [index]: false }));
+        return;
+      }
+      
+      // حفظ الوصفة
+      const recipeToSave = {
+        recipeData: {
+          title: recipe.title,
+          description: recipe.description,
+          ingredients: recipe.ingredients,
+          instructions: recipe.instructions,
+          videoId: recipe.videoId
+        },
+        tags: []
+      };
+      
+      const response = await apiRequest("POST", `/api/users/${user.id}/saved-recipes`, recipeToSave);
+      
+      if (response.ok) {
+        toast({
+          title: "تم حفظ الوصفة بنجاح!",
+          description: "يمكنك العثور عليها في صفحة الوصفات المحفوظة",
+        });
+        setSavedRecipes(prev => ({ ...prev, [index]: true }));
+      } else {
+        toast({
+          title: "حدث خطأ",
+          description: "لم نتمكن من حفظ الوصفة، يرجى المحاولة مرة أخرى",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error saving recipe:", error);
+      toast({
+        title: "حدث خطأ",
+        description: "لم نتمكن من حفظ الوصفة، يرجى المحاولة مرة أخرى",
+        variant: "destructive",
+      });
+    } finally {
+      setSavingRecipes(prev => ({ ...prev, [index]: false }));
+    }
+  };
+  
   if (isLoading) {
     return (
       <div className="mb-8 text-center">
@@ -43,9 +127,39 @@ export default function RecipeResults({
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-secondary"></div>
             </div>
             <div className="p-6">
-              <h3 className="text-xl md:text-2xl font-bold mb-3 text-gray-800 flex items-center gap-2">
-                <span className="text-2xl">🍽️</span> {recipe.title}
-              </h3>
+              <div className="flex items-start justify-between mb-3">
+                <h3 className="text-xl md:text-2xl font-bold text-gray-800 flex items-center gap-2">
+                  <span className="text-2xl">🍽️</span> {recipe.title}
+                </h3>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant={savedRecipes[index] ? "secondary" : "outline"} 
+                        size="sm"
+                        onClick={() => saveRecipe(recipe, index)}
+                        disabled={savingRecipes[index]}
+                        className={`flex items-center gap-1 transition-all duration-300 ${savedRecipes[index] ? 'bg-green-100 text-green-800 hover:bg-green-200' : ''}`}
+                      >
+                        {savingRecipes[index] ? (
+                          <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                        ) : savedRecipes[index] ? (
+                          <Save className="w-4 h-4 mr-1" />
+                        ) : (
+                          <BookmarkPlus className="w-4 h-4 mr-1" />
+                        )}
+                        {savedRecipes[index] ? "تم الحفظ" : "احفظ الوصفة"}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {savedRecipes[index] 
+                        ? "الوصفة محفوظة بالفعل!" 
+                        : "احفظ هذه الوصفة في حسابك لتتمكن من العودة إليها لاحقًا"
+                      }
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
               <div className="mb-4 text-gray-600 bg-primary/5 p-3 rounded-md italic">
                 <p className="mb-2">{recipe.description}</p>
               </div>

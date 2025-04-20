@@ -243,6 +243,122 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // API endpoints for saved recipes
+  
+  // Get user's saved recipes
+  app.get("/api/users/:userId/saved-recipes", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      
+      if (isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+
+      // Ensure user exists
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Get user's saved recipes
+      const savedRecipes = await storage.getUserSavedRecipes(userId);
+      return res.json(savedRecipes);
+    } catch (error) {
+      console.error("Error fetching saved recipes:", error);
+      return res.status(500).json({ message: "Failed to fetch saved recipes" });
+    }
+  });
+
+  // Check if recipe is already saved
+  app.post("/api/users/:userId/saved-recipes/check", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const { recipeData } = req.body;
+      
+      if (isNaN(userId) || !recipeData) {
+        return res.status(400).json({ message: "Invalid user ID or recipe data" });
+      }
+
+      // Check if recipe is already saved
+      const isSaved = await storage.isSavedRecipe(userId, recipeData);
+      return res.json({ isSaved });
+    } catch (error) {
+      console.error("Error checking saved recipe:", error);
+      return res.status(500).json({ message: "Failed to check saved recipe" });
+    }
+  });
+
+  // Save a recipe to user's saved recipes
+  app.post("/api/users/:userId/saved-recipes", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const { recipeData, tags } = req.body;
+      
+      if (isNaN(userId) || !recipeData) {
+        return res.status(400).json({ message: "Invalid user ID or recipe data" });
+      }
+
+      // Ensure user exists
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Check if recipe is already saved
+      const isSaved = await storage.isSavedRecipe(userId, recipeData);
+      if (isSaved) {
+        return res.status(409).json({ message: "Recipe already saved" });
+      }
+
+      // Save recipe
+      const savedRecipe = await storage.createSavedRecipe({
+        userId,
+        recipeData,
+        tags: tags || []
+      });
+
+      return res.status(201).json(savedRecipe);
+    } catch (error) {
+      console.error("Error saving recipe:", error);
+      return res.status(500).json({ message: "Failed to save recipe" });
+    }
+  });
+
+  // Delete a saved recipe
+  app.delete("/api/users/:userId/saved-recipes/:recipeId", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const recipeId = parseInt(req.params.recipeId);
+      
+      if (isNaN(userId) || isNaN(recipeId)) {
+        return res.status(400).json({ message: "Invalid user ID or recipe ID" });
+      }
+
+      // Ensure user exists
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Get recipe to verify it belongs to the user
+      const recipe = await storage.getSavedRecipe(recipeId);
+      if (!recipe) {
+        return res.status(404).json({ message: "Recipe not found" });
+      }
+
+      if (recipe.userId !== userId) {
+        return res.status(403).json({ message: "Not authorized to delete this recipe" });
+      }
+
+      // Delete recipe
+      await storage.deleteSavedRecipe(recipeId);
+      return res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting saved recipe:", error);
+      return res.status(500).json({ message: "Failed to delete saved recipe" });
+    }
+  });
+
   // Save user ingredients
   app.post("/api/users/:userId/ingredients", async (req, res) => {
     try {

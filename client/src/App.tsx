@@ -5,6 +5,7 @@ import AuthPage from "@/pages/auth-page";
 import ProfilePage from "@/pages/profile-page";
 import GamificationPage from "@/pages/gamification-page";
 import CommunityPostsPage from "@/pages/community-posts";
+import SavedRecipesPage from "@/pages/saved-recipes";
 import { ReactNode, useEffect } from "react";
 import { SimpleHeader } from "@/components/SimpleHeader";
 import { MobileMenuButton } from "@/components/MobileMenuButton";
@@ -73,6 +74,7 @@ function App() {
               <Route path="/profile" component={ProfilePage} />
               <Route path="/cooking-journey" component={GamificationPage} />
               <Route path="/community-posts" component={CommunityPostsPage} />
+              <Route path="/saved-recipes" component={SavedRecipesPage} />
               <Route component={NotFound} />
             </Switch>
           </AppLayout>

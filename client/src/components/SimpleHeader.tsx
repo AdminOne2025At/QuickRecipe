@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { LogIn, User, Menu, X } from "lucide-react";
+import { BookmarkIcon, LogIn, User, Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
@@ -68,6 +68,19 @@ export function SimpleHeader() {
             </Button>
           </Link>
           
+          {!isLoading && currentUser && (
+            <Link href="/saved-recipes">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 gap-2"
+              >
+                <BookmarkIcon className="h-4 w-4" />
+                وصفاتي المحفوظة
+              </Button>
+            </Link>
+          )}
+          
           {!isLoading && !currentUser ? (
             <Link href="/auth">
               <Button 
@@ -111,6 +124,15 @@ export function SimpleHeader() {
                 رحلة الطهي التفاعلية
               </span>
             </Link>
+            {!isLoading && currentUser && (
+              <Link href="/saved-recipes">
+                <span className="block py-2 px-3 hover:bg-gray-100 rounded-md text-purple-600 flex items-center gap-2">
+                  <BookmarkIcon className="h-4 w-4" />
+                  وصفاتي المحفوظة
+                </span>
+              </Link>
+            )}
+            
             {!isLoading && !currentUser ? (
               <Link href="/auth">
                 <span className="block py-2 px-3 hover:bg-gray-100 rounded-md">تسجيل الدخول</span>

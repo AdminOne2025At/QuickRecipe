@@ -12,7 +12,7 @@ import { useLocation } from "wouter";
 import { LogIn, LogOut, Settings, User } from "lucide-react";
 
 export function UserMenu() {
-  const { currentUser, signIn, signOut, isLoading } = useAuth();
+  const { user, firebaseUser, isLoading } = useAuth();
   const [, setLocation] = useLocation();
 
   if (isLoading) {
@@ -23,12 +23,12 @@ export function UserMenu() {
     );
   }
 
-  if (!currentUser) {
+  if (!user) {
     return (
       <Button 
         variant="outline" 
         size="sm" 
-        onClick={signIn}
+        onClick={() => window.location.href = '/auth'}
         className="gap-2"
       >
         <LogIn className="h-4 w-4" />
@@ -42,9 +42,9 @@ export function UserMenu() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="sm" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            <AvatarImage src={currentUser.photoURL || ""} alt={currentUser.displayName || ""} />
+            <AvatarImage src={user.photoURL || ""} alt={user.displayName || ""} />
             <AvatarFallback>
-              {currentUser.displayName ? currentUser.displayName.slice(0, 2) : "UN"}
+              {user.displayName ? user.displayName.slice(0, 2) : "UN"}
             </AvatarFallback>
           </Avatar>
         </Button>
@@ -52,12 +52,12 @@ export function UserMenu() {
       <DropdownMenuContent align="end">
         <div className="flex items-center justify-start gap-2 p-2">
           <div className="flex flex-col space-y-1 leading-none">
-            {currentUser.displayName && (
-              <p className="font-medium">{currentUser.displayName}</p>
+            {user.displayName && (
+              <p className="font-medium">{user.displayName}</p>
             )}
-            {currentUser.email && (
+            {user.email && (
               <p className="w-[200px] truncate text-sm text-muted-foreground">
-                {currentUser.email}
+                {user.email}
               </p>
             )}
           </div>
@@ -73,7 +73,10 @@ export function UserMenu() {
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem 
-          onClick={() => signOut()} 
+          onClick={() => {
+            localStorage.removeItem('user');
+            window.location.href = '/auth';
+          }} 
           className="text-red-600 gap-2 cursor-pointer"
         >
           <LogOut className="h-4 w-4" />
