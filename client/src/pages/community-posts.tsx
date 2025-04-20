@@ -22,7 +22,7 @@ type DbPost = {
   content: string;
   postType: string;
   imageUrl?: string;
-  tags: string;
+  tags: string[] | string;
   likesCount: number;
   commentsCount: number;
   sharesCount: number;
@@ -100,7 +100,7 @@ const mapDbPostToUiPost = (dbPost: DbPost, isArabic: boolean): Post => {
     content: dbPost.content,
     postType: dbPost.postType,
     image: dbPost.imageUrl,
-    tags: dbPost.tags ? JSON.parse(dbPost.tags) : [],
+    tags: Array.isArray(dbPost.tags) ? dbPost.tags : (typeof dbPost.tags === 'string' ? JSON.parse(dbPost.tags) : []),
     likes: dbPost.likesCount,
     comments: dbPost.commentsCount,
     shares: dbPost.sharesCount,
@@ -260,7 +260,8 @@ export default function CommunityPostsPage() {
       title: string;
       content: string;
       postType: string;
-      tags: string;
+      tags: string[];
+      imageUrl?: string;
     }) => {
       const res = await apiRequest("POST", "/api/community-posts", postData);
       return await res.json();
@@ -371,7 +372,7 @@ export default function CommunityPostsPage() {
       title: postTitle,
       content: postContent,
       postType: "recipe", // النوع الافتراضي هو وصفة
-      tags: JSON.stringify(tagsList),
+      tags: tagsList, // إرسال المصفوفة مباشرة بدلاً من تحويلها إلى نص
       imageUrl: "", // سنحتاج إلى رفع الصورة إلى خدمة تخزين سحابية في التطبيق الكامل
     };
     
