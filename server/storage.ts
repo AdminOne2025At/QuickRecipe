@@ -256,10 +256,24 @@ export class DatabaseStorage implements IStorage {
   }
 
   async likePost(id: number): Promise<void> {
+    // الحصول على عدد الإعجابات الحالي
+    const [post] = await db
+      .select({ likes: communityPosts.likes })
+      .from(communityPosts)
+      .where(eq(communityPosts.id, id));
+      
+    if (!post) {
+      throw new Error("Post not found");
+    }
+    
+    const currentLikes = post.likes;
+    
+    // تحديث الإعجابات (+1)
     await db
       .update(communityPosts)
       .set({ 
-        likes: sql`${communityPosts.likes} + 1` 
+        likes: currentLikes + 1,
+        updatedAt: new Date() 
       })
       .where(eq(communityPosts.id, id));
   }
