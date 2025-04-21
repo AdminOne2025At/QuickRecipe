@@ -170,22 +170,32 @@ export default function AuthPage() {
             <CardDescription>سجل دخولك للوصول إلى مميزات خاصة</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
-            <Button 
-              variant="outline" 
-              className="flex items-center gap-2 mb-2" 
-              onClick={handleSignIn}
-              disabled={isLoading}
-            >
-              <FcGoogle className="h-5 w-5" /> 
-              <span className="flex-1">تسجيل الدخول باستخدام Google</span>
-            </Button>
+            <div className="space-y-4">
+              <Button 
+                variant="outline" 
+                className="flex items-center gap-2 w-full" 
+                onClick={handleSignIn}
+                disabled={isLoading}
+              >
+                <FcGoogle className="h-5 w-5" /> 
+                <span className="flex-1">تسجيل الدخول باستخدام Google</span>
+              </Button>
+              
+              <div className="bg-amber-50 p-3 rounded-md border border-amber-200 text-xs">
+                <p className="font-medium text-amber-800 mb-1">ملاحظة: تسجيل الدخول بجوجل معطل حاليًا</p>
+                <p className="text-amber-700">
+                  يجب إضافة نطاق الموقع إلى قائمة النطاقات المسموح بها في إعدادات Firebase.
+                  يرجى استخدام خيار "تخطي تسجيل الدخول" أدناه.
+                </p>
+              </div>
+            </div>
             
             <Button 
               onClick={handleGuestLogin} 
-              variant="secondary" 
-              className="w-full mb-2"
+              variant="default" 
+              className="w-full mb-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600"
             >
-              تخطي تسجيل الدخول والاستمرار كزائر
+              دخول سريع (الخيار الموصى به)
             </Button>
             
             <Button
@@ -198,9 +208,9 @@ export default function AuthPage() {
             </Button>
           </CardContent>
           <CardContent>
-            <div className="mt-4 p-3 bg-amber-50 text-amber-800 rounded-md border border-amber-200 text-sm">
-              <p className="font-semibold mb-1">ملاحظة هامة:</p>
-              <p>إذا واجهت مشكلة في تسجيل الدخول، يمكنك استخدام خيار "تخطي تسجيل الدخول" للاستمرار استخدام التطبيق. للحصول على جميع المميزات، يرجى المحاولة لاحقًا أو استخدام متصفح آخر.</p>
+            <div className="mt-4 p-3 bg-blue-50 text-blue-800 rounded-md border border-blue-200 text-sm">
+              <p className="font-semibold mb-1">معلومات عن تسجيل الدخول:</p>
+              <p>يعمل خيار "دخول سريع" على تمكينك من استخدام جميع وظائف التطبيق بسرعة دون الحاجة إلى حساب جوجل أو بريد إلكتروني. نوصي باستخدام هذا الخيار للتجربة الأفضل.</p>
             </div>
           </CardContent>
           <CardFooter className="text-center text-sm text-muted-foreground">
