@@ -15,11 +15,15 @@ import { z } from "zod";
 import { sendPostReportToDiscord, sendAutoRemovalNotification, sendLoginNotificationToDiscord } from "./services/discord-notifications";
 // استيراد نظام المصادقة الجديد
 import { setupAuth, comparePasswords, hashPassword } from "./auth";
+// استيراد WebSocket
+import * as WebSocket from 'ws';
 
 // Import types for recipe interface
 import type { RecipeResult } from "./services/openai";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // إعداد نظام المصادقة الجديد
+  const { isAuthenticated, isAdmin } = setupAuth(app);
   // Route to fetch recipes based on ingredients
   app.post("/api/recipes", async (req, res) => {
     try {
@@ -119,116 +123,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // User registration endpoint
-  app.post("/api/users/register", async (req, res) => {
-    try {
-      const userSchema = insertUserSchema.extend({
-        confirmPassword: z.string()
-      }).refine(data => data.password === data.confirmPassword, {
-        message: "Passwords don't match",
-        path: ["confirmPassword"]
-      });
-
-      const validatedData = userSchema.parse(req.body);
-
-      // Check if username already exists
-      const existingUser = await storage.getUserByUsername(validatedData.username);
-      if (existingUser) {
-        return res.status(400).json({ message: "Username already exists" });
-      }
-
-      // Create new user (password would be hashed in a real app)
-      const newUser = await storage.createUser({
-        username: validatedData.username,
-        password: validatedData.password, // In a real app, hash this password!
-      });
-
-      // Return user without password
-      const { password, ...userWithoutPassword } = newUser;
-      return res.status(201).json(userWithoutPassword);
-    } catch (error) {
-      console.error("User registration error:", error);
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ errors: error.errors });
-      }
-      return res.status(500).json({ message: "Failed to register user" });
-    }
-  });
-
-  // User login endpoint
-  app.post("/api/users/login", async (req, res) => {
-    try {
-      const loginSchema = z.object({
-        username: z.string().min(1),
-        password: z.string().min(1)
-      });
-
-      const validatedData = loginSchema.parse(req.body);
-      
-      // Find user and check password (would use proper comparison in a real app)
-      const user = await storage.getUserByUsername(validatedData.username);
-      
-      if (!user || user.password !== validatedData.password) {
-        return res.status(401).json({ message: "Invalid username or password" });
-      }
-
-      // Return user without password
-      const { password, ...userWithoutPassword } = user;
-      return res.status(200).json(userWithoutPassword);
-    } catch (error) {
-      console.error("Login error:", error);
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ errors: error.errors });
-      }
-      return res.status(500).json({ message: "Login failed" });
-    }
-  });
-  
-  // Login with Firebase endpoint - for existing Firebase users
-  app.post("/api/login", async (req, res) => {
-    try {
-      const loginSchema = z.object({
-        username: z.string().min(1),
-        password: z.string().min(1)
-      });
-
-      const validatedData = loginSchema.parse(req.body);
-      
-      // Find user by username
-      const user = await storage.getUserByUsername(validatedData.username);
-      
-      if (!user || user.password !== validatedData.password) {
-        return res.status(401).json({ message: "Invalid username or password" });
-      }
-
-      // إرسال إشعار تسجيل دخول غير متزامن
-      try {
-        const userAgent = req.headers['user-agent'] || 'غير معروف';
-        const ipAddress = req.ip || req.socket.remoteAddress || 'غير معروف';
-        
-        sendLoginNotificationToDiscord({
-          userId: user.id,
-          username: user.username,
-          loginMethod: 'google', // باعتبار أنه تسجيل دخول عام
-          loginTime: new Date(),
-          userAgent,
-          ipAddress
-        }).catch(err => console.error("فشل إرسال إشعار تسجيل دخول:", err));
-      } catch (notificationError) {
-        console.error("خطأ عند إعداد إشعار تسجيل الدخول:", notificationError);
-      }
-
-      // Return user without password
-      const { password, ...userWithoutPassword } = user;
-      return res.status(200).json(userWithoutPassword);
-    } catch (error) {
-      console.error("Firebase login error:", error);
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ errors: error.errors });
-      }
-      return res.status(500).json({ message: "Login failed" });
-    }
-  });
+  // نظام المصادقة الجديد مضاف بالفعل في ملف auth.ts
+  // وتم تفعيله في بداية هذا الملف باستخدام setupAuth(app)
+  // المسارات السابقة معطلة الآن ومستبدلة بالمسارات الجديدة
   
   // مسار إشعار تسجيل الدخول والخروج (للزوار وحسابات جوجل)
   app.post("/api/login/notify", async (req, res) => {
@@ -1362,5 +1259,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   const httpServer = createServer(app);
+  
+  // إعداد خادم WebSocket للمراسلة في الوقت الحقيقي
+  try {
+    // إنشاء خادم WebSocket
+    const wss = new WebSocket.Server({ 
+      server: httpServer, 
+      path: '/ws' 
+    });
+    
+    console.log("تم تهيئة خادم WebSocket");
+    
+    // تعريف واجهات لأنواع البيانات
+    interface WsMessage {
+      type: string;
+      message?: string;
+      source?: string;
+      [key: string]: any;
+    }
+    
+    // الاستماع إلى اتصالات جديدة
+    wss.on('connection', (ws, req) => {
+      console.log("اتصال WebSocket جديد");
+      
+      // إرسال رسالة ترحيب
+      ws.send(JSON.stringify({
+        type: 'welcome',
+        message: 'مرحبًا بك في خدمة الوصفات السريعة!'
+      }));
+      
+      // الاستماع إلى الرسائل من العميل
+      ws.on('message', (message) => {
+        try {
+          const msgString = message.toString();
+          const data = JSON.parse(msgString) as WsMessage;
+          console.log("رسالة WebSocket:", data);
+          
+          // معالجة الرسائل بناءً على نوعها
+          if (data.type === 'ping') {
+            ws.send(JSON.stringify({
+              type: 'pong',
+              timestamp: Date.now()
+            }));
+          }
+          
+          // بث الرسائل إلى جميع العملاء المتصلين (للإشعارات العامة)
+          if (data.type === 'broadcast') {
+            wss.clients.forEach((client) => {
+              if (client !== ws && client.readyState === WebSocket.OPEN) {
+                client.send(JSON.stringify({
+                  type: 'notification',
+                  message: data.message,
+                  source: data.source,
+                  timestamp: Date.now()
+                }));
+              }
+            });
+          }
+        } catch (error) {
+          console.error("خطأ في معالجة رسالة WebSocket:", error);
+        }
+      });
+      
+      // التعامل مع إغلاق الاتصال
+      ws.on('close', () => {
+        console.log("تم إغلاق اتصال WebSocket");
+      });
+    });
+  } catch (error) {
+    console.error("خطأ في تهيئة خادم WebSocket:", error);
+  }
+  
   return httpServer;
 }
