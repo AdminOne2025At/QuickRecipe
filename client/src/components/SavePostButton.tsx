@@ -24,16 +24,35 @@ export default function SavePostButton({
   const queryClient = useQueryClient();
   const [isSaved, setIsSaved] = useState(false);
 
+  // استخراج معرف المستخدم من localStorage إذا لم يكن متوفراً في context
+  const getUserIdFromStorage = (): number | null => {
+    if (user) return user.id;
+    
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        return parsedUser.id;
+      } catch (e) {
+        console.error("Error parsing user from localStorage:", e);
+        return null;
+      }
+    }
+    return null;
+  };
+
+  const userId = getUserIdFromStorage();
+  
   // التحقق مما إذا كان المنشور محفوظًا بالفعل
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["/api/users", user?.id, "saved-posts"],
+    queryKey: ["/api/users", userId, "saved-posts"],
     queryFn: async () => {
-      if (!user) return [];
+      if (!userId) return [];
       
-      const res = await apiRequest("GET", `/api/users/${user.id}/saved-posts`);
+      const res = await apiRequest("GET", `/api/users/${userId}/saved-posts`);
       return await res.json();
     },
-    enabled: !!user,
+    enabled: !!userId,
   });
 
   // تحديث حالة الحفظ عند تحميل البيانات
@@ -76,7 +95,7 @@ export default function SavePostButton({
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/users", user?.id, "saved-posts"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/users", userId, "saved-posts"] });
       toast({
         title: "تم الحفظ",
         description: "تم حفظ المنشور في المفضلة",
@@ -119,7 +138,7 @@ export default function SavePostButton({
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/users", user?.id, "saved-posts"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/users", userId, "saved-posts"] });
       toast({
         title: "تم إلغاء الحفظ",
         description: "تم إزالة المنشور من المفضلة",
@@ -138,7 +157,11 @@ export default function SavePostButton({
 
   // التبديل بين الحفظ وإلغاء الحفظ
   const handleToggleSave = () => {
-    if (!user) {
+    // التحقق من وجود مستخدم مسجل إما في context أو في localStorage
+    const storedUser = localStorage.getItem("user");
+    const isLoggedIn = user || storedUser;
+    
+    if (!isLoggedIn) {
       toast({
         title: "تنبيه",
         description: "يجب تسجيل الدخول أولاً لحفظ المنشورات",

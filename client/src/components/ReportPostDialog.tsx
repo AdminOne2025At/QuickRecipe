@@ -89,6 +89,19 @@ export default function ReportPostDialog({ postId, onClose }: ReportPostDialogPr
       return;
     }
     
+    // التحقق من وجود مستخدم مسجل إما في context أو في localStorage
+    const storedUser = localStorage.getItem("user");
+    const isLoggedIn = user || storedUser;
+    
+    if (!isLoggedIn) {
+      toast({
+        title: "تنبيه",
+        description: "يجب تسجيل الدخول أولاً للإبلاغ عن المنشورات",
+        variant: "default"
+      });
+      return;
+    }
+    
     reportMutation.mutate();
   };
 
