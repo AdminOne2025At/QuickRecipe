@@ -8,6 +8,7 @@ import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { Loader2, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { queryClient } from "@/lib/queryClient";
 
 export default function AuthPage() {
   const [isLoading, setIsLoading] = useState(true);
@@ -87,6 +88,41 @@ export default function AuthPage() {
       setIsLoading(false);
     }
   };
+  
+  // التعامل مع تسجيل الدخول كزائر (وضع زائر)
+  const handleGuestLogin = () => {
+    try {
+      // إنشاء بيانات مستخدم زائر
+      const guestUser = {
+        id: 1, // استخدام معرف المستخدم الافتراضي
+        username: "زائر",
+        isGuest: true
+      };
+      
+      // تخزين بيانات المستخدم الزائر في localStorage
+      localStorage.setItem("user", JSON.stringify(guestUser));
+      
+      // تحديث React Query
+      queryClient.setQueryData(["/api/user"], guestUser);
+      
+      toast({
+        title: "تم تسجيل الدخول كزائر",
+        description: "يمكنك الآن استخدام الموقع. بعض الميزات قد تكون محدودة.",
+        variant: "default"
+      });
+      
+      // التوجيه إلى الصفحة الرئيسية
+      setLocation("/");
+    } catch (error) {
+      console.error("Error logging in as guest:", error);
+      
+      toast({
+        title: "حدث خطأ",
+        description: "حدث خطأ أثناء محاولة تسجيل الدخول كزائر.",
+        variant: "destructive"
+      });
+    }
+  };
 
   return (
     <div className="flex min-h-[80vh] w-full flex-col md:flex-row">
@@ -109,7 +145,7 @@ export default function AuthPage() {
             </Button>
             
             <Button 
-              onClick={() => setLocation('/')} 
+              onClick={handleGuestLogin} 
               variant="secondary" 
               className="w-full mb-2"
             >
