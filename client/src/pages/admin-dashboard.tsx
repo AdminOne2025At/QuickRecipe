@@ -541,7 +541,28 @@ export default function AdminDashboard() {
                       variant="outline" 
                       size="sm" 
                       className="text-red-700 border-red-200"
-                      onClick={() => {
+                      onClick={async () => {
+                        try {
+                          // إرسال إشعار تسجيل الخروج قبل حذف بيانات المستخدم من التخزين المحلي
+                          if (user) {
+                            const response = await fetch('/api/login/notify', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({
+                                username: user.username || user.displayName || 'مشرف النظام',
+                                loginMethod: 'admin',
+                                userAgent: navigator.userAgent,
+                                isAdmin: true,
+                                email: user.email || undefined,
+                                isLogout: true // علامة لتمييز أن هذا طلب تسجيل خروج
+                              })
+                            });
+                            console.log('Admin logout notification sent:', await response.json());
+                          }
+                        } catch (error) {
+                          console.error('Failed to send admin logout notification:', error);
+                        }
+                        
                         // تسجيل الخروج
                         localStorage.removeItem("user");
                         window.location.href = "/";

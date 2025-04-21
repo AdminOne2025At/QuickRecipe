@@ -82,7 +82,7 @@ export function UserMenu() {
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
                     username: user.displayName || user.email || 'مستخدم غير معروف',
-                    loginMethod: user.isAdmin ? 'admin' : (user.providerId === 'google.com' ? 'google' : 'guest'),
+                    loginMethod: user.isAdmin ? 'admin' : (user.email?.includes('@gmail.com') ? 'google' : 'guest'),
                     userAgent: navigator.userAgent,
                     isAdmin: !!user.isAdmin,
                     email: user.email || undefined,
