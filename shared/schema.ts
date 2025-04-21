@@ -157,6 +157,7 @@ export const communityPosts = pgTable("community_posts", {
   likes: integer("likes").default(0).notNull(),
   comments: integer("comments").default(0).notNull(),
   shares: integer("shares").default(0).notNull(),
+  reports: integer("reports").default(0).notNull(), // عدد البلاغات على المنشور
   postType: text("post_type").default("general").notNull(), // general, recipe
   recipeId: integer("recipe_id").references(() => recipes.id),
   isLikedByUser: boolean("is_liked_by_user").default(false),
@@ -254,3 +255,58 @@ export const insertSavedRecipeSchema = createInsertSchema(savedRecipes).omit({
 
 export type InsertSavedRecipe = z.infer<typeof insertSavedRecipeSchema>;
 export type SavedRecipe = typeof savedRecipes.$inferSelect;
+
+// جدول المنشورات المحفوظة للمستخدم
+export const savedPosts = pgTable("saved_posts", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  postId: integer("post_id").notNull().references(() => communityPosts.id),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const savedPostsRelations = relations(savedPosts, ({ one }) => ({
+  user: one(users, {
+    fields: [savedPosts.userId],
+    references: [users.id],
+  }),
+  post: one(communityPosts, {
+    fields: [savedPosts.postId],
+    references: [communityPosts.id],
+  }),
+}));
+
+export const insertSavedPostSchema = createInsertSchema(savedPosts).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertSavedPost = z.infer<typeof insertSavedPostSchema>;
+export type SavedPost = typeof savedPosts.$inferSelect;
+
+// جدول بلاغات المنشورات
+export const postReports = pgTable("post_reports", {
+  id: serial("id").primaryKey(),
+  postId: integer("post_id").notNull().references(() => communityPosts.id),
+  userId: integer("user_id").notNull().references(() => users.id),
+  reason: text("reason").notNull(), // سبب البلاغ
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const postReportsRelations = relations(postReports, ({ one }) => ({
+  post: one(communityPosts, {
+    fields: [postReports.postId],
+    references: [communityPosts.id],
+  }),
+  user: one(users, {
+    fields: [postReports.userId],
+    references: [users.id],
+  }),
+}));
+
+export const insertPostReportSchema = createInsertSchema(postReports).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertPostReport = z.infer<typeof insertPostReportSchema>;
+export type PostReport = typeof postReports.$inferSelect;

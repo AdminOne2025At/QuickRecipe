@@ -6,7 +6,9 @@ import {
   recipeCaches, type RecipeCache, type InsertRecipeCache,
   communityPosts, type CommunityPost, type InsertCommunityPost,
   postComments, type PostComment, type InsertPostComment,
-  savedRecipes, type SavedRecipe, type InsertSavedRecipe
+  savedRecipes, type SavedRecipe, type InsertSavedRecipe,
+  postReports, type PostReport, type InsertPostReport,
+  savedPosts, type SavedPost, type InsertSavedPost
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, sql, asc } from "drizzle-orm";
@@ -62,6 +64,18 @@ export interface IStorage {
   getPostComments(postId: number): Promise<PostComment[]>;
   createPostComment(comment: InsertPostComment): Promise<PostComment>;
   deletePostComment(id: number): Promise<void>;
+  
+  // Post reports operations
+  reportPost(report: InsertPostReport): Promise<PostReport>;
+  getPostReports(postId: number): Promise<PostReport[]>;
+  getPostReportsCount(postId: number): Promise<number>;
+  hasUserReportedPost(userId: number, postId: number): Promise<boolean>;
+  
+  // Saved posts operations
+  savePost(savedPost: InsertSavedPost): Promise<SavedPost>;
+  unsavePost(userId: number, postId: number): Promise<void>;
+  getUserSavedPosts(userId: number): Promise<CommunityPost[]>;
+  isPostSaved(userId: number, postId: number): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -401,6 +415,118 @@ export class DatabaseStorage implements IStorage {
         })
         .where(eq(communityPosts.id, comment.postId));
     }
+  }
+  
+  // Post reports operations
+  async reportPost(report: InsertPostReport): Promise<PostReport> {
+    // إنشاء بلاغ جديد
+    const [newReport] = await db
+      .insert(postReports)
+      .values(report)
+      .returning();
+    
+    // تحديث عدد البلاغات في المنشور
+    await db
+      .update(communityPosts)
+      .set({ 
+        reports: sql`${communityPosts.reports} + 1`
+      })
+      .where(eq(communityPosts.id, report.postId));
+    
+    // التحقق مما إذا وصل عدد البلاغات للحد الأقصى (50)
+    // وحذف المنشور تلقائيًا إذا تجاوز هذا الحد
+    const [post] = await db
+      .select({ reports: communityPosts.reports })
+      .from(communityPosts)
+      .where(eq(communityPosts.id, report.postId));
+    
+    if (post && post.reports >= 50) {
+      // حذف المنشور تلقائيًا لتجاوز عدد البلاغات الحد المسموح
+      await this.deleteCommunityPost(report.postId);
+    }
+    
+    return newReport;
+  }
+  
+  async getPostReports(postId: number): Promise<PostReport[]> {
+    return await db
+      .select()
+      .from(postReports)
+      .where(eq(postReports.postId, postId))
+      .orderBy(desc(postReports.createdAt));
+  }
+  
+  async getPostReportsCount(postId: number): Promise<number> {
+    const [result] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(postReports)
+      .where(eq(postReports.postId, postId));
+    
+    return result?.count || 0;
+  }
+  
+  async hasUserReportedPost(userId: number, postId: number): Promise<boolean> {
+    const [report] = await db
+      .select()
+      .from(postReports)
+      .where(
+        and(
+          eq(postReports.userId, userId),
+          eq(postReports.postId, postId)
+        )
+      );
+    
+    return !!report;
+  }
+  
+  // Saved posts operations
+  async savePost(savedPost: InsertSavedPost): Promise<SavedPost> {
+    const [newSavedPost] = await db
+      .insert(savedPosts)
+      .values(savedPost)
+      .returning();
+    
+    return newSavedPost;
+  }
+  
+  async unsavePost(userId: number, postId: number): Promise<void> {
+    await db
+      .delete(savedPosts)
+      .where(
+        and(
+          eq(savedPosts.userId, userId),
+          eq(savedPosts.postId, postId)
+        )
+      );
+  }
+  
+  async getUserSavedPosts(userId: number): Promise<CommunityPost[]> {
+    // الحصول على المنشورات المحفوظة للمستخدم مع تفاصيل المنشور كاملة
+    const savedPostsWithDetails = await db
+      .select({
+        post: communityPosts
+      })
+      .from(savedPosts)
+      .innerJoin(communityPosts, eq(savedPosts.postId, communityPosts.id))
+      .where(eq(savedPosts.userId, userId))
+      .orderBy(desc(savedPosts.createdAt));
+    
+    // استخراج تفاصيل المنشورات فقط
+    return savedPostsWithDetails.map(item => item.post);
+  }
+  
+  async isPostSaved(userId: number, postId: number): Promise<boolean> {
+    const [savedPost] = await db
+      .select()
+      .from(savedPosts)
+      .where(
+        and(
+          eq(savedPosts.userId, userId),
+          eq(savedPosts.postId, postId)
+        )
+      );
+    
+    return !!savedPost;
   }
 }
 
