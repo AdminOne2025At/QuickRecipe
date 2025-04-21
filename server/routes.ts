@@ -16,7 +16,7 @@ import { sendPostReportToDiscord, sendAutoRemovalNotification, sendLoginNotifica
 // استيراد نظام المصادقة الجديد
 import { setupAuth, comparePasswords, hashPassword } from "./auth";
 // استيراد WebSocket
-import * as WebSocket from 'ws';
+import ws from 'ws';
 
 // Import types for recipe interface
 import type { RecipeResult } from "./services/openai";
@@ -1260,75 +1260,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   const httpServer = createServer(app);
   
-  // إعداد خادم WebSocket للمراسلة في الوقت الحقيقي
-  try {
-    // إنشاء خادم WebSocket
-    const wss = new WebSocket.Server({ 
-      server: httpServer, 
-      path: '/ws' 
-    });
-    
-    console.log("تم تهيئة خادم WebSocket");
-    
-    // تعريف واجهات لأنواع البيانات
-    interface WsMessage {
-      type: string;
-      message?: string;
-      source?: string;
-      [key: string]: any;
-    }
-    
-    // الاستماع إلى اتصالات جديدة
-    wss.on('connection', (ws, req) => {
-      console.log("اتصال WebSocket جديد");
-      
-      // إرسال رسالة ترحيب
-      ws.send(JSON.stringify({
-        type: 'welcome',
-        message: 'مرحبًا بك في خدمة الوصفات السريعة!'
-      }));
-      
-      // الاستماع إلى الرسائل من العميل
-      ws.on('message', (message) => {
-        try {
-          const msgString = message.toString();
-          const data = JSON.parse(msgString) as WsMessage;
-          console.log("رسالة WebSocket:", data);
-          
-          // معالجة الرسائل بناءً على نوعها
-          if (data.type === 'ping') {
-            ws.send(JSON.stringify({
-              type: 'pong',
-              timestamp: Date.now()
-            }));
-          }
-          
-          // بث الرسائل إلى جميع العملاء المتصلين (للإشعارات العامة)
-          if (data.type === 'broadcast') {
-            wss.clients.forEach((client) => {
-              if (client !== ws && client.readyState === WebSocket.OPEN) {
-                client.send(JSON.stringify({
-                  type: 'notification',
-                  message: data.message,
-                  source: data.source,
-                  timestamp: Date.now()
-                }));
-              }
-            });
-          }
-        } catch (error) {
-          console.error("خطأ في معالجة رسالة WebSocket:", error);
-        }
-      });
-      
-      // التعامل مع إغلاق الاتصال
-      ws.on('close', () => {
-        console.log("تم إغلاق اتصال WebSocket");
-      });
-    });
-  } catch (error) {
-    console.error("خطأ في تهيئة خادم WebSocket:", error);
-  }
+  // سيتم إضافة دعم WebSocket لاحقًا
+  // تم تعطيل التكوين مؤقتًا لحل المشكلات
+  console.log("المسار الرئيسي للتطبيق نشط على المنفذ 5000");
   
   return httpServer;
 }
