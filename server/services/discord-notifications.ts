@@ -1,5 +1,5 @@
 /**
- * خدمة إشعارات Discord لإرسال تقارير المحتوى المسيء
+ * خدمة إشعارات Discord لإرسال تقارير المحتوى المسيء وإشعارات تسجيل الدخول
  * تستخدم Discord Webhook لإرسال رسائل إلى قناة محددة
  */
 
@@ -8,6 +8,18 @@ import { CommunityPost, PostReport, User, postReports } from '@shared/schema';
 import { storage } from '../storage';
 import { db } from '../db';
 import { eq } from 'drizzle-orm';
+
+// واجهة لبيانات تسجيل الدخول
+interface LoginPayload {
+  userId?: number;
+  username: string;
+  email?: string;
+  loginMethod: 'google' | 'admin' | 'guest';
+  loginTime: Date;
+  userAgent?: string;
+  ipAddress?: string;
+  isAdmin?: boolean;
+}
 
 // واجهة لبيانات الإبلاغ الكاملة مع معلومات المستخدم والمنشور
 interface ReportDetailsPayload {
@@ -187,13 +199,107 @@ function createDiscordEmbed(data: ReportDetailsPayload): any {
 }
 
 /**
- * إرسال إشعار عند حذف منشور تلقائيًا بسبب كثرة البلاغات
+ * إرسال إشعار عند تسجيل دخول مستخدم
  * 
- * @param postId معرف المنشور المحذوف
- * @param reportsCount عدد البلاغات
- * @param reason سبب الحذف (اختياري)
+ * @param loginData بيانات تسجيل الدخول
  * @returns وعد بنتيجة العملية
  */
+export async function sendLoginNotificationToDiscord(loginData: LoginPayload): Promise<boolean> {
+  try {
+    const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+    if (!webhookUrl) {
+      console.error("Discord webhook URL is not configured.");
+      return false;
+    }
+    
+    // تحديد اللون حسب نوع تسجيل الدخول
+    let color = 0x4CAF50; // أخضر للمستخدم العادي
+    let emoji = '👤';
+    
+    if (loginData.isAdmin) {
+      color = 0xF44336; // أحمر للمشرفين
+      emoji = '🛡️';
+    } else if (loginData.loginMethod === 'guest') {
+      color = 0x2196F3; // أزرق للزوار
+      emoji = '👻';
+    }
+    
+    // إنشاء رسالة حسب نوع تسجيل الدخول
+    let title = `تسجيل دخول مستخدم: ${loginData.username}`;
+    let description = `تم تسجيل دخول مستخدم جديد باستخدام ${getLoginMethodText(loginData.loginMethod)}`;
+    
+    if (loginData.isAdmin) {
+      title = `تسجيل دخول مشرف: ${loginData.username}`;
+      description = `⚠️ تم تسجيل دخول مشرف باستخدام ${getLoginMethodText(loginData.loginMethod)}`;
+    }
+    
+    // إرسال البيانات إلى Discord
+    const response = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        content: `${emoji} **${loginData.isAdmin ? 'تسجيل دخول مشرف' : 'تسجيل دخول مستخدم'}** ${emoji}`,
+        embeds: [{
+          title: title,
+          description: description,
+          color: color,
+          timestamp: new Date().toISOString(),
+          fields: [
+            {
+              name: '👤 معلومات المستخدم',
+              value: `**الاسم**: ${loginData.username}\n**المعرف**: ${loginData.userId || 'غير متوفر'}\n**البريد الإلكتروني**: ${loginData.email || 'غير متوفر'}`,
+              inline: true
+            },
+            {
+              name: '🔐 وسيلة الدخول',
+              value: `**الطريقة**: ${getLoginMethodText(loginData.loginMethod)}\n**الوقت**: ${loginData.loginTime.toLocaleString('ar-EG')}`,
+              inline: true
+            },
+            {
+              name: '💻 معلومات فنية',
+              value: `**متصفح**: ${loginData.userAgent || 'غير متوفر'}\n**عنوان IP**: ${loginData.ipAddress || 'غير متوفر'}`,
+              inline: false
+            }
+          ],
+          footer: {
+            text: "نظام تسجيل الدخول - كويك ريسب"
+          }
+        }]
+      }),
+    });
+    
+    if (!response.ok) {
+      console.error(`Discord webhook error: ${response.status} ${response.statusText}`);
+      const responseText = await response.text();
+      console.error(`Discord response: ${responseText}`);
+      return false;
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error sending login notification:', error);
+    return false;
+  }
+}
+
+/**
+ * تحويل نوع تسجيل الدخول إلى نص مفهوم
+ */
+function getLoginMethodText(method: 'google' | 'admin' | 'guest'): string {
+  switch (method) {
+    case 'google':
+      return 'حساب Google';
+    case 'admin':
+      return 'حساب المشرف';
+    case 'guest':
+      return 'وضع الزائر';
+    default:
+      return 'غير معروف';
+  }
+}
+
 export async function sendAutoRemovalNotification(postId: number, reportsCount: number, reason: string = 'تم الحذف تلقائياً'): Promise<boolean> {
   try {
     const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
@@ -247,7 +353,7 @@ export async function sendAutoRemovalNotification(postId: number, reportsCount: 
             }
           ],
           footer: {
-            text: "نظام إدارة المحتوى - كويك ريسيبي"
+            text: "نظام إدارة المحتوى - كويك ريسب"
           }
         }]
       }),
