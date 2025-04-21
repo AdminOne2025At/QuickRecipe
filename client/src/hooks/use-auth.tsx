@@ -10,6 +10,7 @@ interface AuthUser {
   displayName?: string;
   photoURL?: string;
   firebaseUid?: string;
+  isAdmin?: boolean;
 }
 
 interface AuthContextType {

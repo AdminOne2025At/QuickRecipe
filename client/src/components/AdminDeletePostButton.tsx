@@ -19,7 +19,7 @@ export default function AdminDeletePostButton({ postId }: AdminDeletePostButtonP
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   // التحقق من صلاحيات المشرف
-  if (!user?.isAdmin) {
+  if (!user || user.isAdmin !== true) {
     return null;
   }
 

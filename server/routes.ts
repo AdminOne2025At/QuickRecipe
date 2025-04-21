@@ -577,6 +577,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // تمت إزالة نقطة نهاية الترجمة متعددة اللغات
 
+  // Admin features
+  // Admin login
+  app.post("/api/admin/login", async (req, res) => {
+    try {
+      const loginSchema = z.object({
+        username: z.string().min(1),
+        password: z.string().min(1)
+      });
+
+      const validatedData = loginSchema.parse(req.body);
+      
+      // قائمة المشرفين المسموح لهم بالدخول (في تطبيق حقيقي، هذا سيكون في قاعدة البيانات)
+      const adminCredentials = {
+        username: "admin",
+        password: "admin123"
+      };
+      
+      // التحقق من بيانات الدخول
+      if (validatedData.username !== adminCredentials.username || 
+          validatedData.password !== adminCredentials.password) {
+        return res.status(401).json({ message: "بيانات اعتماد غير صحيحة للمشرف" });
+      }
+
+      // إرجاع بيانات المستخدم المشرف
+      return res.status(200).json({
+        id: 9999, // رقم تعريفي خاص بالمشرف
+        username: adminCredentials.username,
+        isAdmin: true
+      });
+    } catch (error) {
+      console.error("Admin login error:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ errors: error.errors });
+      }
+      return res.status(500).json({ message: "فشل تسجيل دخول المشرف" });
+    }
+  });
+  
+  // حذف منشور بواسطة المشرف
+  app.delete("/api/admin/posts/:postId", async (req, res) => {
+    try {
+      // في تطبيق حقيقي، يجب التحقق من صلاحية المشرف هنا
+      // من خلال جلسة العمل أو رمز التوثيق JWT
+      
+      const postId = parseInt(req.params.postId);
+      
+      if (isNaN(postId)) {
+        return res.status(400).json({ message: "معرف المنشور غير صالح" });
+      }
+      
+      // التحقق من وجود المنشور
+      const post = await storage.getCommunityPost(postId);
+      if (!post) {
+        return res.status(404).json({ message: "المنشور غير موجود" });
+      }
+      
+      // حذف المنشور
+      await storage.deleteCommunityPost(postId);
+      
+      return res.status(200).json({ message: "تم حذف المنشور بنجاح" });
+    } catch (error) {
+      console.error("Admin delete post error:", error);
+      return res.status(500).json({ message: "فشل حذف المنشور" });
+    }
+  });
+
   // Community posts endpoints
   // Get all community posts (with optional pagination)
   app.get("/api/community-posts", async (req, res) => {
