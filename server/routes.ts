@@ -238,7 +238,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // مسار إشعار تسجيل الدخول (للزوار وحسابات جوجل)
+  // مسار إشعار تسجيل الدخول والخروج (للزوار وحسابات جوجل)
   app.post("/api/login/notify", async (req, res) => {
     try {
       const notifySchema = z.object({
@@ -246,22 +246,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         loginMethod: z.enum(['google', 'admin', 'guest']).default('guest'),
         userAgent: z.string().optional(),
         isGuest: z.boolean().optional(),
-        email: z.string().optional()
+        email: z.string().optional(),
+        isAdmin: z.boolean().optional().default(false),
+        isLogout: z.boolean().optional().default(false) // إضافة علامة للتمييز بين تسجيل الدخول والخروج
       });
 
       const validatedData = notifySchema.parse(req.body);
       const ipAddress = req.ip || req.socket.remoteAddress || 'غير معروف';
       
-      // إرسال إشعار تسجيل دخول غير متزامن
+      // إرسال إشعار تسجيل دخول أو خروج غير متزامن
       sendLoginNotificationToDiscord({
         username: validatedData.username,
         loginMethod: validatedData.loginMethod,
         loginTime: new Date(),
         userAgent: validatedData.userAgent,
         ipAddress,
-        isAdmin: false,
-        email: validatedData.email
-      }).catch(err => console.error("فشل إرسال إشعار تسجيل دخول:", err));
+        isAdmin: validatedData.isAdmin,
+        email: validatedData.email,
+        isLogout: validatedData.isLogout // تمرير علامة تسجيل الخروج
+      }).catch(err => console.error("فشل إرسال إشعار:", err));
 
       return res.status(200).json({ success: true });
     } catch (error) {

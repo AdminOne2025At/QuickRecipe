@@ -19,6 +19,7 @@ interface LoginPayload {
   userAgent?: string;
   ipAddress?: string;
   isAdmin?: boolean;
+  isLogout?: boolean; // إضافة علامة لتحديد ما إذا كان تسجيل خروج
 }
 
 // واجهة لبيانات الإبلاغ الكاملة مع معلومات المستخدم والمنشور
@@ -193,7 +194,7 @@ function createDiscordEmbed(data: ReportDetailsPayload): any {
       }
     ],
     footer: {
-      text: "نظام إدارة المحتوى - كويك ريسيبي"
+      text: "نظام إدارة المحتوى - كويك ريسب"
     }
   };
 }
@@ -213,25 +214,37 @@ export async function sendLoginNotificationToDiscord(loginData: LoginPayload): P
       return false;
     }
     
-    // تحديد اللون حسب نوع تسجيل الدخول
-    let color = 0x4CAF50; // أخضر للمستخدم العادي
-    let emoji = '👤';
+    // تحديد اللون والرمز حسب نوع تسجيل الدخول
+    let color;
+    let emoji;
+    let title;
+    let description;
+    let actionType = loginData.isLogout ? "تسجيل خروج" : "تسجيل دخول";
     
     if (loginData.isAdmin) {
+      // مشرف
       color = 0xF44336; // أحمر للمشرفين
       emoji = '🛡️';
+      title = `${actionType} مشرف: ${loginData.username}`;
+      description = loginData.isLogout 
+        ? `⚠️ تم تسجيل خروج مشرف`
+        : `⚠️ تم تسجيل دخول مشرف باستخدام ${getLoginMethodText(loginData.loginMethod)}`;
     } else if (loginData.loginMethod === 'guest') {
+      // زائر
       color = 0x2196F3; // أزرق للزوار
       emoji = '👻';
-    }
-    
-    // إنشاء رسالة حسب نوع تسجيل الدخول
-    let title = `تسجيل دخول مستخدم: ${loginData.username}`;
-    let description = `تم تسجيل دخول مستخدم جديد باستخدام ${getLoginMethodText(loginData.loginMethod)}`;
-    
-    if (loginData.isAdmin) {
-      title = `تسجيل دخول مشرف: ${loginData.username}`;
-      description = `⚠️ تم تسجيل دخول مشرف باستخدام ${getLoginMethodText(loginData.loginMethod)}`;
+      title = `${actionType} زائر: ${loginData.username}`;
+      description = loginData.isLogout 
+        ? `تم تسجيل خروج زائر`
+        : `تم تسجيل دخول زائر جديد`;
+    } else {
+      // مستخدم عادي
+      color = 0x4CAF50; // أخضر للمستخدم العادي
+      emoji = '👤';
+      title = `${actionType} مستخدم: ${loginData.username}`;
+      description = loginData.isLogout
+        ? `تم تسجيل خروج مستخدم`
+        : `تم تسجيل دخول مستخدم باستخدام ${getLoginMethodText(loginData.loginMethod)}`;
     }
     
     // إرسال البيانات إلى Discord
@@ -241,7 +254,7 @@ export async function sendLoginNotificationToDiscord(loginData: LoginPayload): P
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        content: `${emoji} **${loginData.isAdmin ? 'تسجيل دخول مشرف' : 'تسجيل دخول مستخدم'}** ${emoji}`,
+        content: `${emoji} **${actionType} ${loginData.isAdmin ? 'مشرف' : 'مستخدم'}** ${emoji}`,
         embeds: [{
           title: title,
           description: description,
