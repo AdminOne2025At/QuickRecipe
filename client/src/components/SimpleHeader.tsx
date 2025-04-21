@@ -128,6 +128,16 @@ export function SimpleHeader() {
                 منشورات المجتمع
               </span>
             </Link>
+            
+            {/* زر لوحة المشرفين للهواتف */}
+            {isAdmin && (
+              <Link href="/admin-dashboard">
+                <span className="block py-2 px-3 bg-amber-100 hover:bg-amber-200 rounded-md text-amber-900 font-bold flex items-center gap-2">
+                  <Shield className="h-4 w-4" />
+                  لوحة المشرفين
+                </span>
+              </Link>
+            )}
 
             {!isLoading && currentUser && (
               <Link href="/saved-recipes">

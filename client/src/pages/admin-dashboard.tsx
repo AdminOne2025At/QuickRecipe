@@ -32,7 +32,7 @@ export default function AdminDashboard() {
   }, [user, setLocation, toast]);
   
   // استعلام عن المنشورات
-  const { data: recentPosts, isLoading: isLoadingPosts } = useQuery({
+  const { data: recentPosts = [], isLoading: isLoadingPosts } = useQuery<any[]>({
     queryKey: ['/api/community-posts/recent'],
     enabled: !!user?.isAdmin
   });
