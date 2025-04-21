@@ -34,7 +34,7 @@ export function SimpleHeader() {
   }, [location]);
   
   return (
-    <header className="relative border-b z-10">
+    <header className="fixed top-0 left-0 right-0 border-b bg-white z-50">
       <div className="container flex h-16 items-center justify-between py-4 px-4 md:px-6">
         <Link href="/">
           <span className="text-xl md:text-2xl font-bold bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent cursor-pointer">
@@ -141,7 +141,7 @@ export function SimpleHeader() {
       
       {/* قائمة جانبية للهواتف */}
       {mobileMenuOpen && (
-        <div className="md:hidden fixed top-16 left-0 right-0 mx-auto w-[95%] rounded-lg bg-white border border-gray-200 shadow-xl z-50 max-h-[70vh] overflow-y-auto mt-2">
+        <div className="md:hidden fixed top-16 left-2 right-2 mx-auto w-[95%] rounded-lg bg-white border border-gray-200 shadow-xl z-50 max-h-[60vh] overflow-y-auto mt-2">
           <nav className="flex flex-col p-3 space-y-2">
             <Link href="/">
               <span className="block py-2 px-3 hover:bg-gray-100 rounded-md font-medium">الرئيسية</span>

@@ -22,7 +22,7 @@ function AppLayout({ children }: { children: ReactNode }) {
     <div className="flex min-h-screen flex-col">
       <SimpleHeader />
       <MobileMenuButton />
-      <main className="flex-1">
+      <main className="flex-1 pt-16 mt-2">
         {children}
       </main>
       <footer className="border-t py-6 md:py-0">
