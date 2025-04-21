@@ -5,6 +5,8 @@ import { generateRecipesMealDB } from "./services/mealdb";
 import { generateRecipesGemini, generateSubstitutionsGemini } from "./services/gemini";
 import { searchYouTubeVideos } from "./services/youtube";
 import { getIngredientSubstitutes } from "./services/substitutions";
+// التحقق من المحتوى
+import { moderateContent, moderateComment } from "./services/content-moderation";
 // تمت إزالة استيراد الترجمة
 import { storage } from "./storage";
 import { insertRecipeCacheSchema, insertIngredientSchema, insertUserSchema, insertRecipeSchema, insertCommunityPostSchema, insertPostCommentSchema } from "@shared/schema";
@@ -647,14 +649,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User not found" });
       }
       
+      // التحقق من المحتوى للكشف عن المحتوى غير اللائق
+      const moderationResult = await moderateContent(
+        postData.content,
+        postData.title,
+        postData.imageUrl
+      );
+      
+      // إذا كان المحتوى غير مناسب، ارفض إنشاء المنشور
+      if (!moderationResult.isAppropriate) {
+        return res.status(400).json({
+          message: "محتوى غير مناسب",
+          reason: moderationResult.reason || "يحتوي المنشور على محتوى غير لائق أو مخالف للقواعد."
+        });
+      }
+      
+      // إذا كان هناك محتوى معدل (تم تنقيته)، استخدمه بدلاً من المحتوى الأصلي
+      const safeContent = moderationResult.moderatedContent || postData.content;
+      
       // إضافة معلومات المستخدم الإضافية (الاسم والصورة) للمنشور
       const enrichedPostData = {
         ...postData,
+        content: safeContent, // استخدام المحتوى الآمن
         userName: userName || user.username || "User",
         userAvatar: userAvatar || "",
       };
       
       const post = await storage.createCommunityPost(enrichedPostData);
+      
+      // إذا تم تعديل المحتوى للتنقية، أخبر المستخدم
+      if (moderationResult.moderatedContent) {
+        return res.status(201).json({
+          ...post,
+          message: "تم نشر المحتوى بعد التعديل لإزالة أي محتوى غير لائق."
+        });
+      }
+      
       return res.status(201).json(post);
     } catch (error) {
       console.error("Error creating post:", error);
@@ -685,6 +715,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // }
       
       const updateData = insertCommunityPostSchema.partial().parse(req.body);
+      
+      // التحقق من المحتوى إذا تم تحديثه
+      if (updateData.content || updateData.title || updateData.imageUrl) {
+        const moderationResult = await moderateContent(
+          updateData.content || existingPost.content,
+          updateData.title || existingPost.title,
+          updateData.imageUrl || existingPost.imageUrl
+        );
+        
+        // إذا كان المحتوى غير مناسب، ارفض التحديث
+        if (!moderationResult.isAppropriate) {
+          return res.status(400).json({
+            message: "محتوى غير مناسب",
+            reason: moderationResult.reason || "يحتوي التحديث على محتوى غير لائق أو مخالف للقواعد."
+          });
+        }
+        
+        // إذا كان هناك محتوى معدل (تم تنقيته)، استخدمه بدلاً من المحتوى الأصلي
+        if (updateData.content && moderationResult.moderatedContent) {
+          updateData.content = moderationResult.moderatedContent;
+        }
+      }
+      
       const updatedPost = await storage.updateCommunityPost(id, updateData);
       
       return res.json(updatedPost);
