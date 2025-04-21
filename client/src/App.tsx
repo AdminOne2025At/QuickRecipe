@@ -3,6 +3,7 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import AuthPage from "@/pages/auth-page";
 import ProfilePage from "@/pages/profile-page";
+import AdminLoginPage from "@/pages/admin-login";
 
 import CommunityPostsPage from "@/pages/community-posts-enhanced";
 import SavedRecipesPage from "@/pages/saved-recipes";
@@ -75,6 +76,7 @@ function App() {
             <Switch>
               <Route path="/" component={Home} />
               <Route path="/auth" component={AuthPage} />
+              <Route path="/admin-login" component={AdminLoginPage} />
               <Route path="/profile" component={ProfilePage} />
 
               <Route path="/community-posts" component={CommunityPostsPage} />
