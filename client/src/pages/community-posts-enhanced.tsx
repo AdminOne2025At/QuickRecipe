@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { ThumbsUp, MessageCircle, Share, Award, PlusCircle, Loader2 } from "lucide-react";
+import { ThumbsUp, MessageCircle, Share, Award, PlusCircle, Loader2, CheckCircle } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/use-auth";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -45,6 +45,7 @@ type Post = {
     avatar: string;
     initials: string;
     id?: number; // إضافة معرف المستخدم للتحقق من صلاحية الحذف
+    isAdmin?: boolean; // إضافة حقل للإشارة إلى كون المستخدم مشرفًا
   };
   title: string;
   content: string;
