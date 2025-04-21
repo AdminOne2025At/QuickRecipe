@@ -72,18 +72,26 @@ function App() {
     <LanguageProvider>
       <AuthProvider>
         <AuthRedirectWrapper>
-          <AppLayout>
-            <Switch>
-              <Route path="/" component={Home} />
-              <Route path="/auth" component={AuthPage} />
-              <Route path="/admin-login" component={AdminLoginPage} />
-              <Route path="/profile" component={ProfilePage} />
-
-              <Route path="/community-posts" component={CommunityPostsPage} />
-              <Route path="/saved-recipes" component={SavedRecipesPage} />
-              <Route component={NotFound} />
-            </Switch>
-          </AppLayout>
+          {/* صفحة تسجيل دخول المشرفين بدون هيكل الموقع العادي */}
+          <Switch>
+            <Route path="/admin-login">
+              <AdminLoginPage />
+            </Route>
+            
+            <Route>
+              <AppLayout>
+                <Switch>
+                  <Route path="/" component={Home} />
+                  <Route path="/auth" component={AuthPage} />
+                  <Route path="/profile" component={ProfilePage} />
+    
+                  <Route path="/community-posts" component={CommunityPostsPage} />
+                  <Route path="/saved-recipes" component={SavedRecipesPage} />
+                  <Route component={NotFound} />
+                </Switch>
+              </AppLayout>
+            </Route>
+          </Switch>
         </AuthRedirectWrapper>
       </AuthProvider>
     </LanguageProvider>

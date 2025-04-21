@@ -1,30 +1,18 @@
-import { useState, useEffect } from "react";
-import { useLocation } from "wouter";
-import { useAuth } from "@/hooks/use-auth";
+import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Shield, Loader2, Sparkles } from "lucide-react";
 
 export default function AdminLoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [_, setLocation] = useLocation();
-  const { user } = useAuth();
   const { toast } = useToast();
   
-  // إذا كان المستخدم مسجل الدخول بالفعل، انتقل إلى الصفحة الرئيسية
-  useEffect(() => {
-    if (user) {
-      setLocation("/");
-    }
-  }, [user, setLocation]);
-
   const adminLoginMutation = useMutation({
     mutationFn: async () => {
       const res = await apiRequest("POST", "/api/admin/login", {
@@ -46,7 +34,9 @@ export default function AdminLoginPage() {
         description: "مرحباً بك في لوحة تحكم المشرفين",
         variant: "default"
       });
-      setLocation("/");
+      
+      // استخدام window.location بدلاً من wouter's setLocation
+      window.location.href = "/";
     },
     onError: (error: Error) => {
       toast({
@@ -77,58 +67,73 @@ export default function AdminLoginPage() {
       {/* نموذج تسجيل الدخول */}
       <div className="w-full md:w-1/2 p-6 flex items-center justify-center bg-white">
         <div className="w-full max-w-md">
-          <Card className="w-full max-w-md mx-auto">
-            <CardHeader className="space-y-1">
-              <CardTitle className="text-2xl text-center flex items-center justify-center">
-                <Shield className="h-5 w-5 mr-2 text-amber-500" />
-                تسجيل دخول المشرفين
-              </CardTitle>
-              <CardDescription className="text-center">
-                لوحة التحكم الخاصة بالمشرفين فقط
-              </CardDescription>
-            </CardHeader>
-            <form onSubmit={handleSubmit}>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="admin-username">اسم المستخدم</Label>
-                  <Input
-                    id="admin-username"
-                    placeholder="أدخل اسم المستخدم"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    dir="rtl"
-                  />
+          <div className="w-full max-w-md mx-auto bg-white rounded-lg shadow-md overflow-hidden">
+            <div className="p-6">
+              <div className="text-center mb-6">
+                <div className="flex items-center justify-center mb-2">
+                  <Shield className="h-5 w-5 mr-2 text-amber-500" />
+                  <h2 className="text-2xl font-bold">تسجيل دخول المشرفين</h2>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="admin-password">كلمة المرور</Label>
-                  <Input
-                    id="admin-password"
-                    type="password"
-                    placeholder="أدخل كلمة المرور"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    dir="rtl"
-                  />
+                <p className="text-gray-500 text-sm">
+                  لوحة التحكم الخاصة بالمشرفين فقط
+                </p>
+              </div>
+              
+              <form onSubmit={handleSubmit}>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="admin-username">اسم المستخدم</Label>
+                    <Input
+                      id="admin-username"
+                      placeholder="أدخل اسم المستخدم"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      dir="rtl"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="admin-password">كلمة المرور</Label>
+                    <Input
+                      id="admin-password"
+                      type="password"
+                      placeholder="أدخل كلمة المرور"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      dir="rtl"
+                    />
+                  </div>
+                
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-amber-500 hover:bg-amber-600"
+                    disabled={adminLoginMutation.isPending}
+                  >
+                    {adminLoginMutation.isPending ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        جاري تسجيل الدخول...
+                      </>
+                    ) : (
+                      "تسجيل الدخول كمشرف"
+                    )}
+                  </Button>
                 </div>
-              </CardContent>
-              <CardFooter>
-                <Button 
-                  type="submit" 
-                  className="w-full bg-amber-500 hover:bg-amber-600"
-                  disabled={adminLoginMutation.isPending}
+              </form>
+              
+              <div className="mt-4 text-center">
+                <a
+                  href="/"
+                  className="text-sm text-amber-600 hover:text-amber-800"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    window.location.href = "/";
+                  }}
                 >
-                  {adminLoginMutation.isPending ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      جاري تسجيل الدخول...
-                    </>
-                  ) : (
-                    "تسجيل الدخول كمشرف"
-                  )}
-                </Button>
-              </CardFooter>
-            </form>
-          </Card>
+                  العودة إلى الصفحة الرئيسية
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
