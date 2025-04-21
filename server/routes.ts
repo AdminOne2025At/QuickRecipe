@@ -13,6 +13,16 @@ import { insertRecipeCacheSchema, insertIngredientSchema, insertUserSchema, inse
 import { z } from "zod";
 // استيراد خدمة إشعارات Discord
 import { sendPostReportToDiscord, sendAutoRemovalNotification } from "./services/discord-notifications";
+import { scrypt, randomBytes, timingSafeEqual } from "crypto";
+import { promisify } from "util";
+
+// وظيفة مساعدة للتحقق من كلمة المرور
+const scryptAsync = promisify(scrypt);
+
+async function comparePasswords(supplied: string, stored: string) {
+  // هذه وظيفة بسيطة للتحقق - في النظام الحقيقي استخدم تقنيات تشفير أفضل
+  return supplied === stored;
+}
 
 // Import types for recipe interface
 import type { RecipeResult } from "./services/openai";

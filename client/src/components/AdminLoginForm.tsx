@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { useNavigate } from "wouter";
+import { useLocation } from "wouter";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -14,7 +14,7 @@ export default function AdminLoginForm() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const { toast } = useToast();
-  const navigate = useNavigate();
+  const [_, setLocation] = useLocation();
 
   const adminLoginMutation = useMutation({
     mutationFn: async () => {
@@ -37,7 +37,7 @@ export default function AdminLoginForm() {
         description: "مرحباً بك في لوحة تحكم المشرفين",
         variant: "default"
       });
-      navigate("/");
+      setLocation("/");
     },
     onError: (error: Error) => {
       toast({
