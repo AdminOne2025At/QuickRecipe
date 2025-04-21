@@ -53,7 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           console.log("Admin user detected!");
           toast({
             title: "مرحباً بالمشرف",
-            description: "لديك صلاحيات الإشراف على المنصة",
+            description: "لديك صلاحيات الإشراف على منصة كويك ريسب",
             variant: "default",
           });
         }
@@ -124,12 +124,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 email: firebaseUser.email || undefined
               });
               
-              localStorage.setItem("user", JSON.stringify({
+              const userWithDetails = {
                 ...userData,
                 displayName: firebaseUser.displayName || undefined,
                 photoURL: firebaseUser.photoURL || undefined,
                 email: firebaseUser.email || undefined
-              }));
+              };
+              
+              localStorage.setItem("user", JSON.stringify(userWithDetails));
+              
+              // إرسال إشعار تسجيل دخول بجوجل للديسكورد (بدون انتظار النتيجة)
+              try {
+                fetch('/api/login/notify', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    username: userWithDetails.username,
+                    loginMethod: 'google',
+                    userAgent: navigator.userAgent,
+                    email: userWithDetails.email
+                  }),
+                }).catch(err => console.error("فشل إرسال إشعار تسجيل الدخول بجوجل:", err));
+              } catch (notifyError) {
+                console.error("خطأ عند إعداد إشعار تسجيل الدخول بجوجل:", notifyError);
+              }
             } catch (err) {
               console.error("Authentication error:", err);
               throw err;
