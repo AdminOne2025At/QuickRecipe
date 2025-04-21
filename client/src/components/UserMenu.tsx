@@ -73,9 +73,31 @@ export function UserMenu() {
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem 
-          onClick={() => {
-            localStorage.removeItem('user');
-            window.location.href = '/auth';
+          onClick={async () => {
+            try {
+              // إرسال إشعار تسجيل الخروج قبل حذف بيانات المستخدم من التخزين المحلي
+              if (user) {
+                const response = await fetch('/api/login/notify', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    username: user.displayName || user.email || 'مستخدم غير معروف',
+                    loginMethod: user.isAdmin ? 'admin' : (user.providerId === 'google.com' ? 'google' : 'guest'),
+                    userAgent: navigator.userAgent,
+                    isAdmin: !!user.isAdmin,
+                    email: user.email || undefined,
+                    isLogout: true // علامة لتمييز أن هذا طلب تسجيل خروج
+                  })
+                });
+                console.log('Logout notification sent:', await response.json());
+              }
+            } catch (error) {
+              console.error('Failed to send logout notification:', error);
+            } finally {
+              // المتابعة بتسجيل الخروج بغض النظر عن نجاح إرسال الإشعار
+              localStorage.removeItem('user');
+              window.location.href = '/auth';
+            }
           }} 
           className="text-red-600 gap-2 cursor-pointer"
         >
