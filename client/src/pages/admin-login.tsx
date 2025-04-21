@@ -28,7 +28,12 @@ export default function AdminLoginPage() {
       return await res.json();
     },
     onSuccess: (data) => {
+      // حفظ بيانات المشرف في localStorage مع الإشارة إلى isAdmin = true
+      localStorage.setItem("user", JSON.stringify(data));
+      
+      // تحديث حالة المستخدم في React Query
       queryClient.setQueryData(["/api/user"], data);
+      
       toast({
         title: "تم تسجيل الدخول بنجاح",
         description: "مرحباً بك في لوحة تحكم المشرفين",
@@ -36,7 +41,7 @@ export default function AdminLoginPage() {
       });
       
       // استخدام window.location بدلاً من wouter's setLocation
-      window.location.href = "/";
+      window.location.href = "/admin-dashboard";
     },
     onError: (error: Error) => {
       toast({

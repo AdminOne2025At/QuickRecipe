@@ -91,16 +91,28 @@ export function SimpleHeader() {
           )}
           
           {!isLoading && !currentUser ? (
-            <Link href="/auth">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="gap-2"
-              >
-                <LogIn className="h-4 w-4" />
-                <span>تسجيل الدخول</span>
-              </Button>
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link href="/admin-login">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="gap-2 text-amber-700 hover:text-amber-800 hover:bg-amber-50"
+                >
+                  <Shield className="h-4 w-4" />
+                  <span>المشرفين</span>
+                </Button>
+              </Link>
+              <Link href="/auth">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="gap-2"
+                >
+                  <LogIn className="h-4 w-4" />
+                  <span>تسجيل الدخول</span>
+                </Button>
+              </Link>
+            </div>
           ) : (
             <Link href="/profile">
               <Button 
@@ -149,9 +161,17 @@ export function SimpleHeader() {
             )}
             
             {!isLoading && !currentUser ? (
-              <Link href="/auth">
-                <span className="block py-2 px-3 hover:bg-gray-100 rounded-md">تسجيل الدخول</span>
-              </Link>
+              <>
+                <Link href="/admin-login">
+                  <span className="block py-2 px-3 hover:bg-amber-100 rounded-md text-amber-700 flex items-center gap-2">
+                    <Shield className="h-4 w-4" />
+                    دخول المشرفين
+                  </span>
+                </Link>
+                <Link href="/auth">
+                  <span className="block py-2 px-3 hover:bg-gray-100 rounded-md">تسجيل الدخول</span>
+                </Link>
+              </>
             ) : (
               <Link href="/profile">
                 <span className="block py-2 px-3 hover:bg-gray-100 rounded-md">الملف الشخصي</span>

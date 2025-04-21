@@ -34,7 +34,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       try {
-        setUser(JSON.parse(storedUser));
+        const parsedUser = JSON.parse(storedUser);
+        console.log("User loaded from localStorage:", parsedUser);
+        setUser(parsedUser);
+        
+        // إذا كان المستخدم هو مشرف، نظهر رسالة ترحيب خاصة
+        if (parsedUser.isAdmin) {
+          toast({
+            title: "مرحباً بالمشرف",
+            description: "لديك صلاحيات الإشراف على المنصة",
+            variant: "default",
+          });
+        }
       } catch (e) {
         console.error("Error parsing user from localStorage:", e);
         localStorage.removeItem("user");
