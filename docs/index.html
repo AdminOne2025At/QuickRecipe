@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Recipe - وصفات سريعة</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f9f7f2;
+            margin: 0;
+            padding: 0;
+        }
+        .hero {
+            background-color: #ff7b54;
+            color: white;
+            text-align: center;
+            padding: 3rem 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+        .hero p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .button {
+            display: inline-block;
+            background: #2a9d8f;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        .button:hover {
+            background: #268579;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+        }
+        .button.secondary {
+            background: #264653;
+        }
+        .button.secondary:hover {
+            background: #1d3744;
+        }
+        .section {
+            padding: 3rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        .section h2 {
+            color: #2a9d8f;
+            margin-bottom: 1.5rem;
+        }
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        .feature-item {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .feature-item h3 {
+            color: #ff7b54;
+            margin-top: 0;
+        }
+        .footer {
+            background: #264653;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+        }
+        .footer a {
+            color: #fff;
+        }
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            .hero p {
+                font-size: 1.2rem;
+            }
+            .feature-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <div class="container">
+            <h1>Quick Recipe - وصفات سريعة</h1>
+            <p>اكتشف وصفات لذيذة باستخدام المكونات المتوفرة لديك</p>
+            <a href="https://github.com/YOUR_USERNAME/quick-recipe" class="button">المستودع على GitHub</a>
+            <a href="https://replit.com/@YOURUSERNAME/quick-recipe" class="button secondary">عرض المشروع على Replit</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="section">
+            <h2>عن المشروع</h2>
+            <p>تطبيق اكتشاف وصفات سريع وممتع يمكنك من البحث عن وصفات بناءً على المكونات المتوفرة لديك. تم تطويره باستخدام تقنيات حديثة ويدعم اللغة العربية المصرية.</p>
+            <p>لاستخدام التطبيق، يمكنك تنزيل المشروع وتشغيله محلياً أو تجربته مباشرة على Replit.</p>
+        </div>
+
+        <div class="section">
+            <h2>الميزات الرئيسية</h2>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <h3>🥗 اقتراحات وصفات ذكية</h3>
+                    <p>اقتراحات وصفات بناءً على المكونات المتوفرة لديك</p>
+                </div>
+                <div class="feature-item">
+                    <h3>🔄 اقتراحات بدائل</h3>
+                    <p>اقتراحات بدائل للمكونات غير المتوفرة</p>
+                </div>
+                <div class="feature-item">
+                    <h3>👨‍🍳 مشاركة الوصفات</h3>
+                    <p>مشاركة الوصفات مع المجتمع</p>
+                </div>
+                <div class="feature-item">
+                    <h3>🕒 مؤقت طبخ تفاعلي</h3>
+                    <p>مؤقت للمساعدة أثناء تحضير الوصفة</p>
+                </div>
+                <div class="feature-item">
+                    <h3>📱 واجهة متجاوبة</h3>
+                    <p>تصميم متجاوب مع جميع الأجهزة</p>
+                </div>
+                <div class="feature-item">
+                    <h3>🇪🇬 دعم اللغة العربية</h3>
+                    <p>واجهة مستخدم باللغة العربية المصرية</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>كيفية البدء</h2>
+            <p>لتشغيل المشروع محلياً:</p>
+            <ol>
+                <li>استنسخ المستودع: <code>git clone https://github.com/YOUR_USERNAME/quick-recipe.git</code></li>
+                <li>ثبت الاعتماديات: <code>npm install</code></li>
+                <li>قم بتشغيل سكريبت الإعداد: <code>node setup.js</code></li>
+                <li>شغل التطبيق: <code>npm run dev</code></li>
+            </ol>
+            <p>للحصول على تعليمات مفصلة، راجع <a href="https://github.com/YOUR_USERNAME/quick-recipe/blob/main/INSTALL.md">دليل التثبيت</a>.</p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>تم تطوير Quick Recipe بواسطة [اسمك]. يتم توزيعه تحت <a href="https://github.com/YOUR_USERNAME/quick-recipe/blob/main/LICENSE">رخصة MIT</a>.</p>
+    </div>
+</body>
+</html>
