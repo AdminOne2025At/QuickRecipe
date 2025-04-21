@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
-import { useQuery } from "@tanstack/react-query";
-import { Shield, Users, FileText, AlertTriangle, Trash2, Settings, ExternalLink, RefreshCw, BarChart4, Save } from "lucide-react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { Shield, Users, FileText, AlertTriangle, Trash2, Settings, ExternalLink, RefreshCw, BarChart4, Save, Eye, Flag, X } from "lucide-react";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,56 @@ import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+
+// مكون زر حذف المنشور
+function DeletePostButton({ postId, onSuccess }: { postId: number, onSuccess: () => void }) {
+  const { toast } = useToast();
+  
+  const deletePostMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("DELETE", `/api/admin/posts/${postId}`);
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || "فشل في حذف المنشور");
+      }
+      return await res.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "تم حذف المنشور",
+        description: "تم حذف المنشور بنجاح",
+        variant: "default",
+      });
+      onSuccess();
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "فشل في حذف المنشور",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  });
+  
+  return (
+    <Button 
+      size="sm" 
+      variant="destructive" 
+      className="gap-1"
+      onClick={() => deletePostMutation.mutate()}
+      disabled={deletePostMutation.isPending}
+    >
+      {deletePostMutation.isPending ? (
+        <RefreshCw className="h-4 w-4 animate-spin" />
+      ) : (
+        <Trash2 className="h-4 w-4" />
+      )}
+      حذف المنشور
+    </Button>
+  );
+}
 
 export default function AdminDashboard() {
   const [location, setLocation] = useLocation();
@@ -44,11 +95,29 @@ export default function AdminDashboard() {
     active: 35
   };
   
-  // استعلام وهمي عن البلاغات (سيتم تنفيذه لاحقًا) 
+  // استعلام عن البلاغات
+  const { 
+    data: reportedPosts = [], 
+    isLoading: isLoadingReports,
+    refetch: refetchReports
+  } = useQuery<any[]>({
+    queryKey: ['/api/admin/reports'],
+    queryFn: async () => {
+      const res = await fetch('/api/admin/reports?adminKey=admin123');
+      if (!res.ok) {
+        throw new Error('فشل في استرجاع البلاغات');
+      }
+      return res.json();
+    },
+    enabled: !!user?.isAdmin,
+    refetchOnWindowFocus: false
+  });
+  
+  // إحصائيات البلاغات
   const reportsStats = {
-    total: 15,
-    pending: 8,
-    resolved: 7
+    total: reportedPosts.length,
+    pending: reportedPosts.filter(post => post.reportCount < 50).length,
+    resolved: reportedPosts.filter(post => post.reportCount >= 50).length
   };
   
   if (!user?.isAdmin) {
@@ -225,85 +294,98 @@ export default function AdminDashboard() {
         {/* البلاغات */}
         <TabsContent value="reports" className="space-y-4">
           <Card>
-            <CardHeader>
-              <CardTitle>البلاغات الجديدة</CardTitle>
-              <CardDescription>
-                البلاغات التي تحتاج إلى مراجعة من المشرفين
-              </CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>البلاغات والمنشورات المبلغ عنها</CardTitle>
+                <CardDescription>
+                  المنشورات التي قام المستخدمون بالإبلاغ عنها
+                </CardDescription>
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => refetchReports()}
+                className="gap-1"
+              >
+                <RefreshCw className="h-4 w-4" />
+                تحديث
+              </Button>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {reportsStats.pending > 0 ? (
-                  [...Array(reportsStats.pending)].map((_, i) => (
-                    <div key={i} className="border rounded-lg p-4 bg-red-50 border-red-100">
-                      <div className="flex justify-between">
-                        <h4 className="font-medium text-red-800">
-                          بلاغ عن محتوى غير لائق
-                        </h4>
-                        <span className="text-xs bg-red-200 text-red-800 px-2 py-1 rounded-full">
-                          بانتظار المراجعة
-                        </span>
+              {isLoadingReports ? (
+                <div className="py-8 text-center">
+                  <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2 text-muted-foreground" />
+                  <p className="text-muted-foreground">جاري تحميل البلاغات...</p>
+                </div>
+              ) : reportedPosts.length > 0 ? (
+                <div className="space-y-4">
+                  {reportedPosts.map((report) => {
+                    const isPending = report.reportCount < 50;
+                    const statusVariant = isPending ? 
+                      { bg: "bg-red-50", border: "border-red-100", text: "text-red-800" } : 
+                      { bg: "bg-amber-50", border: "border-amber-100", text: "text-amber-800" };
+                    
+                    return (
+                      <div 
+                        key={report.postId} 
+                        className={`border rounded-lg p-4 ${statusVariant.bg} ${statusVariant.border}`}
+                      >
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h4 className={`font-medium ${statusVariant.text} mb-1`}>
+                              {report.postTitle}
+                            </h4>
+                            <Badge 
+                              variant={isPending ? "destructive" : "outline"}
+                              className="mb-2"
+                            >
+                              <Flag className="h-3 w-3 mr-1" />
+                              {report.reportCount} بلاغ
+                            </Badge>
+                          </div>
+                          <span className={`text-xs px-2 py-1 rounded-full ${
+                            isPending ? "bg-red-200 text-red-800" : "bg-amber-200 text-amber-800"
+                          }`}>
+                            {isPending ? "بانتظار المراجعة" : "بلغ الحد الأقصى"}
+                          </span>
+                        </div>
+                        
+                        <div className="mt-2 text-sm text-muted-foreground">
+                          <p>تاريخ المنشور: {new Date(report.createdAt).toLocaleDateString('ar-EG')}</p>
+                          {report.reportCount >= 50 && (
+                            <Alert className="mt-2 bg-amber-50 text-amber-700 border-amber-200">
+                              <AlertTitle className="flex items-center">
+                                <AlertTriangle className="h-4 w-4 mr-2" />
+                                تنبيه
+                              </AlertTitle>
+                              <AlertDescription>
+                                هذا المنشور بلغ حد البلاغات (50 بلاغ) ويجب مراجعته أو إزالته على الفور.
+                              </AlertDescription>
+                            </Alert>
+                          )}
+                        </div>
+                        
+                        <div className="mt-4 flex space-x-2 space-x-reverse">
+                          <DeletePostButton postId={report.postId} onSuccess={refetchReports} />
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => setLocation(`/community-posts/${report.postId}`)}
+                            className="gap-1"
+                          >
+                            <Eye className="h-4 w-4" />
+                            عرض المنشور
+                          </Button>
+                        </div>
                       </div>
-                      <p className="text-sm text-red-700 mt-2">
-                        تم الإبلاغ عن هذا المنشور بسبب محتوى غير مناسب أو مخالف للقواعد.
-                      </p>
-                      <div className="mt-4 flex space-x-2 space-x-reverse">
-                        <Button size="sm" variant="destructive" className="gap-1">
-                          <Trash2 className="h-4 w-4" />
-                          حذف المنشور
-                        </Button>
-                        <Button size="sm" variant="outline">
-                          تجاهل البلاغ
-                        </Button>
-                        <Button size="sm" variant="outline">
-                          عرض المنشور
-                        </Button>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="py-8 text-center">
-                    <p className="text-muted-foreground">لا توجد بلاغات جديدة حتى الآن</p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle>البلاغات السابقة</CardTitle>
-              <CardDescription>
-                البلاغات التي تمت معالجتها من قبل فريق الإشراف
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {reportsStats.resolved > 0 ? (
-                  [...Array(reportsStats.resolved)].map((_, i) => (
-                    <div key={i} className="border rounded-lg p-4">
-                      <div className="flex justify-between">
-                        <h4 className="font-medium">
-                          بلاغ عن محتوى غير لائق
-                        </h4>
-                        <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                          تمت المعالجة
-                        </span>
-                      </div>
-                      <p className="text-sm text-muted-foreground mt-2">
-                        تم معالجة هذا البلاغ بواسطة أحد المشرفين.
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-2">
-                        تاريخ المعالجة: {new Date().toLocaleDateString('ar-EG')}
-                      </p>
-                    </div>
-                  ))
-                ) : (
-                  <div className="py-8 text-center">
-                    <p className="text-muted-foreground">لا توجد بلاغات معالجة حتى الآن</p>
-                  </div>
-                )}
-              </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="py-8 text-center">
+                  <p className="text-muted-foreground">لا توجد بلاغات حتى الآن</p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

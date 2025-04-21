@@ -642,6 +642,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(500).json({ message: "فشل حذف المنشور" });
     }
   });
+  
+  // الحصول على البلاغات للمشرفين
+  app.get("/api/admin/reports", async (req, res) => {
+    try {
+      // التحقق من صلاحيات المشرف
+      // في تطبيق حقيقي، يجب التحقق من صلاحية المشرف عبر جلسة العمل
+      // نستخدم adminKey كحل مؤقت للتجربة
+      if (req.query.adminKey !== "admin123") {
+        return res.status(403).json({ message: "وصول مرفوض. يجب أن تكون مشرف." });
+      }
+      
+      // جلب كل البلاغات مع معلومات المنشورات المرتبطة
+      const reportedPostIds = await storage.getAllReportedPostIds();
+      
+      // تجميع البيانات النهائية للإرجاع
+      const reports = await Promise.all(
+        reportedPostIds.map(async (postId) => {
+          const post = await storage.getCommunityPost(postId);
+          const reportCount = await storage.getPostReportsCount(postId);
+          
+          return {
+            postId,
+            postTitle: post?.title || "المنشور غير متوفر",
+            reportCount,
+            createdAt: post?.createdAt || new Date(),
+            authorId: post?.userId
+          };
+        })
+      );
+      
+      return res.json(reports);
+    } catch (error) {
+      console.error("Error fetching admin reports:", error);
+      return res.status(500).json({ message: "فشل في استرجاع البلاغات" });
+    }
+  });
 
   // Community posts endpoints
   // Get all community posts (with optional pagination)
