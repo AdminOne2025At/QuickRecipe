@@ -4,8 +4,10 @@
  */
 
 import fetch from 'node-fetch';
-import { CommunityPost, PostReport, User } from '@shared/schema';
+import { CommunityPost, PostReport, User, postReports } from '@shared/schema';
 import { storage } from '../storage';
+import { db } from '../db';
+import { eq } from 'drizzle-orm';
 
 // واجهة لبيانات الإبلاغ الكاملة مع معلومات المستخدم والمنشور
 interface ReportDetailsPayload {
@@ -73,17 +75,27 @@ export async function sendPostReportToDiscord(reportId: number): Promise<boolean
  */
 async function getReportDetails(reportId: number): Promise<ReportDetailsPayload | null> {
   try {
-    // الحصول على بيانات البلاغ
-    const reports = await storage.getPostReports(reportId);
-    if (!reports || reports.length === 0) {
+    console.log(`Getting report details for ID: ${reportId}`);
+    
+    // الحصول على تفاصيل البلاغ مباشرة
+    const report = await db
+      .select()
+      .from(postReports)
+      .where(eq(postReports.id, reportId))
+      .limit(1)
+      .then(rows => rows[0]);
+    
+    if (!report) {
+      console.error(`No report found with ID: ${reportId}`);
       return null;
     }
     
-    const report = reports[0];
+    console.log(`Found report: ${JSON.stringify(report)}`);
     
     // الحصول على بيانات المنشور
     const post = await storage.getCommunityPost(report.postId);
     if (!post) {
+      console.error(`No post found with ID: ${report.postId}`);
       return null;
     }
     
