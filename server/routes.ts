@@ -801,6 +801,188 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(500).json({ message: "Failed to like post" });
     }
   });
+  
+  // Report a post
+  app.post("/api/community-posts/:id/report", async (req, res) => {
+    try {
+      const postId = parseInt(req.params.id);
+      if (isNaN(postId)) {
+        return res.status(400).json({ message: "Invalid post ID" });
+      }
+      
+      const { userId, reason } = req.body;
+      
+      if (!userId || !reason) {
+        return res.status(400).json({ message: "User ID and reason are required" });
+      }
+      
+      // Verify the post exists
+      const existingPost = await storage.getCommunityPost(postId);
+      if (!existingPost) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+      
+      // Check if user has already reported this post
+      try {
+        const hasReported = await storage.hasUserReportedPost(userId, postId);
+        if (hasReported) {
+          return res.status(400).json({ message: "You have already reported this post" });
+        }
+      } catch (error) {
+        // المواصلة حتى إذا فشل التحقق (في حالة عدم وجود جدول البلاغات بعد)
+        console.warn("Could not check if user reported post:", error);
+      }
+      
+      try {
+        // إنشاء بلاغ جديد
+        const report = await storage.reportPost({
+          userId,
+          postId,
+          reason
+        });
+        
+        return res.status(201).json({
+          message: "Post reported successfully",
+          postReports: existingPost.reports + 1,
+          report
+        });
+      } catch (error) {
+        console.error("Error reporting post:", error);
+        return res.status(500).json({ message: "Failed to report post" });
+      }
+    } catch (error) {
+      console.error("Error processing report:", error);
+      return res.status(500).json({ message: "An error occurred" });
+    }
+  });
+  
+  // Save a post (add to favorites)
+  app.post("/api/community-posts/:id/save", async (req, res) => {
+    try {
+      const postId = parseInt(req.params.id);
+      if (isNaN(postId)) {
+        return res.status(400).json({ message: "Invalid post ID" });
+      }
+      
+      const { userId } = req.body;
+      
+      if (!userId) {
+        return res.status(400).json({ message: "User ID is required" });
+      }
+      
+      // Verify the post exists
+      const existingPost = await storage.getCommunityPost(postId);
+      if (!existingPost) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+      
+      // Check if post is already saved
+      try {
+        const isSaved = await storage.isPostSaved(userId, postId);
+        if (isSaved) {
+          return res.status(400).json({ message: "Post already saved" });
+        }
+      } catch (error) {
+        // المواصلة حتى إذا فشل التحقق (في حالة عدم وجود جدول المنشورات المحفوظة بعد)
+        console.warn("Could not check if post is saved:", error);
+      }
+      
+      try {
+        // حفظ المنشور
+        const savedPost = await storage.savePost({
+          userId,
+          postId
+        });
+        
+        return res.status(201).json({
+          message: "Post saved successfully",
+          savedPost
+        });
+      } catch (error) {
+        console.error("Error saving post:", error);
+        return res.status(500).json({ message: "Failed to save post" });
+      }
+    } catch (error) {
+      console.error("Error processing save post:", error);
+      return res.status(500).json({ message: "An error occurred" });
+    }
+  });
+  
+  // Unsave (remove from favorites) a post
+  app.delete("/api/community-posts/:id/save", async (req, res) => {
+    try {
+      const postId = parseInt(req.params.id);
+      if (isNaN(postId)) {
+        return res.status(400).json({ message: "Invalid post ID" });
+      }
+      
+      const userId = parseInt(req.query.userId as string);
+      if (isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+      
+      // Verify the post exists
+      const existingPost = await storage.getCommunityPost(postId);
+      if (!existingPost) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+      
+      // Check if post is actually saved
+      try {
+        const isSaved = await storage.isPostSaved(userId, postId);
+        if (!isSaved) {
+          return res.status(400).json({ message: "Post is not saved" });
+        }
+      } catch (error) {
+        // المواصلة حتى إذا فشل التحقق (في حالة عدم وجود جدول المنشورات المحفوظة بعد)
+        console.warn("Could not check if post is saved:", error);
+      }
+      
+      try {
+        // إلغاء حفظ المنشور
+        await storage.unsavePost(userId, postId);
+        
+        return res.status(200).json({
+          message: "Post unsaved successfully"
+        });
+      } catch (error) {
+        console.error("Error unsaving post:", error);
+        return res.status(500).json({ message: "Failed to unsave post" });
+      }
+    } catch (error) {
+      console.error("Error processing unsave post:", error);
+      return res.status(500).json({ message: "An error occurred" });
+    }
+  });
+  
+  // Get saved posts for a user
+  app.get("/api/users/:userId/saved-posts", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      if (isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+      
+      // Verify user exists
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      try {
+        // الحصول على المنشورات المحفوظة للمستخدم
+        const savedPosts = await storage.getUserSavedPosts(userId);
+        
+        return res.status(200).json(savedPosts);
+      } catch (error) {
+        console.error("Error fetching saved posts:", error);
+        return res.status(500).json({ message: "Failed to fetch saved posts" });
+      }
+    } catch (error) {
+      console.error("Error processing get saved posts:", error);
+      return res.status(500).json({ message: "An error occurred" });
+    }
+  });
 
   // Get comments for a post
   app.get("/api/community-posts/:id/comments", async (req, res) => {

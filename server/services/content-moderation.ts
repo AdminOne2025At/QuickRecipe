@@ -3,18 +3,13 @@
  * تستخدم خدمات الذكاء الاصطناعي للكشف عن المحتوى غير اللائق
  */
 
-import OpenAI from "openai";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-
-// إعداد OpenAI
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+import fetch from "node-fetch";
 
 // إعداد Google Gemini
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
-const geminiModel = genAI.getGenerativeModel({ model: "gemini-pro" });
-const geminiVisionModel = genAI.getGenerativeModel({ model: "gemini-pro-vision" });
+const geminiModel = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+const geminiVisionModel = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
 /**
  * واجهة لنتيجة التحقق من المحتوى
@@ -37,44 +32,80 @@ export async function moderateText(text: string): Promise<ContentModerationResul
       return { isAppropriate: true };
     }
 
-    // استخدام OpenAI للتحقق من المحتوى
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-      messages: [
-        {
-          role: "system",
-          content: `أنت مشرف على المحتوى لموقع وصفات طعام. مهمتك هي تحديد ما إذا كان النص يحتوي على محتوى غير لائق أو مسيء.
-          
-          قواعد التحقق:
-          1. يجب أن يكون المحتوى مناسبًا لجميع الأعمار
-          2. يجب حظر أي محتوى إباحي أو جنسي
-          3. يجب حظر الإساءات والشتائم
-          4. يجب حظر خطاب الكراهية والتمييز
-          5. يجب حظر العنف الشديد
-          
-          قم بتقييم النص المقدم وأعد النتيجة بتنسيق JSON يحتوي على:
-          - isAppropriate: منطقي (صح أو خطأ)
-          - reason: سبب الرفض إذا كان المحتوى غير مناسب (سلسلة نصية)
-          - confidence: مستوى الثقة (رقم من 0 إلى 1)
-          - moderatedContent: نسخة معدلة من النص إذا كان يحتوي على كلمات غير لائقة (سلسلة نصية، اختياري)`
-        },
-        {
-          role: "user",
-          content: text
-        }
-      ],
-      temperature: 0.1,
-      response_format: { type: "json_object" }
-    });
+    // استخدام Gemini للتحقق من المحتوى النصي
+    const textPrompt = `
+      أنت مشرف على المحتوى لموقع وصفات طعام. مهمتك هي تحديد ما إذا كان النص التالي يحتوي على محتوى غير لائق أو مسيء:
+      
+      "${text}"
+      
+      قواعد التحقق:
+      1. يجب أن يكون المحتوى مناسبًا لجميع الأعمار
+      2. يجب حظر أي محتوى إباحي أو جنسي
+      3. يجب حظر الإساءات والشتائم
+      4. يجب حظر خطاب الكراهية والتمييز
+      5. يجب حظر العنف الشديد
+      
+      أرجو الإجابة بتنسيق JSON فقط:
+      {
+        "isAppropriate": boolean, // هل المحتوى مناسب (true) أم غير مناسب (false)
+        "reason": string, // سبب الرفض إذا كان المحتوى غير مناسب، أو فارغ إذا كان مناسبًا
+        "confidence": number, // مستوى الثقة من 0 إلى 1
+        "moderatedContent": string // نسخة معدلة من النص إذا كان يحتوي على كلمات غير لائقة (اختياري)
+      }
+      
+      لا تضف أي نص آخر غير كائن JSON المطلوب.
+    `;
 
-    // تحليل الاستجابة
-    const result = JSON.parse(response.choices[0].message.content || "{}");
-    return {
-      isAppropriate: result.isAppropriate === true,
-      reason: result.reason,
-      confidence: result.confidence,
-      moderatedContent: result.moderatedContent
-    };
+    const result = await geminiModel.generateContent(textPrompt);
+    const response = result.response;
+    const responseText = response.text();
+    
+    try {
+      // محاولة تحليل JSON مباشرة
+      const jsonResult = JSON.parse(responseText);
+      return {
+        isAppropriate: jsonResult.isAppropriate === true,
+        reason: jsonResult.reason,
+        confidence: jsonResult.confidence,
+        moderatedContent: jsonResult.moderatedContent
+      };
+    } catch (parseError) {
+      // إذا فشل التحليل المباشر، نحاول استخراج JSON من النص
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        try {
+          const extractedJson = JSON.parse(jsonMatch[0]);
+          return {
+            isAppropriate: extractedJson.isAppropriate === true,
+            reason: extractedJson.reason,
+            confidence: extractedJson.confidence,
+            moderatedContent: extractedJson.moderatedContent
+          };
+        } catch (extractError) {
+          console.error("Error parsing extracted JSON:", extractError);
+        }
+      }
+      
+      // إذا لم ننجح في استخراج JSON صالح، نقوم بتحليل النص يدويًا
+      if (responseText.toLowerCase().includes("inappropriate") || 
+          responseText.toLowerCase().includes("غير مناسب") || 
+          responseText.toLowerCase().includes("إباحي") || 
+          responseText.toLowerCase().includes("كراهية") || 
+          responseText.toLowerCase().includes("شتيمة") ||
+          responseText.toLowerCase().includes("عنف")) {
+        return {
+          isAppropriate: false,
+          reason: "المحتوى يحتوي على كلمات أو عبارات غير مناسبة",
+          confidence: 0.7
+        };
+      }
+      
+      // إذا لم نجد أي كلمات غير مناسبة، نفترض أن المحتوى مناسب
+      return { 
+        isAppropriate: true,
+        confidence: 0.8 
+      };
+    }
   } catch (error) {
     console.error("Error moderating text content:", error);
     // في حالة الخطأ، نسمح بالمحتوى مع تسجيل الخطأ
