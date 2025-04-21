@@ -10,7 +10,6 @@ import CommunityPostsPage from "@/pages/community-posts-enhanced";
 import SavedRecipesPage from "@/pages/saved-recipes";
 import { ReactNode, useEffect } from "react";
 import { SimpleHeader } from "@/components/SimpleHeader";
-import { MobileMenuButton } from "@/components/MobileMenuButton";
 import { ContactModal } from "@/components/ContactModal";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
@@ -21,7 +20,6 @@ function AppLayout({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col">
       <SimpleHeader />
-      <MobileMenuButton />
       <main className="flex-1 pt-16 mt-2">
         {children}
       </main>
