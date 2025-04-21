@@ -32,8 +32,25 @@ export default function ReportPostDialog({ postId, onClose }: ReportPostDialogPr
     mutationFn: async () => {
       if (!user) throw new Error("يجب تسجيل الدخول للإبلاغ عن المنشورات");
       
+      // استخدام معرف المستخدم من localStorage إذا لم يكن متوفر في user
+      const storedUser = localStorage.getItem("user");
+      let userId = user?.id;
+      
+      // إذا كان معرف المستخدم غير متوفر، نجرب الحصول عليه من localStorage
+      if (!userId && storedUser) {
+        try {
+          const parsedUser = JSON.parse(storedUser);
+          userId = parsedUser.id;
+        } catch (e) {
+          console.error("Error parsing user from localStorage:", e);
+        }
+      }
+      
+      // التحقق مرة أخرى
+      if (!userId) throw new Error("لم يتم العثور على معرف المستخدم، يرجى تسجيل الدخول مرة أخرى");
+      
       const res = await apiRequest("POST", `/api/community-posts/${postId}/report`, {
-        userId: user.id,
+        userId: userId,
         reason
       });
       

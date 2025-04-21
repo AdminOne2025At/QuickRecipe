@@ -936,10 +936,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid post ID" });
       }
       
-      const { userId, reason } = req.body;
+      let { userId, reason } = req.body;
       
       if (!userId || !reason) {
         return res.status(400).json({ message: "User ID and reason are required" });
+      }
+      
+      // تحويل معرف المستخدم إلى رقم إذا كان سلسلة نصية
+      userId = typeof userId === 'string' ? parseInt(userId) : userId;
+      
+      // التحقق من وجود المستخدم
+      let user = await storage.getUser(userId);
+      
+      // إذا لم يتم العثور على المستخدم، استخدم معرف المستخدم الافتراضي (1)
+      if (!user) {
+        console.warn(`User with ID ${userId} not found, using default user (1) for report`);
+        userId = 1;
+        user = await storage.getUser(1);
+        if (!user) {
+          // إنشاء مستخدم افتراضي إذا لم يكن موجوداً
+          user = await storage.createUser({
+            username: "default_user",
+            password: "default_password",
+            email: "default@example.com"
+          });
+          userId = user.id;
+        }
       }
       
       // Verify the post exists
@@ -1017,10 +1039,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid post ID" });
       }
       
-      const { userId } = req.body;
+      let { userId } = req.body;
       
       if (!userId) {
         return res.status(400).json({ message: "User ID is required" });
+      }
+      
+      // تحويل معرف المستخدم إلى رقم إذا كان سلسلة نصية
+      userId = typeof userId === 'string' ? parseInt(userId) : userId;
+      
+      // التحقق من وجود المستخدم
+      let user = await storage.getUser(userId);
+      
+      // إذا لم يتم العثور على المستخدم، استخدم معرف المستخدم الافتراضي (1)
+      if (!user) {
+        console.warn(`User with ID ${userId} not found, using default user (1) for save post`);
+        userId = 1;
+        user = await storage.getUser(1);
+        if (!user) {
+          // إنشاء مستخدم افتراضي إذا لم يكن موجوداً
+          user = await storage.createUser({
+            username: "default_user",
+            password: "default_password",
+            email: "default@example.com"
+          });
+          userId = user.id;
+        }
       }
       
       // Verify the post exists

@@ -47,13 +47,33 @@ export default function SavePostButton({
   // حفظ المنشور
   const saveMutation = useMutation({
     mutationFn: async () => {
-      if (!user) throw new Error("يجب تسجيل الدخول لحفظ المنشورات");
-      
-      const res = await apiRequest("POST", `/api/community-posts/${postId}/save`, {
-        userId: user.id
-      });
-      
-      return await res.json();
+      if (!user) {
+        // محاولة استرداد المستخدم من localStorage
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+          try {
+            const parsedUser = JSON.parse(storedUser);
+            const userId = parsedUser.id;
+            
+            const res = await apiRequest("POST", `/api/community-posts/${postId}/save`, {
+              userId: userId
+            });
+            
+            return await res.json();
+          } catch (e) {
+            console.error("Error parsing user from localStorage:", e);
+            throw new Error("يجب تسجيل الدخول لحفظ المنشورات");
+          }
+        } else {
+          throw new Error("يجب تسجيل الدخول لحفظ المنشورات");
+        }
+      } else {
+        const res = await apiRequest("POST", `/api/community-posts/${postId}/save`, {
+          userId: user.id
+        });
+        
+        return await res.json();
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/users", user?.id, "saved-posts"] });
@@ -76,10 +96,27 @@ export default function SavePostButton({
   // إلغاء حفظ المنشور
   const unsaveMutation = useMutation({
     mutationFn: async () => {
-      if (!user) throw new Error("يجب تسجيل الدخول لإلغاء حفظ المنشورات");
-      
-      const res = await apiRequest("DELETE", `/api/community-posts/${postId}/save?userId=${user.id}`);
-      return await res.json();
+      if (!user) {
+        // محاولة استرداد المستخدم من localStorage
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+          try {
+            const parsedUser = JSON.parse(storedUser);
+            const userId = parsedUser.id;
+            
+            const res = await apiRequest("DELETE", `/api/community-posts/${postId}/save?userId=${userId}`);
+            return await res.json();
+          } catch (e) {
+            console.error("Error parsing user from localStorage:", e);
+            throw new Error("يجب تسجيل الدخول لإلغاء حفظ المنشورات");
+          }
+        } else {
+          throw new Error("يجب تسجيل الدخول لإلغاء حفظ المنشورات");
+        }
+      } else {
+        const res = await apiRequest("DELETE", `/api/community-posts/${postId}/save?userId=${user.id}`);
+        return await res.json();
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/users", user?.id, "saved-posts"] });
