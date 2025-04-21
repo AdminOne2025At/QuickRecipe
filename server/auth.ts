@@ -7,7 +7,7 @@ import { promisify } from 'util';
 import connectPg from 'connect-pg-simple';
 import { storage } from './storage';
 import { pool } from './db';
-import { User } from '@shared/schema';
+import { User, insertUserSchema } from '@shared/schema';
 
 // تهيئة مخزن جلسات PostgreSQL
 const PostgresStore = connectPg(session);
@@ -50,8 +50,9 @@ export async function comparePasswords(supplied: string, stored: string): Promis
 
 /**
  * إعداد المصادقة مع Passport.js وإنشاء مسارات API للمصادقة
+ * @returns middlewares للتحقق من المصادقة
  */
-export function setupAuth(app: Express): void {
+export function setupAuth(app: Express): { isAuthenticated: (req: Request, res: Response, next: NextFunction) => void; isAdmin: (req: Request, res: Response, next: NextFunction) => void } {
   // Session configuration
   app.use(
     session({
@@ -157,13 +158,13 @@ export function setupAuth(app: Express): void {
 
   // Login
   app.post('/api/login', (req, res, next) => {
-    passport.authenticate('local', (err, user, info) => {
+    passport.authenticate('local', (err: Error | null, user: User | false, info: { message?: string } | undefined) => {
       if (err) return next(err);
       if (!user) {
         return res.status(401).json({ message: info?.message || 'فشل تسجيل الدخول' });
       }
       
-      req.login(user, async (err) => {
+      req.login(user, async (err: Error | null) => {
         if (err) return next(err);
         
         try {
@@ -183,7 +184,7 @@ export function setupAuth(app: Express): void {
 
   // Admin Login - same endpoint with different credentials
   app.post('/api/admin/login', (req, res, next) => {
-    passport.authenticate('local', (err, user, info) => {
+    passport.authenticate('local', (err: Error | null, user: User | false, info: { message?: string } | undefined) => {
       if (err) return next(err);
       
       // التحقق إذا كان المستخدم موجود ومسؤول
@@ -191,7 +192,7 @@ export function setupAuth(app: Express): void {
         return res.status(401).json({ message: 'بيانات اعتماد غير صحيحة للمشرف' });
       }
       
-      req.login(user, (err) => {
+      req.login(user, (err: Error | null) => {
         if (err) return next(err);
         
         // إرجاع بيانات المستخدم المسؤول بدون كلمة المرور
@@ -211,16 +212,20 @@ export function setupAuth(app: Express): void {
       // تشفير كلمة المرور
       const hashedPassword = await hashPassword(guestPassword);
       
-      // إنشاء حساب زائر مؤقت
-      const guestUser = await storage.createUser({
+      // إنشاء كائن مستخدم زائر متوافق مع المخطط
+      const newUser = {
         username: guestUsername,
         password: hashedPassword,
-        isGuest: true,
         isAdmin: false,
-      });
+        isGuest: true,
+        lastLogin: new Date()
+      };
+      
+      // إنشاء حساب زائر مؤقت
+      const guestUser = await storage.createUser(newUser);
       
       // تسجيل دخول الزائر
-      req.login(guestUser, (err) => {
+      req.login(guestUser, (err: Error | null) => {
         if (err) {
           return res.status(500).json({ message: 'حدث خطأ أثناء تسجيل الدخول كزائر' });
         }
