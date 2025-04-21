@@ -21,9 +21,37 @@ import ws from 'ws';
 // Import types for recipe interface
 import type { RecipeResult } from "./services/openai";
 
+// إنشاء حساب المشرف الافتراضي إذا لم يكن موجوداً
+async function ensureAdminUser(storage) {
+  console.log('[SETUP] Checking for admin user...');
+  try {
+    const adminUser = await storage.getUserByUsername('admin');
+    if (adminUser) {
+      console.log('[SETUP] Admin user already exists');
+      return;
+    }
+
+    console.log('[SETUP] Creating default admin user...');
+    const hashedPassword = await hashPassword('admin123');
+    const admin = await storage.createUser({
+      username: 'admin',
+      password: hashedPassword,
+      isAdmin: true,
+      email: 'admin@quickrecipe.local'
+    });
+
+    console.log('[SETUP] Default admin user created with ID:', admin.id);
+  } catch (error) {
+    console.error('[SETUP] Error ensuring admin user:', error);
+  }
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // إعداد نظام المصادقة الجديد
   const { isAuthenticated, isAdmin } = setupAuth(app);
+  
+  // التأكد من وجود حساب المشرف
+  await ensureAdminUser(storage);
   // Route to fetch recipes based on ingredients
   app.post("/api/recipes", async (req, res) => {
     try {
