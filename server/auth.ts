@@ -59,10 +59,14 @@ export function setupAuth(app: Express): { isAuthenticated: (req: Request, res: 
       store: sessionStore,
       secret: SESSION_SECRET,
       resave: false,
-      saveUninitialized: false,
+      saveUninitialized: true, // تم تغييرها لتخزين الجلسات غير المهيأة
+      name: 'qr.sid', // اسم الكوكي المخصص
       cookie: {
-        secure: process.env.NODE_ENV === 'production',
+        secure: false, // إيقاف مؤقت للـ HTTPS المطلوب للكوكيز الآمنة
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+        httpOnly: true,
+        path: '/',
+        sameSite: 'lax',
       },
     })
   );

@@ -74,45 +74,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (sessionUser) {
         console.log('User authenticated from session:', sessionUser);
         setUser(sessionUser);
-        // Optionally store in localStorage as a cache
-        localStorage.setItem('user', JSON.stringify(sessionUser));
+        // لا حاجة لتخزين بيانات المستخدم في التخزين المحلي
+        // فقط نعتمد على جلسة الخادم
       } else {
         console.log('No authenticated session found');
-        // Check local storage as fallback
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-          try {
-            console.log('Checking stored user cache...');
-            // We have stored user data, validate it against the server
-            // This is just a UI optimization to avoid flickering
-            // The actual authentication is managed by the server session
-            const parsedUser = JSON.parse(storedUser);
-            
-            // Make an API call to verify if the session is still valid
-            fetch('/api/user')
-              .then(response => {
-                if (response.ok) {
-                  return response.json();
-                }
-                // If not valid, clear the cached user
-                localStorage.removeItem('user');
-                setUser(null);
-                throw new Error('Session expired');
-              })
-              .then(userData => {
-                console.log('Session validated:', userData);
-                setUser(userData);
-              })
-              .catch(err => {
-                console.log('Stored user session invalid:', err.message);
-                localStorage.removeItem('user');
-                setUser(null);
-              });
-          } catch (e) {
-            console.error('Error parsing user from localStorage:', e);
-            localStorage.removeItem('user');
-          }
-        }
+        // نقوم بإزالة بيانات التخزين المحلي أيضًا للتأكد من التطابق
+        localStorage.removeItem('user');
+        setUser(null);
       }
       setIsLoading(false);
     }
@@ -165,7 +133,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     onSuccess: (userData) => {
       console.log("Login successful:", userData);
       setUser(userData);
-      localStorage.setItem("user", JSON.stringify(userData));
+      // لا نستخدم التخزين المحلي للمعلومات الحساسة
       queryClient.invalidateQueries({ queryKey: ['/api/user'] });
       
       // إرسال إشعار تسجيل دخول
@@ -214,7 +182,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     onSuccess: (userData) => {
       console.log("Admin login successful:", userData);
       setUser(userData);
-      localStorage.setItem("user", JSON.stringify(userData));
+      // لا نستخدم التخزين المحلي للمعلومات الحساسة
       queryClient.invalidateQueries({ queryKey: ['/api/user'] });
       
       // إرسال إشعار تسجيل دخول المشرف
@@ -263,7 +231,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     onSuccess: (userData) => {
       console.log("Guest login successful:", userData);
       setUser(userData);
-      localStorage.setItem("user", JSON.stringify(userData));
+      // لا نستخدم التخزين المحلي للمعلومات الحساسة
       queryClient.invalidateQueries({ queryKey: ['/api/user'] });
       
       // إرسال إشعار تسجيل دخول الزائر
@@ -311,7 +279,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     onSuccess: (userData) => {
       console.log("Registration successful:", userData);
       setUser(userData);
-      localStorage.setItem("user", JSON.stringify(userData));
+      // لا نستخدم التخزين المحلي للمعلومات الحساسة
       queryClient.invalidateQueries({ queryKey: ['/api/user'] });
       
       toast({
@@ -362,6 +330,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return response.json();
     },
     onSuccess: () => {
+      // تنظيف التخزين المحلي إذا كان موجوداً
       localStorage.removeItem("user");
       setUser(null);
       queryClient.invalidateQueries({ queryKey: ['/api/user'] });
