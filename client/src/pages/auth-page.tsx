@@ -8,20 +8,27 @@ import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { Loader2, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { queryClient } from "@/lib/queryClient";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function AuthPage() {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { user, loginAsGuest, firebaseUser } = useAuth();
   
-  // تحقق من حالة تسجيل الدخول ومعالجة نتيجة إعادة التوجيه
+  // إذا كان المستخدم مسجل الدخول بالفعل، توجيه إلى الصفحة الرئيسية
+  useEffect(() => {
+    if (user) {
+      setLocation("/");
+    }
+  }, [user, setLocation]);
+  
+  // تحقق من حالة تسجيل الدخول عبر فايربيس
   useEffect(() => {
     const checkAuthAndRedirect = async () => {
       try {
         // التحقق من نتيجة إعادة التوجيه عند تحميل الصفحة
         const user = await handleRedirectResult();
-        
         if (user) {
           // تم تسجيل الدخول بنجاح من خلال إعادة التوجيه
           toast({
@@ -54,8 +61,6 @@ export default function AuthPage() {
             variant: "destructive",
           });
         }
-      } finally {
-        setIsLoading(false);
       }
     };
     
@@ -67,7 +72,6 @@ export default function AuthPage() {
       if (user) {
         setLocation("/");
       }
-      setIsLoading(false);
     });
     
     return () => unsubscribe();
@@ -108,46 +112,11 @@ export default function AuthPage() {
   };
   
   // التعامل مع تسجيل الدخول كزائر (وضع زائر)
-  const handleGuestLogin = () => {
+  const handleGuestLogin = async () => {
     try {
-      // إنشاء بيانات مستخدم زائر
-      const guestUser = {
-        id: 1, // استخدام معرف المستخدم الافتراضي
-        username: "زائر",
-        isGuest: true
-      };
-      
-      // تخزين بيانات المستخدم الزائر في localStorage
-      localStorage.setItem("user", JSON.stringify(guestUser));
-      
-      // تحديث React Query
-      queryClient.setQueryData(["/api/user"], guestUser);
-      
-      // إرسال إشعار تسجيل دخول للديسكورد (بدون انتظار النتيجة لتسريع العملية)
-      try {
-        fetch('/api/login/notify', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            username: guestUser.username,
-            loginMethod: 'guest',
-            userAgent: navigator.userAgent,
-            isGuest: true
-          }),
-        }).catch(err => console.error("فشل إرسال إشعار تسجيل الدخول:", err));
-      } catch (notifyError) {
-        console.error("خطأ عند إعداد إشعار تسجيل الدخول:", notifyError);
-      }
-      
-      toast({
-        title: "تم تسجيل الدخول كزائر",
-        description: "يمكنك الآن استخدام الموقع. بعض الميزات قد تكون محدودة.",
-        variant: "default"
-      });
-      
-      // التوجيه إلى الصفحة الرئيسية
+      setIsLoading(true);
+      // استخدام وظيفة تسجيل الدخول كزائر من سياق المصادقة
+      await loginAsGuest();
       setLocation("/");
     } catch (error) {
       console.error("Error logging in as guest:", error);
@@ -157,6 +126,7 @@ export default function AuthPage() {
         description: "حدث خطأ أثناء محاولة تسجيل الدخول كزائر.",
         variant: "destructive"
       });
+      setIsLoading(false);
     }
   };
 
