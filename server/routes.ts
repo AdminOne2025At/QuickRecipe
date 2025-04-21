@@ -11,6 +11,8 @@ import { moderateContent, moderateComment } from "./services/content-moderation"
 import { storage } from "./storage";
 import { insertRecipeCacheSchema, insertIngredientSchema, insertUserSchema, insertRecipeSchema, insertCommunityPostSchema, insertPostCommentSchema } from "@shared/schema";
 import { z } from "zod";
+// استيراد خدمة إشعارات Discord
+import { sendPostReportToDiscord, sendAutoRemovalNotification } from "./services/discord-notifications";
 
 // Import types for recipe interface
 import type { RecipeResult } from "./services/openai";
@@ -840,6 +842,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
           postId,
           reason
         });
+        
+        // إرسال إشعار إلى Discord
+        try {
+          await sendPostReportToDiscord(report.id);
+        } catch (discordError) {
+          console.error("Failed to send Discord notification:", discordError);
+          // استمر حتى إذا فشل إرسال إشعار Discord
+        }
+        
+        // تحقق مما إذا كان المنشور تجاوز الحد الأقصى للبلاغات (50 بلاغ)
+        const reportsCount = await storage.getPostReportsCount(postId);
+        if (reportsCount >= 50) {
+          // حذف المنشور تلقائيًا
+          await storage.deleteCommunityPost(postId);
+          
+          // إرسال إشعار بالحذف التلقائي
+          try {
+            await sendAutoRemovalNotification(postId, reportsCount);
+          } catch (discordError) {
+            console.error("Failed to send auto-removal notification:", discordError);
+          }
+          
+          return res.status(200).json({
+            message: "Post automatically removed due to excessive reports",
+            wasRemoved: true
+          });
+        }
         
         return res.status(201).json({
           message: "Post reported successfully",
