@@ -509,6 +509,54 @@ export default function AdminDashboard() {
                   <Switch id="email-notifications" defaultChecked={false} />
                 </div>
               </div>
+              
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium">أدوات اختبار صلاحيات المشرف</h3>
+                <Separator />
+                
+                <div className="bg-amber-50 border border-amber-200 p-4 rounded-md">
+                  <h4 className="text-amber-800 font-medium text-sm mb-2">
+                    معلومات المستخدم الحالي
+                  </h4>
+                  <div className="bg-white p-3 rounded border border-amber-100 text-xs font-mono mb-3 max-h-32 overflow-auto">
+                    <pre>{JSON.stringify(user, null, 2)}</pre>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="text-amber-700 border-amber-200"
+                      onClick={() => {
+                        // فتح نافذة مساعدة
+                        toast({
+                          title: "معلومات المشرف",
+                          description: `حالة المشرف: ${user?.isAdmin ? "نشط" : "غير نشط"}`,
+                          variant: "default"
+                        });
+                      }}
+                    >
+                      عرض حالة المشرف
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="text-red-700 border-red-200"
+                      onClick={() => {
+                        // تسجيل الخروج
+                        localStorage.removeItem("user");
+                        window.location.href = "/";
+                        toast({
+                          title: "تم تسجيل الخروج",
+                          description: "تم تسجيل خروجك من النظام بنجاح",
+                          variant: "default"
+                        });
+                      }}
+                    >
+                      تسجيل الخروج
+                    </Button>
+                  </div>
+                </div>
+              </div>
             </CardContent>
             <CardFooter>
               <Button className="gap-2">

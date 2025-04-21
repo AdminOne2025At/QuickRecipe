@@ -4,7 +4,7 @@ import { BookmarkIcon, LogIn, User, Menu, X, Shield } from "lucide-react";
 import { useState, useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/use-auth";
 
 export function SimpleHeader() {
   const [currentUser, setCurrentUser] = useState<any>(null);
