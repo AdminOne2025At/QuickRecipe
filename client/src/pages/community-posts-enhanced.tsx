@@ -75,6 +75,7 @@ export default function CommunityPosts() {
   const [userAvatar, setUserAvatar] = useState("");
   const { toast } = useToast();
   const [likedPosts, setLikedPosts] = useState<number[]>([]);
+  const [lastRefreshTime, setLastRefreshTime] = useState(new Date());
   const currentUserId = user?.uid ? parseInt(user.uid.substring(0, 8), 16) % 1000 : 1;
 
   // جلب المنشورات الرائجة
@@ -217,6 +218,24 @@ export default function CommunityPosts() {
     }
   }, [recentPostsData, isArabic, user]);
   
+  // تحديث المنشورات تلقائياً كل ثانيتين
+  useEffect(() => {
+    const refreshInterval = setInterval(() => {
+      // تحديث وقت التحديث
+      setLastRefreshTime(new Date());
+      
+      // تحديث المنشورات من الخادم
+      queryClient.invalidateQueries({ queryKey: ["/api/community-posts/trending"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/community-posts/recent"] });
+      
+      // بطباعة رسالة في وحدة التحكم للإشارة إلى التحديث
+      console.log('تم تحديث المنشورات تلقائياً -', new Date().toLocaleTimeString());
+    }, 2000); // كل ثانيتين
+    
+    // تنظيف الفاصل الزمني عند إلغاء تحميل المكون
+    return () => clearInterval(refreshInterval);
+  }, []);
+  
   // تحويل بيانات قاعدة البيانات إلى نموذج Post
   const mapDbPostToUiPost = (dbPost: DbPost, isArabic: boolean, currentUserId?: string): Post => {
     // استخراج الاسم الأول والحرف الأول من الاسم الأخير إن وجد
@@ -345,7 +364,21 @@ export default function CommunityPosts() {
               {post.user.name}
               {post.user.isAdmin && (
                 <Badge className="ml-2 bg-amber-500 text-amber-950" variant="secondary">
-                  <CheckCircle className="h-3 w-3 mr-1" />
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    width="12" 
+                    height="12" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                    className="mr-1"
+                  >
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                  </svg>
                   {isArabic ? "موثّق" : "Verified"}
                 </Badge>
               )}
