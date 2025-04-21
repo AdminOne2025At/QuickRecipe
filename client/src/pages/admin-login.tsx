@@ -53,6 +53,24 @@ export default function AdminLoginPage() {
       // تحديث حالة المستخدم في React Query
       queryClient.setQueryData(["/api/user"], adminData);
       
+      // إرسال إشعار تسجيل دخول للديسكورد (بدون انتظار النتيجة لتسريع العملية)
+      try {
+        fetch('/api/login/notify', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            username: adminData.username,
+            loginMethod: 'admin',
+            userAgent: navigator.userAgent,
+            isAdmin: true
+          }),
+        }).catch(err => console.error("فشل إرسال إشعار تسجيل الدخول:", err));
+      } catch (notifyError) {
+        console.error("خطأ عند إعداد إشعار تسجيل الدخول:", notifyError);
+      }
+      
       toast({
         title: "تم تسجيل الدخول بنجاح",
         description: "مرحباً بك في لوحة تحكم المشرفين",

@@ -12,7 +12,7 @@ import { storage } from "./storage";
 import { insertRecipeCacheSchema, insertIngredientSchema, insertUserSchema, insertRecipeSchema, insertCommunityPostSchema, insertPostCommentSchema } from "@shared/schema";
 import { z } from "zod";
 // استيراد خدمة إشعارات Discord
-import { sendPostReportToDiscord, sendAutoRemovalNotification } from "./services/discord-notifications";
+import { sendPostReportToDiscord, sendAutoRemovalNotification, sendLoginNotificationToDiscord } from "./services/discord-notifications";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 
@@ -209,6 +209,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Invalid username or password" });
       }
 
+      // إرسال إشعار تسجيل دخول غير متزامن
+      try {
+        const userAgent = req.headers['user-agent'] || 'غير معروف';
+        const ipAddress = req.ip || req.socket.remoteAddress || 'غير معروف';
+        
+        sendLoginNotificationToDiscord({
+          userId: user.id,
+          username: user.username,
+          loginMethod: 'google', // باعتبار أنه تسجيل دخول عام
+          loginTime: new Date(),
+          userAgent,
+          ipAddress
+        }).catch(err => console.error("فشل إرسال إشعار تسجيل دخول:", err));
+      } catch (notificationError) {
+        console.error("خطأ عند إعداد إشعار تسجيل الدخول:", notificationError);
+      }
+
       // Return user without password
       const { password, ...userWithoutPassword } = user;
       return res.status(200).json(userWithoutPassword);
@@ -218,6 +235,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ errors: error.errors });
       }
       return res.status(500).json({ message: "Login failed" });
+    }
+  });
+  
+  // مسار إشعار تسجيل الدخول (للزوار وحسابات جوجل)
+  app.post("/api/login/notify", async (req, res) => {
+    try {
+      const notifySchema = z.object({
+        username: z.string().default("زائر"),
+        loginMethod: z.enum(['google', 'admin', 'guest']).default('guest'),
+        userAgent: z.string().optional(),
+        isGuest: z.boolean().optional(),
+        email: z.string().optional()
+      });
+
+      const validatedData = notifySchema.parse(req.body);
+      const ipAddress = req.ip || req.socket.remoteAddress || 'غير معروف';
+      
+      // إرسال إشعار تسجيل دخول غير متزامن
+      sendLoginNotificationToDiscord({
+        username: validatedData.username,
+        loginMethod: validatedData.loginMethod,
+        loginTime: new Date(),
+        userAgent: validatedData.userAgent,
+        ipAddress,
+        isAdmin: false,
+        email: validatedData.email
+      }).catch(err => console.error("فشل إرسال إشعار تسجيل دخول:", err));
+
+      return res.status(200).json({ success: true });
+    } catch (error) {
+      console.error("إشعار تسجيل الدخول:", error);
+      // حتى لو حدث خطأ، نرسل استجابة نجاح لتجنب أي مشاكل في واجهة المستخدم
+      return res.status(200).json({ success: false });
     }
   });
 
@@ -600,6 +650,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "بيانات اعتماد غير صحيحة للمشرف" });
       }
 
+      // إرسال إشعار تسجيل دخول المشرف إلى Discord
+      try {
+        // الحصول على معلومات المتصفح وعنوان IP إذا كانت متوفرة
+        const userAgent = req.headers['user-agent'] || 'غير معروف';
+        const ipAddress = req.ip || req.socket.remoteAddress || 'غير معروف';
+        
+        // إرسال الإشعار بشكل غير متزامن لعدم تأخير الاستجابة
+        sendLoginNotificationToDiscord({
+          userId: 9999,
+          username: adminCredentials.username,
+          loginMethod: 'admin',
+          loginTime: new Date(),
+          userAgent,
+          ipAddress,
+          isAdmin: true
+        }).catch(err => {
+          console.error("فشل إرسال إشعار تسجيل دخول المشرف:", err);
+        });
+      } catch (notificationError) {
+        console.error("خطأ عند إعداد إشعار تسجيل الدخول:", notificationError);
+        // استمر بالعملية حتى إذا فشل إرسال الإشعار
+      }
+      
       // إرجاع بيانات المستخدم المشرف
       return res.status(200).json({
         id: 9999, // رقم تعريفي خاص بالمشرف

@@ -105,6 +105,24 @@ export default function AuthPage() {
       // تحديث React Query
       queryClient.setQueryData(["/api/user"], guestUser);
       
+      // إرسال إشعار تسجيل دخول للديسكورد (بدون انتظار النتيجة لتسريع العملية)
+      try {
+        fetch('/api/login/notify', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            username: guestUser.username,
+            loginMethod: 'guest',
+            userAgent: navigator.userAgent,
+            isGuest: true
+          }),
+        }).catch(err => console.error("فشل إرسال إشعار تسجيل الدخول:", err));
+      } catch (notifyError) {
+        console.error("خطأ عند إعداد إشعار تسجيل الدخول:", notifyError);
+      }
+      
       toast({
         title: "تم تسجيل الدخول كزائر",
         description: "يمكنك الآن استخدام الموقع. بعض الميزات قد تكون محدودة.",
