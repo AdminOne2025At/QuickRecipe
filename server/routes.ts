@@ -653,7 +653,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const moderationResult = await moderateContent(
         postData.content,
         postData.title,
-        postData.imageUrl
+        postData.imageUrl || undefined
       );
       
       // إذا كان المحتوى غير مناسب، ارفض إنشاء المنشور
@@ -721,7 +721,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const moderationResult = await moderateContent(
           updateData.content || existingPost.content,
           updateData.title || existingPost.title,
-          updateData.imageUrl || existingPost.imageUrl
+          (updateData.imageUrl || existingPost.imageUrl || undefined)
         );
         
         // إذا كان المحتوى غير مناسب، ارفض التحديث
@@ -837,7 +837,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
         postId,
       });
       
-      const comment = await storage.createPostComment(commentData);
+      // التحقق من المحتوى للكشف عن التعليقات غير اللائقة
+      const moderationResult = await moderateComment(commentData.content);
+      
+      // إذا كان التعليق غير مناسب، ارفض إنشاءه
+      if (!moderationResult.isAppropriate) {
+        return res.status(400).json({
+          message: "تعليق غير مناسب",
+          reason: moderationResult.reason || "يحتوي التعليق على محتوى غير لائق أو مخالف للقواعد."
+        });
+      }
+      
+      // إذا كان هناك محتوى معدل (تم تنقيته)، استخدمه بدلاً من المحتوى الأصلي
+      const safeContent = moderationResult.moderatedContent || commentData.content;
+      
+      // استخدام النسخة الآمنة من التعليق
+      const safeCommentData = {
+        ...commentData,
+        content: safeContent
+      };
+      
+      const comment = await storage.createPostComment(safeCommentData);
+      
+      // إذا تم تعديل المحتوى للتنقية، أخبر المستخدم
+      if (moderationResult.moderatedContent) {
+        return res.status(201).json({
+          ...comment,
+          message: "تم نشر التعليق بعد التعديل لإزالة أي محتوى غير لائق."
+        });
+      }
+      
       return res.status(201).json(comment);
     } catch (error) {
       console.error("Error creating comment:", error);
