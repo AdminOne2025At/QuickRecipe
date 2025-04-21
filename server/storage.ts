@@ -341,6 +341,22 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteCommunityPost(id: number): Promise<void> {
+    // حذف جميع البلاغات المرتبطة بالمنشور أولاً
+    await db
+      .delete(postReports)
+      .where(eq(postReports.postId, id));
+    
+    // حذف جميع التعليقات المرتبطة بالمنشور
+    await db
+      .delete(postComments)
+      .where(eq(postComments.postId, id));
+    
+    // حذف جميع علامات الحفظ المرتبطة بالمنشور
+    await db
+      .delete(savedPosts)
+      .where(eq(savedPosts.postId, id));
+      
+    // ثم حذف المنشور نفسه
     await db
       .delete(communityPosts)
       .where(eq(communityPosts.id, id));
