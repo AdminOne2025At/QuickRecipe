@@ -400,7 +400,11 @@ export default function AdminDashboard() {
                         </div>
                         
                         <div className="mt-4 flex space-x-2 space-x-reverse">
-                          <DeletePostButton postId={report.postId} onSuccess={refetchReports} />
+                          <DeletePostButton 
+                            postId={report.postId} 
+                            postTitle={report.postTitle || "منشور بدون عنوان"} 
+                            onSuccess={refetchReports} 
+                          />
                           <Button 
                             size="sm" 
                             variant="outline"
