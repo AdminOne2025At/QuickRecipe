@@ -150,12 +150,12 @@ function createDiscordEmbed(data: ReportDetailsPayload): any {
       },
       {
         name: '📊 الإحصائيات',
-        value: `**عدد البلاغات**: ${post.reportsCount || 1}\n**تاريخ الإبلاغ**: ${reportDate}`,
+        value: `**عدد البلاغات**: ${post.reports || 1}\n**تاريخ الإبلاغ**: ${reportDate}`,
         inline: false
       },
       {
         name: '🔗 روابط',
-        value: `[عرض المنشور](${process.env.APP_URL || ''}/community-posts/${post.id})`,
+        value: `[عرض المنشور](https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co/community-posts/${post.id})`,
         inline: false
       }
     ],
