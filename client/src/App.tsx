@@ -4,6 +4,7 @@ import Home from "@/pages/Home";
 import AuthPage from "@/pages/auth-page";
 import ProfilePage from "@/pages/profile-page";
 import AdminLoginPage from "@/pages/admin-login";
+import AdminDashboard from "@/pages/admin-dashboard";
 
 import CommunityPostsPage from "@/pages/community-posts-enhanced";
 import SavedRecipesPage from "@/pages/saved-recipes";
@@ -76,6 +77,10 @@ function App() {
           <Switch>
             <Route path="/admin-login">
               <AdminLoginPage />
+            </Route>
+            
+            <Route path="/admin-dashboard">
+              <AdminDashboard />
             </Route>
             
             <Route>

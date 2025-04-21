@@ -1,15 +1,20 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { BookmarkIcon, LogIn, User, Menu, X } from "lucide-react";
+import { BookmarkIcon, LogIn, User, Menu, X, Shield } from "lucide-react";
 import { useState, useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function SimpleHeader() {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [location] = useLocation();
+  const { user } = useAuth();
+  
+  // التحقق ما إذا كان المستخدم مشرفًا
+  const isAdmin = user?.isAdmin === true;
   
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -58,7 +63,19 @@ export function SimpleHeader() {
             </Button>
           </Link>
           
-
+          {/* زر لوحة تحكم المشرفين - يظهر فقط للمشرفين */}
+          {isAdmin && (
+            <Link href="/admin-dashboard">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="bg-amber-100 text-amber-900 hover:bg-amber-200 gap-2 font-bold"
+              >
+                <Shield className="h-4 w-4" />
+                لوحة المشرفين
+              </Button>
+            </Link>
+          )}
           
           {!isLoading && currentUser && (
             <Link href="/saved-recipes">
