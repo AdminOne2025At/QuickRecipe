@@ -22,7 +22,7 @@ function DeletePostButton({ postId, onSuccess }: { postId: number, onSuccess: ()
   
   const deletePostMutation = useMutation({
     mutationFn: async () => {
-      const res = await apiRequest("DELETE", `/api/admin/posts/${postId}`);
+      const res = await apiRequest("DELETE", `/api/admin/posts/${postId}?adminKey=admin123`);
       if (!res.ok) {
         const error = await res.json();
         throw new Error(error.message || "فشل في حذف المنشور");

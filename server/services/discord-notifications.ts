@@ -17,6 +17,15 @@ interface ReportDetailsPayload {
   postCreator: Partial<User>;
 }
 
+// واجهة لبيانات الإزالة التلقائية
+interface AutoRemovalPayload {
+  postId: number;
+  reportCount: number;
+  reason: string;
+  post?: CommunityPost;
+  postCreator?: Partial<User>;
+}
+
 /**
  * إرسال إشعار Discord عن إبلاغ منشور
  * 
@@ -182,9 +191,10 @@ function createDiscordEmbed(data: ReportDetailsPayload): any {
  * 
  * @param postId معرف المنشور المحذوف
  * @param reportsCount عدد البلاغات
+ * @param reason سبب الحذف (اختياري)
  * @returns وعد بنتيجة العملية
  */
-export async function sendAutoRemovalNotification(postId: number, reportsCount: number): Promise<boolean> {
+export async function sendAutoRemovalNotification(postId: number, reportsCount: number, reason: string = 'تم الحذف تلقائياً'): Promise<boolean> {
   try {
     const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
     if (!webhookUrl) {

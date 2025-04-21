@@ -618,8 +618,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // حذف منشور بواسطة المشرف
   app.delete("/api/admin/posts/:postId", async (req, res) => {
     try {
-      // في تطبيق حقيقي، يجب التحقق من صلاحية المشرف هنا
-      // من خلال جلسة العمل أو رمز التوثيق JWT
+      // التحقق من صلاحيات المشرف
+      if (!verifyAdminAccess(req, res)) return;
       
       const postId = parseInt(req.params.postId);
       
@@ -636,6 +636,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // حذف المنشور
       await storage.deleteCommunityPost(postId);
       
+      // إرسال إشعار Discord (اختياري) إذا تم حذف المنشور من قبل مشرف
+      try {
+        await sendAutoRemovalNotification(postId, 0, 'تم الحذف بواسطة مشرف');
+      } catch (error) {
+        console.warn("Could not send Discord notification:", error);
+      }
+      
       return res.status(200).json({ message: "تم حذف المنشور بنجاح" });
     } catch (error) {
       console.error("Admin delete post error:", error);
@@ -643,15 +650,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Helper function to verify admin access
+  function verifyAdminAccess(req: Request, res: Response): boolean {
+    if (req.query.adminKey !== "admin123") {
+      res.status(403).json({ message: "وصول مرفوض. يجب أن تكون مشرف." });
+      return false;
+    }
+    return true;
+  }
+  
   // الحصول على البلاغات للمشرفين
   app.get("/api/admin/reports", async (req, res) => {
     try {
       // التحقق من صلاحيات المشرف
-      // في تطبيق حقيقي، يجب التحقق من صلاحية المشرف عبر جلسة العمل
-      // نستخدم adminKey كحل مؤقت للتجربة
-      if (req.query.adminKey !== "admin123") {
-        return res.status(403).json({ message: "وصول مرفوض. يجب أن تكون مشرف." });
-      }
+      if (!verifyAdminAccess(req, res)) return;
       
       // جلب كل البلاغات مع معلومات المنشورات المرتبطة
       const reportedPostIds = await storage.getAllReportedPostIds();
