@@ -67,21 +67,15 @@ export const signInWithGoogle = async (): Promise<void> => {
       prompt: 'select_account'
     });
 
-    // نجرب طريقة النافذة المنبثقة أولاً على الأجهزة المكتبية
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    // للتبسيط، نستخدم دائمًا طريقة إعادة التوجيه التي تعمل بشكل أفضل عبر الأجهزة
+    console.log("Using signInWithRedirect for authentication...");
+    await signInWithRedirect(auth, googleProvider);
     
-    if (isMobile) {
-      console.log("Using redirect method for mobile device");
-      await signInWithRedirect(auth, googleProvider);
-    } else {
-      console.log("Using popup method for desktop device");
-      try {
-        await signInWithPopup(auth, googleProvider);
-      } catch (popupError) {
-        console.log("Popup failed, falling back to redirect:", popupError);
-        await signInWithRedirect(auth, googleProvider);
-      }
-    }
+    // ملاحظة: signInWithRedirect يقوم بتنفيذ عملية إعادة توجيه مباشرة
+    // لذلك لن يتم الوصول إلى الكود الذي بعده إلا بعد إعادة تحميل الصفحة
+    
+    // تم إضافة console.log للتشخيص، لكن لن يتم الوصول إليه إلا إذا فشلت عملية إعادة التوجيه
+    console.log("If you see this, redirect failed but didn't throw an error");
   } catch (error) {
     console.error("Error initiating sign-in with Google:", error);
     throw error;
@@ -93,17 +87,53 @@ export const handleRedirectResult = async (): Promise<User | null> => {
   try {
     console.log("Attempting to get redirect result...");
     const result = await getRedirectResult(auth);
-    if (result) {
+    
+    if (result && result.user) {
       // تم تسجيل الدخول بنجاح
       console.log("Successfully got redirect result, user logged in:", result.user.displayName);
+      
+      // حفظ بيانات المستخدم في localStorage لتحسين التجربة عبر تحديثات الصفحة
+      try {
+        // إعداد كائن المستخدم مع المعلومات الضرورية
+        const userData = {
+          id: result.user.uid,
+          displayName: result.user.displayName || 'مستخدم جوجل',
+          email: result.user.email,
+          photoURL: result.user.photoURL,
+          isAdmin: false // المستخدمون من جوجل ليسوا مشرفين افتراضيًا
+        };
+        
+        localStorage.setItem('user', JSON.stringify(userData));
+        console.log("User data saved to localStorage");
+      } catch (storageError) {
+        console.error("Failed to save user data to localStorage:", storageError);
+      }
+      
+      // إضافة إشعار تسجيل الدخول للديسكورد
+      try {
+        fetch('/api/login/notify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: result.user.displayName || result.user.email || 'مستخدم جوجل',
+            loginMethod: 'google',
+            userAgent: navigator.userAgent,
+            email: result.user.email
+          })
+        }).catch(err => console.error("Failed to send login notification:", err));
+      } catch (notifyError) {
+        console.error("Error setting up login notification:", notifyError);
+      }
+      
       return result.user;
     }
+    
     console.log("No redirect result found (normal if not redirected from authentication)");
     return null;
   } catch (error: any) {
     console.error("Error handling redirect result:", error);
     
-    // رسائل خطأ أكثر تفصيلاً استناداً إلى نوع الخطأ
+    // تحسين معالجة الأخطاء الشائعة
     if (error.code) {
       switch (error.code) {
         case 'auth/unauthorized-domain':
@@ -112,21 +142,43 @@ export const handleRedirectResult = async (): Promise<User | null> => {
             يجب عليك إضافة "${window.location.origin}" إلى 
             قائمة النطاقات المصرح بها في إعدادات Firebase.
           `);
+          // في هذه الحالة، نقوم بتسجيل الدخول كزائر تلقائيًا
+          try {
+            const guestUser = {
+              id: Date.now(), // استخدام الطابع الزمني لإنشاء معرف فريد
+              displayName: "زائر (تلقائي)",
+              isGuest: true
+            };
+            
+            localStorage.setItem("user", JSON.stringify(guestUser));
+            console.log("Automatic guest login due to unauthorized domain");
+            
+            // لا نقوم برمي الخطأ وبدلاً من ذلك نعود بـ null
+            return null;
+          } catch (fallbackError) {
+            console.error("Failed to perform automatic guest login:", fallbackError);
+          }
           break;
+          
         case 'auth/web-storage-unsupported':
           console.error("خطأ: متصفحك لا يدعم تخزين الويب المطلوب للمصادقة");
           break;
+          
         case 'auth/cancelled-popup-request':
-          console.log("تم إلغاء طلب النافذة المنبثقة - هذا عادي إذا قام المستخدم بإغلاق النافذة");
-          return null; // لا نرغب في رمي خطأ هنا لأن هذا يمكن أن يحدث عندما يغلق المستخدم النافذة المنبثقة
+        case 'auth/popup-closed-by-user':
+          console.log("تم إلغاء/إغلاق عملية تسجيل الدخول - هذا أمر طبيعي إذا قام المستخدم بإغلاق النافذة");
+          return null; // لا نرغب في رمي خطأ هنا لأن هذا يمكن أن يحدث عندما يغلق المستخدم النافذة
+          
         case 'auth/popup-blocked':
           console.error("تم حظر النافذة المنبثقة بواسطة المتصفح");
           break;
+          
         default:
           console.error(`خطأ في المصادقة: ${error.code}`, error);
       }
     }
     
+    // في حالة الأخطاء الشديدة، نقوم برمي الخطأ
     throw error;
   }
 };

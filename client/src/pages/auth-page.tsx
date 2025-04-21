@@ -78,13 +78,31 @@ export default function AuthPage() {
       setIsLoading(true);
       await signInWithGoogle();
       // لن يعود للتنفيذ هنا لأن signInWithRedirect يقوم بتحويل الصفحة
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login error:', error);
+      
+      // تعزيز معالجة الأخطاء الشائعة
+      let errorMessage = "حدث خطأ أثناء محاولة تسجيل الدخول بحساب Google";
+      
+      if (error.code === 'auth/unauthorized-domain') {
+        errorMessage = "النطاق غير مصرح به في Firebase. سيتم تسجيلك كزائر تلقائيًا.";
+        
+        // التحول لتسجيل دخول الزائر
+        handleGuestLogin();
+        return;
+      } else if (error.code === 'auth/popup-blocked') {
+        errorMessage = "تم حظر نافذة تسجيل الدخول. الرجاء السماح بالنوافذ المنبثقة أو استخدام خيار 'تخطي'.";
+      } else if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
+        // هذه ليست أخطاء حقيقية، فقط تنبيه المستخدم
+        errorMessage = "تم إغلاق نافذة تسجيل الدخول قبل إكمال العملية.";
+      }
+      
       toast({
-        title: "خطأ في تسجيل الدخول",
-        description: "حدث خطأ أثناء محاولة تسجيل الدخول بحساب Google",
-        variant: "destructive",
+        title: "معلومات تسجيل الدخول",
+        description: errorMessage,
+        variant: error.code === 'auth/popup-closed-by-user' ? "default" : "destructive",
       });
+      
       setIsLoading(false);
     }
   };
