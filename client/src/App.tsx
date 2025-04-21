@@ -4,7 +4,7 @@ import Home from "@/pages/Home";
 import AuthPage from "@/pages/auth-page";
 import ProfilePage from "@/pages/profile-page";
 
-import CommunityPostsPage from "@/pages/community-posts";
+import CommunityPostsPage from "@/pages/community-posts-enhanced";
 import SavedRecipesPage from "@/pages/saved-recipes";
 import { ReactNode, useEffect } from "react";
 import { SimpleHeader } from "@/components/SimpleHeader";
