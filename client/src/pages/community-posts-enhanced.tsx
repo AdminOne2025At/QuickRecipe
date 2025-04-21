@@ -225,6 +225,9 @@ export default function CommunityPosts() {
       ? `${nameParts[0][0]}${nameParts[1][0]}` 
       : userName.substring(0, 2);
 
+    // التحقق من كون المستخدم مشرفًا (معرف المستخدم = 9999)
+    const isAdmin = dbPost.userId === 9999;
+    
     // معالجة تاريخ الإنشاء
     const createdAt = new Date(dbPost.createdAt);
     const now = new Date();
@@ -252,17 +255,23 @@ export default function CommunityPosts() {
       dateDisplay = isArabic ? "الآن" : "Just now";
     }
 
-    // صورة ضيف فيسبوك للمستخدمين بدون صورة
+    // صورة ضيف فيسبوك للمستخدمين العاديين بدون صورة
     const guestAvatarUrl = "https://static.xx.fbcdn.net/rsrc.php/v1/yi/r/odA9sNLrE86.jpg";
+    
+    // صورة نجمة المشرفين
+    const adminStarAvatar = "https://cdn-icons-png.flaticon.com/512/1177/1177428.png";
     
     return {
       id: dbPost.id,
       user: {
         id: dbPost.userId,
         name: userName,
-        level: dbPost.userLevel || (isArabic ? "عضو" : "Member"),
-        avatar: dbPost.userAvatar || guestAvatarUrl,
-        initials: initials.toUpperCase()
+        // تغيير "عضو" أو "Member" إلى "مشرف" أو "Admin" للمشرفين
+        level: isAdmin ? (isArabic ? "مشرف" : "Admin") : (dbPost.userLevel || (isArabic ? "عضو" : "Member")),
+        // استخدام صورة النجمة للمشرفين
+        avatar: isAdmin ? adminStarAvatar : (dbPost.userAvatar || guestAvatarUrl),
+        initials: initials.toUpperCase(),
+        isAdmin: isAdmin // إضافة حقل للإشارة إلى كون المستخدم مشرفًا
       },
       title: dbPost.title,
       content: dbPost.content,
@@ -333,6 +342,12 @@ export default function CommunityPosts() {
           <div>
             <CardTitle className="flex items-center text-lg font-bold">
               {post.user.name}
+              {post.user.isAdmin && (
+                <Badge className="ml-2 bg-amber-500 text-amber-950" variant="secondary">
+                  <CheckCircle className="h-3 w-3 mr-1" />
+                  {isArabic ? "موثّق" : "Verified"}
+                </Badge>
+              )}
               {post.postType === 'challenge' && (
                 <Badge className="ml-2 bg-orange-500" variant="secondary">
                   <Award className="h-3 w-3 mr-1" />
