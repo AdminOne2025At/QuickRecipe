@@ -15,10 +15,12 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 // مكون زر حذف المنشور
-function DeletePostButton({ postId, onSuccess }: { postId: number, onSuccess: () => void }) {
+function DeletePostButton({ postId, postTitle, onSuccess }: { postId: number, postTitle: string, onSuccess: () => void }) {
   const { toast } = useToast();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   
   const deletePostMutation = useMutation({
     mutationFn: async () => {
@@ -32,9 +34,10 @@ function DeletePostButton({ postId, onSuccess }: { postId: number, onSuccess: ()
     onSuccess: () => {
       toast({
         title: "تم حذف المنشور",
-        description: "تم حذف المنشور بنجاح",
+        description: "تم حذف المنشور بنجاح وإرسال إشعار للمشرفين",
         variant: "default",
       });
+      setIsDialogOpen(false);
       onSuccess();
     },
     onError: (error: Error) => {
@@ -47,20 +50,51 @@ function DeletePostButton({ postId, onSuccess }: { postId: number, onSuccess: ()
   });
   
   return (
-    <Button 
-      size="sm" 
-      variant="destructive" 
-      className="gap-1"
-      onClick={() => deletePostMutation.mutate()}
-      disabled={deletePostMutation.isPending}
-    >
-      {deletePostMutation.isPending ? (
-        <RefreshCw className="h-4 w-4 animate-spin" />
-      ) : (
-        <Trash2 className="h-4 w-4" />
-      )}
-      حذف المنشور
-    </Button>
+    <>
+      <Button 
+        size="sm" 
+        variant="destructive" 
+        className="gap-1"
+        onClick={() => setIsDialogOpen(true)}
+        disabled={deletePostMutation.isPending}
+      >
+        {deletePostMutation.isPending ? (
+          <RefreshCw className="h-4 w-4 animate-spin" />
+        ) : (
+          <Trash2 className="h-4 w-4" />
+        )}
+        حذف المنشور
+      </Button>
+      
+      <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>تأكيد حذف المنشور</AlertDialogTitle>
+            <AlertDialogDescription>
+              هل أنت متأكد من رغبتك في حذف المنشور "<span className="font-bold">{postTitle}</span>"؟
+              <br />
+              هذا الإجراء نهائي ولا يمكن التراجع عنه.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>إلغاء</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                deletePostMutation.mutate();
+              }}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {deletePostMutation.isPending ? (
+                <><RefreshCw className="h-4 w-4 mr-2 animate-spin" /> جاري الحذف...</>
+              ) : (
+                "تأكيد الحذف"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
 

@@ -219,12 +219,17 @@ export async function sendAutoRemovalNotification(postId: number, reportsCount: 
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        content: "🚫 **تم حذف منشور تلقائيًا بسبب كثرة البلاغات** 🚫",
+        content: `🚫 **تم حذف منشور: ${reason}** 🚫`,
         embeds: [{
           title: `منشور محذوف: ${post.title || 'بدون عنوان'}`,
           color: 0x000000, // أسود للإشارة إلى الحذف
           timestamp: new Date().toISOString(),
           fields: [
+            {
+              name: '📝 سبب الحذف',
+              value: reason,
+              inline: false
+            },
             {
               name: '🧾 محتوى المنشور',
               value: post.content ? (post.content.length > 300 ? post.content.substring(0, 297) + '...' : post.content) : 'بدون محتوى',
