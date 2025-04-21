@@ -41,7 +41,7 @@ export default function AuthPage() {
           errorMessage = "تم إغلاق نافذة تسجيل الدخول قبل إكمال العملية.";
         } else if (error.code === 'auth/cancelled-popup-request') {
           // هذا ليس خطأ فعلياً وغالباً ما يحدث عند فتح نافذة منبثقة جديدة
-          errorMessage = null;
+          errorMessage = ""; // استخدام سلسلة فارغة بدلاً من null
         } else if (error.code === 'auth/popup-blocked') {
           errorMessage = "تم حظر النافذة المنبثقة. يرجى السماح بالنوافذ المنبثقة لهذا الموقع.";
         }
@@ -115,6 +115,12 @@ export default function AuthPage() {
             >
               تخطي تسجيل الدخول والاستمرار كزائر
             </Button>
+          </CardContent>
+          <CardContent>
+            <div className="mt-4 p-3 bg-amber-50 text-amber-800 rounded-md border border-amber-200 text-sm">
+              <p className="font-semibold mb-1">ملاحظة هامة:</p>
+              <p>إذا واجهت مشكلة في تسجيل الدخول، يمكنك استخدام خيار "تخطي تسجيل الدخول" للاستمرار استخدام التطبيق. للحصول على جميع المميزات، يرجى المحاولة لاحقًا أو استخدام متصفح آخر.</p>
+            </div>
           </CardContent>
           <CardFooter className="text-center text-sm text-muted-foreground">
             بالتسجيل، أنت توافق على شروط الاستخدام وسياسة الخصوصية
