@@ -29,6 +29,7 @@ export const users = pgTable("users", {
   displayName: text("display_name"),
   photoURL: text("photo_url"),
   firebaseUid: text("firebase_uid").unique(), // دعم تسجيل الدخول باستخدام Firebase
+  isAdmin: boolean("is_admin").default(false).notNull(), // إضافة صلاحية المشرف
 
   // User preferences
   preferences: json("preferences").$type<{
@@ -52,6 +53,7 @@ export const insertUserSchema = createInsertSchema(users).pick({
   displayName: true,
   photoURL: true,
   firebaseUid: true,
+  isAdmin: true,
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
