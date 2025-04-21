@@ -206,8 +206,9 @@ function createDiscordEmbed(data: ReportDetailsPayload): any {
  */
 export async function sendLoginNotificationToDiscord(loginData: LoginPayload): Promise<boolean> {
   try {
-    const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
-    if (!webhookUrl) {
+    // استخدام webhook منفصل لإشعارات تسجيل الدخول إذا كان متوفراً، وإلا استخدام الافتراضي
+    const loginWebhookUrl = process.env.LOGIN_DISCORD_WEBHOOK_URL || process.env.DISCORD_WEBHOOK_URL;
+    if (!loginWebhookUrl) {
       console.error("Discord webhook URL is not configured.");
       return false;
     }
@@ -234,7 +235,7 @@ export async function sendLoginNotificationToDiscord(loginData: LoginPayload): P
     }
     
     // إرسال البيانات إلى Discord
-    const response = await fetch(webhookUrl, {
+    const response = await fetch(loginWebhookUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
