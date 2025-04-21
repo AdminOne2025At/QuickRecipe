@@ -30,16 +30,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
+    console.log("Auth context initializing...");
+    
     // Check if user is already set in localStorage
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       try {
         const parsedUser = JSON.parse(storedUser);
         console.log("User loaded from localStorage:", parsedUser);
-        setUser(parsedUser);
+        
+        // تحقق من وجود حقل isAdmin وضبطه إلى true/false إذا كان موجوداً
+        const finalUser = {
+          ...parsedUser,
+          isAdmin: parsedUser.isAdmin === true
+        };
+        
+        console.log("Setting user with finalized data:", finalUser);
+        setUser(finalUser);
         
         // إذا كان المستخدم هو مشرف، نظهر رسالة ترحيب خاصة
-        if (parsedUser.isAdmin) {
+        if (finalUser.isAdmin) {
+          console.log("Admin user detected!");
           toast({
             title: "مرحباً بالمشرف",
             description: "لديك صلاحيات الإشراف على المنصة",
@@ -50,6 +61,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.error("Error parsing user from localStorage:", e);
         localStorage.removeItem("user");
       }
+    } else {
+      console.log("No user found in localStorage");
     }
 
     // Listen for Firebase auth state changes

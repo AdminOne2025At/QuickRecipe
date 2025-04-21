@@ -16,6 +16,9 @@ export function SimpleHeader() {
   // التحقق ما إذا كان المستخدم مشرفًا
   const isAdmin = user?.isAdmin === true;
   
+  // debug
+  console.log("SimpleHeader - User Info:", { user, isAdmin });
+  
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);

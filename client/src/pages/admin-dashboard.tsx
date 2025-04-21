@@ -106,12 +106,31 @@ export default function AdminDashboard() {
   
   // التحقق من صلاحيات المشرف
   useEffect(() => {
-    if (!user || !user.isAdmin) {
+    console.log("Admin Dashboard - Check Admin Access:", { user });
+    
+    if (!user) {
+      console.log("No user found, redirecting...");
+      setLocation("/");
+      toast({
+        title: "وصول مرفوض",
+        description: "يجب تسجيل الدخول للوصول إلى هذه الصفحة",
+        variant: "destructive",
+      });
+    } else if (!user.isAdmin) {
+      console.log("User is not admin, redirecting...");
       setLocation("/");
       toast({
         title: "وصول مرفوض",
         description: "هذه الصفحة مخصصة للمشرفين فقط",
         variant: "destructive",
+      });
+    } else {
+      console.log("Admin access verified!");
+      // إظهار رسالة ترحيب للمشرف
+      toast({
+        title: "مرحباً بالمشرف",
+        description: "تم تسجيل دخولك كمشرف بنجاح. يمكنك الآن إدارة المحتوى.",
+        variant: "default",
       });
     }
   }, [user, setLocation, toast]);

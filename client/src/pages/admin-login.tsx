@@ -15,6 +15,8 @@ export default function AdminLoginPage() {
   
   const adminLoginMutation = useMutation({
     mutationFn: async () => {
+      console.log("Attempting admin login with:", { username, password: "***" });
+      
       const res = await apiRequest("POST", "/api/admin/login", {
         username,
         password
@@ -25,14 +27,31 @@ export default function AdminLoginPage() {
         throw new Error(errorData.message || "فشل تسجيل الدخول كمشرف");
       }
       
-      return await res.json();
+      const userData = await res.json();
+      console.log("Admin login successful, received data:", userData);
+      
+      // تأكد من أن حقل المشرف معين بشكل صريح
+      if (userData.isAdmin !== true) {
+        console.error("Error: Admin API returned user without isAdmin flag!");
+        throw new Error("بيانات المشرف غير صالحة، يرجى الاتصال بالدعم الفني");
+      }
+      
+      return userData;
     },
     onSuccess: (data) => {
-      // حفظ بيانات المشرف في localStorage مع الإشارة إلى isAdmin = true
-      localStorage.setItem("user", JSON.stringify(data));
+      // تأكد من تخزين البيانات مع حقل isAdmin=true بشكل صريح
+      const adminData = {
+        ...data,
+        isAdmin: true
+      };
+      
+      console.log("Storing admin data in localStorage:", adminData);
+      
+      // حفظ بيانات المشرف في localStorage
+      localStorage.setItem("user", JSON.stringify(adminData));
       
       // تحديث حالة المستخدم في React Query
-      queryClient.setQueryData(["/api/user"], data);
+      queryClient.setQueryData(["/api/user"], adminData);
       
       toast({
         title: "تم تسجيل الدخول بنجاح",
@@ -40,8 +59,10 @@ export default function AdminLoginPage() {
         variant: "default"
       });
       
-      // استخدام window.location بدلاً من wouter's setLocation
-      window.location.href = "/admin-dashboard";
+      // يجب إعادة تحميل الصفحة بالكامل لضمان تحديث حالة المصادقة
+      setTimeout(() => {
+        window.location.href = "/admin-dashboard";
+      }, 1000);
     },
     onError: (error: Error) => {
       toast({
