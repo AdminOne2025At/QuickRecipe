@@ -6,7 +6,7 @@ import { FcGoogle } from "react-icons/fc";
 import { signInWithGoogle, handleRedirectResult } from "@/lib/firebase";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
-import { Loader2 } from "lucide-react";
+import { Loader2, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function AuthPage() {
@@ -114,6 +114,15 @@ export default function AuthPage() {
               className="w-full mb-2"
             >
               تخطي تسجيل الدخول والاستمرار كزائر
+            </Button>
+            
+            <Button
+              onClick={() => setLocation('/admin-login')}
+              variant="ghost"
+              className="w-full border border-gray-200 hover:bg-amber-50 flex items-center gap-2"
+            >
+              <Shield className="h-4 w-4 text-amber-500" />
+              <span className="flex-1">دخول المشرفين</span>
             </Button>
           </CardContent>
           <CardContent>
