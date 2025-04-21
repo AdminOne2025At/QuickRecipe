@@ -39,6 +39,13 @@ console.warn(`
 يجب إضافة النطاق: "${window.location.origin}" 
 إلى قائمة النطاقات المصرح بها في لوحة تحكم Firebase:
 - Firebase console -> Authentication -> Settings -> Authorized domains tab
+
+لحل مشكلات تسجيل الدخول، اتبع هذه الخطوات:
+1. افتح لوحة تحكم Firebase: https://console.firebase.google.com/
+2. اختر مشروعك: ${env.VITE_FIREBASE_PROJECT_ID}
+3. اذهب إلى Authentication -> Settings -> Authorized domains
+4. أضف النطاق: ${window.location.origin}
+5. احفظ التغييرات وأعد تحميل التطبيق
 `);
 
 // Initialize Firebase
@@ -84,14 +91,42 @@ export const signInWithGoogle = async (): Promise<void> => {
 // Handle redirect result
 export const handleRedirectResult = async (): Promise<User | null> => {
   try {
+    console.log("Attempting to get redirect result...");
     const result = await getRedirectResult(auth);
     if (result) {
       // تم تسجيل الدخول بنجاح
+      console.log("Successfully got redirect result, user logged in:", result.user.displayName);
       return result.user;
     }
+    console.log("No redirect result found (normal if not redirected from authentication)");
     return null;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error handling redirect result:", error);
+    
+    // رسائل خطأ أكثر تفصيلاً استناداً إلى نوع الخطأ
+    if (error.code) {
+      switch (error.code) {
+        case 'auth/unauthorized-domain':
+          console.error(`
+            خطأ: النطاق غير مصرح به
+            يجب عليك إضافة "${window.location.origin}" إلى 
+            قائمة النطاقات المصرح بها في إعدادات Firebase.
+          `);
+          break;
+        case 'auth/web-storage-unsupported':
+          console.error("خطأ: متصفحك لا يدعم تخزين الويب المطلوب للمصادقة");
+          break;
+        case 'auth/cancelled-popup-request':
+          console.log("تم إلغاء طلب النافذة المنبثقة - هذا عادي إذا قام المستخدم بإغلاق النافذة");
+          return null; // لا نرغب في رمي خطأ هنا لأن هذا يمكن أن يحدث عندما يغلق المستخدم النافذة المنبثقة
+        case 'auth/popup-blocked':
+          console.error("تم حظر النافذة المنبثقة بواسطة المتصفح");
+          break;
+        default:
+          console.error(`خطأ في المصادقة: ${error.code}`, error);
+      }
+    }
+    
     throw error;
   }
 };

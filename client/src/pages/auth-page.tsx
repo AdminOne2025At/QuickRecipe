@@ -29,13 +29,30 @@ export default function AuthPage() {
           });
           setLocation("/");
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error handling auth redirect:", error);
-        toast({
-          title: "خطأ في تسجيل الدخول",
-          description: "حدث خطأ أثناء محاولة تسجيل الدخول بحساب Google",
-          variant: "destructive",
-        });
+        
+        let errorMessage = "حدث خطأ أثناء محاولة تسجيل الدخول بحساب Google";
+        
+        // تحسين رسالة الخطأ بناءً على نوع الخطأ
+        if (error.code === 'auth/unauthorized-domain') {
+          errorMessage = `النطاق غير مصرح به. يجب على مدير التطبيق إضافة "${window.location.origin}" إلى قائمة النطاقات المصرح بها في إعدادات Firebase.`;
+        } else if (error.code === 'auth/popup-closed-by-user') {
+          errorMessage = "تم إغلاق نافذة تسجيل الدخول قبل إكمال العملية.";
+        } else if (error.code === 'auth/cancelled-popup-request') {
+          // هذا ليس خطأ فعلياً وغالباً ما يحدث عند فتح نافذة منبثقة جديدة
+          errorMessage = null;
+        } else if (error.code === 'auth/popup-blocked') {
+          errorMessage = "تم حظر النافذة المنبثقة. يرجى السماح بالنوافذ المنبثقة لهذا الموقع.";
+        }
+        
+        if (errorMessage) {
+          toast({
+            title: "خطأ في تسجيل الدخول",
+            description: errorMessage,
+            variant: "destructive",
+          });
+        }
       } finally {
         setIsLoading(false);
       }
