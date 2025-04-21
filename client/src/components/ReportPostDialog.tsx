@@ -44,7 +44,7 @@ export default function ReportPostDialog({ postId, onClose }: ReportPostDialogPr
       queryClient.invalidateQueries({ queryKey: ["/api/community-posts"] });
       toast({
         title: "تم الإبلاغ بنجاح",
-        description: "شكراً لمساعدتنا في الحفاظ على بيئة آمنة",
+        description: "شكراً لمساعدتنا في الحفاظ على بيئة آمنة. تم إرسال البلاغ إلى المشرفين وسيتم مراجعته قريبًا.",
         variant: "default"
       });
       setReason("");
@@ -87,7 +87,8 @@ export default function ReportPostDialog({ postId, onClose }: ReportPostDialogPr
         <DialogHeader>
           <DialogTitle>الإبلاغ عن منشور</DialogTitle>
           <DialogDescription>
-            ساعدنا في الحفاظ على مجتمع آمن ومناسب بالإبلاغ عن المحتوى المخالف للقواعد
+            ساعدنا في الحفاظ على مجتمع آمن ومناسب بالإبلاغ عن المحتوى المخالف للقواعد.
+            سيتم مراجعة البلاغات من قبل المشرفين وإرسالها إلى سيرفر Discord للمتابعة.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
