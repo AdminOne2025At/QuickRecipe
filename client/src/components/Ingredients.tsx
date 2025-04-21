@@ -36,13 +36,16 @@ export default function Ingredients({
   };
 
   return (
-    <div>
-      <h2 className="text-xl font-bold mb-4 text-gray-800 flex items-center gap-2">
+    <div className="relative">
+      <div className="absolute top-2 left-5 transform rotate-12 w-6 h-6 rounded-full bg-gradient-to-tl from-cyan-300 to-blue-500 opacity-20 floating-icon"></div>
+      <div className="absolute bottom-5 right-10 transform -rotate-12 w-8 h-8 rounded-full bg-gradient-to-br from-yellow-300 to-orange-500 opacity-20 floating-icon" style={{ animationDelay: '1.5s' }}></div>
+      
+      <h2 className="text-xl font-bold mb-4 text-gray-800 flex items-center gap-2 relative z-10">
         <span className="animate-pulse">🛒</span> 
-        أكتب المكونات اللي عندك في البيت 
+        <span className="gradient-text">أكتب المكونات اللي عندك في البيت</span>
       </h2>
       
-      <div className="flex flex-col md:flex-row gap-2 mb-4">
+      <div className="flex flex-col md:flex-row gap-2 mb-4 relative z-10">
         <div className="flex-grow">
           <Input
             value={ingredientInput}
@@ -54,26 +57,27 @@ export default function Ingredients({
         </div>
         <Button 
           onClick={handleAddIngredient} 
-          className="bg-primary text-white hover:bg-primary/90 hover:scale-105 transition-all duration-300"
+          className="bg-primary text-white hover:bg-primary/90 hover:scale-105 transition-all duration-300 shadow-md"
         >
           <span className="ml-1">✨</span> حطّه في السلة
         </Button>
       </div>
       
-      <div className="mb-6">
+      <div className="mb-6 relative z-10">
         <h3 className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
-          <span>🥗</span> الحاجات اللي اخترتها:
+          <span className="animate-bounce text-lg">🥗</span> الحاجات اللي اخترتها:
         </h3>
-        <div className="flex flex-wrap gap-2 min-h-[40px] p-2 border border-dashed border-gray-300 rounded-md">
-          {ingredients.map((ingredient) => (
+        <div className="flex flex-wrap gap-2 min-h-[40px] p-2 border border-dashed border-gray-300 rounded-md bg-gradient-to-r from-gray-50 to-white shadow-inner">
+          {ingredients.map((ingredient, index) => (
             <div
               key={ingredient.id}
-              className="bg-gradient-to-r from-primary-light to-primary-light/60 px-3 py-1 rounded-full text-gray-800 flex items-center text-sm shadow-sm hover:shadow-md transition-all duration-300"
+              className="bg-gradient-to-r from-primary-light to-primary-light/60 px-3 py-1 rounded-full text-gray-800 flex items-center text-sm shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105"
+              style={{ animationDelay: `${index * 0.1}s` }}
             >
               {ingredient.name}
               <button
                 onClick={() => onRemoveIngredient(ingredient.id)}
-                className="mr-1 text-gray-800 hover:text-red-500 font-bold"
+                className="mr-1 text-gray-800 hover:text-red-500 font-bold transition-colors"
                 aria-label="إزالة المكون"
               >
                 ×
@@ -81,7 +85,7 @@ export default function Ingredients({
             </div>
           ))}
           {ingredients.length === 0 && (
-            <span className="text-gray-400 text-sm py-1 px-2">لسه مختارتش حاجات...</span>
+            <span className="text-gray-400 text-sm py-1 px-2 animate-pulse">لسه مختارتش حاجات...</span>
           )}
         </div>
       </div>

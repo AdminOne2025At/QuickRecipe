@@ -120,11 +120,13 @@ export default function RecipeResults({
       {recipes.map((recipe, index) => (
         <Card 
           key={index} 
-          className="recipe-card bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 border border-primary/20"
+          className="recipe-card card-shadow bg-white rounded-lg overflow-hidden transition-all duration-500 border border-primary/20 relative"
         >
           <CardContent className="p-0">
             <div className="relative">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-secondary"></div>
+              <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary via-secondary to-primary"></div>
+              <div className="absolute top-2 left-5 transform -rotate-45 w-6 h-6 rounded-full bg-gradient-to-br from-yellow-300 to-orange-500 opacity-50 floating-icon" style={{ animationDelay: `${index * 0.2}s` }}></div>
+              <div className="absolute top-8 right-8 transform rotate-12 w-8 h-8 rounded-full bg-gradient-to-tl from-green-300 to-teal-500 opacity-30 floating-icon" style={{ animationDelay: `${index * 0.3 + 0.1}s` }}></div>
             </div>
             <div className="p-6">
               <div className="flex items-start justify-between mb-3">

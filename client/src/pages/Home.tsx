@@ -140,8 +140,15 @@ export default function Home() {
     <div 
       dir="rtl" 
       lang="ar-EG" 
-      className="min-h-screen bg-gray-50 text-gray-800 flex flex-col"
+      className="min-h-screen bg-animated text-gray-800 flex flex-col"
     >
+      {/* أيقونات الطعام المتحركة في الخلفية */}
+      <div className="food-icon text-6xl spin-slow" style={{ top: '8%', left: '5%' }}>🥕</div>
+      <div className="food-icon text-6xl" style={{ top: '25%', right: '7%', animationDelay: '0.5s' }}>🍅</div>
+      <div className="food-icon text-6xl spin-slow" style={{ bottom: '30%', left: '9%', animationDelay: '1s' }}>🍊</div>
+      <div className="food-icon text-6xl" style={{ bottom: '15%', right: '8%', animationDelay: '1.5s' }}>🍗</div>
+      <div className="food-icon text-6xl spin-slow" style={{ top: '40%', left: '15%', animationDelay: '2s' }}>🧀</div>
+      <div className="food-icon text-6xl" style={{ top: '60%', right: '12%', animationDelay: '2.5s' }}>🥑</div>
       <header className="bg-primary text-white shadow-md">
         <div className="container mx-auto px-4 py-6 flex justify-between items-center max-w-5xl">
           <h1 className="text-3xl md:text-4xl flex items-center gap-3">
