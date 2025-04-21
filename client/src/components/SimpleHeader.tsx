@@ -44,7 +44,7 @@ export function SimpleHeader() {
         
         {/* قائمة للهواتف */}
         <button 
-          className="block md:hidden" 
+          className="block md:hidden z-50" 
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         >
           {mobileMenuOpen ? (
@@ -53,6 +53,14 @@ export function SimpleHeader() {
             <Menu className="h-6 w-6 text-gray-600" />
           )}
         </button>
+        
+        {/* خلفية قاتمة عند فتح القائمة */}
+        {mobileMenuOpen && (
+          <div 
+            className="md:hidden fixed inset-0 bg-black/20 z-40"
+            onClick={() => setMobileMenuOpen(false)}
+          ></div>
+        )}
         
         {/* قائمة للشاشات الكبيرة */}
         <div className="hidden md:flex items-center space-x-4 space-x-reverse">
@@ -133,13 +141,13 @@ export function SimpleHeader() {
       
       {/* قائمة جانبية للهواتف */}
       {mobileMenuOpen && (
-        <div className="md:hidden absolute w-full bg-white border-b border-gray-200 shadow-lg">
-          <nav className="flex flex-col p-4 space-y-3">
+        <div className="md:hidden fixed top-16 left-0 right-0 mx-auto w-[95%] rounded-lg bg-white border border-gray-200 shadow-xl z-50 max-h-[70vh] overflow-y-auto mt-2">
+          <nav className="flex flex-col p-3 space-y-2">
             <Link href="/">
-              <span className="block py-2 px-3 hover:bg-gray-100 rounded-md">الرئيسية</span>
+              <span className="block py-2 px-3 hover:bg-gray-100 rounded-md font-medium">الرئيسية</span>
             </Link>
             <Link href="/community-posts">
-              <span className="block py-2 px-3 hover:bg-gray-100 rounded-md text-orange-700">
+              <span className="block py-2 px-3 hover:bg-gray-100 rounded-md text-orange-700 font-medium">
                 منشورات المجتمع
               </span>
             </Link>
