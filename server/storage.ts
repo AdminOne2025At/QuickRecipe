@@ -11,7 +11,7 @@ import {
   savedPosts, type SavedPost, type InsertSavedPost
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, desc, sql, asc } from "drizzle-orm";
+import { eq, and, desc, sql, asc, gt } from "drizzle-orm";
 
 // Expanded interface with CRUD methods for our recipe application
 export interface IStorage {
@@ -70,6 +70,7 @@ export interface IStorage {
   getPostReports(postId: number): Promise<PostReport[]>;
   getPostReportsCount(postId: number): Promise<number>;
   hasUserReportedPost(userId: number, postId: number): Promise<boolean>;
+  getAllReportedPostIds(): Promise<number[]>;
   
   // Saved posts operations
   savePost(savedPost: InsertSavedPost): Promise<SavedPost>;
@@ -477,6 +478,17 @@ export class DatabaseStorage implements IStorage {
       );
     
     return !!report;
+  }
+  
+  async getAllReportedPostIds(): Promise<number[]> {
+    // الحصول على جميع المنشورات التي لديها بلاغات (reports > 0)
+    const posts = await db
+      .select({ id: communityPosts.id })
+      .from(communityPosts)
+      .where(gt(communityPosts.reports, 0))
+      .orderBy(desc(communityPosts.reports));
+    
+    return posts.map(post => post.id);
   }
   
   // Saved posts operations
