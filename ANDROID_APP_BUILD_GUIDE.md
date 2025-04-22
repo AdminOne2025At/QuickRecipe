@@ -1,122 +1,176 @@
-# دليل بناء تطبيق أندرويد من موقع كويك ريسب
+# دليل بناء تطبيق كويك ريسب للأندرويد
 
-هذا الدليل يشرح كيفية تحويل موقع كويك ريسب إلى تطبيق أندرويد (APK) يمكن تثبيته على الأجهزة المحمولة.
+## المتطلبات
 
-## المتطلبات الأساسية
+قبل بدء عملية البناء، تأكد من وجود المتطلبات التالية:
 
-قبل البدء، تأكد من توفر التالي:
-
-1. **تثبيت Node.js و npm** (الإصدار 14 أو أحدث)
-2. **تثبيت Android Studio**
-   - يمكنك تحميله من [الموقع الرسمي](https://developer.android.com/studio)
-   - تأكد من تثبيت Android SDK (يأتي مع Android Studio)
-3. **تثبيت Java Development Kit (JDK)** الإصدار 11 أو أحدث
-4. **تهيئة متغيرات البيئة**:
-   - `ANDROID_SDK_ROOT` يشير إلى مجلد Android SDK
-   - `JAVA_HOME` يشير إلى مجلد JDK
+1. **Node.js:** الإصدار 16 أو أحدث
+2. **npm:** أحدث إصدار
+3. **JDK (Java Development Kit):** الإصدار 11 أو أحدث
+4. **Android Studio:** أحدث إصدار
+5. **متغيرات البيئة الخاصة بالأندرويد:**
+   - `ANDROID_HOME` يشير إلى مسار SDK الخاص بالأندرويد
+   - `JAVA_HOME` يشير إلى مسار JDK
 
 ## خطوات بناء التطبيق
 
-### 1. تجهيز المشروع
+### الطريقة السهلة (باستخدام السكريبت التلقائي)
 
-قمنا بالفعل بتثبيت حزم Capacitor اللازمة:
-- `@capacitor/core`: المكتبة الأساسية
-- `@capacitor/cli`: أداة سطر الأوامر
-- `@capacitor/android`: دعم منصة أندرويد
+1. تأكد من أن السكريبت `build-apk.sh` لديه صلاحيات التنفيذ:
+   ```bash
+   chmod +x build-apk.sh
+   ```
 
-تم إنشاء ملف `capacitor.config.ts` بالإعدادات المناسبة مثل:
-- معرف التطبيق: `com.egyptco.quickrecipe`
-- اسم التطبيق: `كويك ريسب`
-- دعم اللغة العربية والواجهة RTL
+2. قم بتشغيل السكريبت:
+   ```bash
+   ./build-apk.sh
+   ```
 
-### 2. بناء تطبيق الويب
+3. انتظر حتى تكتمل العملية. سيتم إنشاء ملف `QuickRecipe.apk` في المجلد الرئيسي للمشروع.
+
+### الطريقة اليدوية (خطوة بخطوة)
+
+إذا واجهت مشاكل مع السكريبت التلقائي، يمكنك اتباع هذه الخطوات اليدوية:
+
+#### 1. بناء تطبيق الويب
 
 ```bash
-# بناء موقع الويب
+# تثبيت التبعيات
+npm install
+
+# بناء النسخة النهائية
 npm run build
 ```
 
-هذا سينشئ مجلد `dist` الذي يحتوي على ملفات HTML/CSS/JS النهائية.
-
-### 3. تهيئة مشروع Capacitor
+#### 2. إعداد Capacitor
 
 ```bash
-# تهيئة المشروع
-npx cap init "كويك ريسب" "com.egyptco.quickrecipe"
+# تثبيت Capacitor CLI
+npm install @capacitor/cli
 
-# إضافة منصة أندرويد
+# إضافة منصة Android
 npx cap add android
 ```
 
-هذا سينشئ مجلد `android` يحتوي على مشروع Android Studio كامل.
-
-### 4. نسخ ملفات البناء وتحديث المشروع
+#### 3. نسخ الملفات المخصصة
 
 ```bash
-# مزامنة التغييرات
+# إنشاء المجلدات اللازمة
+mkdir -p android/app/src/main/java/com/egyptco/quickrecipe
+mkdir -p android/app/src/main/res/drawable
+mkdir -p android/app/src/main/res/layout
+mkdir -p android/app/src/main/res/values
+
+# نسخ ملفات Java
+cp android_templates/src/main/java/com/egyptco/quickrecipe/*.java android/app/src/main/java/com/egyptco/quickrecipe/
+
+# نسخ ملفات الموارد
+cp android_templates/src/main/res/drawable/* android/app/src/main/res/drawable/
+cp android_templates/src/main/res/layout/* android/app/src/main/res/layout/
+cp android_templates/src/main/res/values/* android/app/src/main/res/values/
+
+# نسخ AndroidManifest.xml
+cp android_templates/src/main/AndroidManifest.xml android/app/src/main/AndroidManifest.xml
+```
+
+#### 4. مزامنة المشروع
+
+```bash
 npx cap sync android
 ```
 
-### 5. تخصيص أيقونة التطبيق وشاشة البداية
-
-1. استبدل الأيقونات الافتراضية في `android/app/src/main/res/mipmap-*`
-2. قم بتخصيص شاشة البداية في `android/app/src/main/res/drawable/splash.png`
-
-### 6. فتح المشروع في Android Studio
+#### 5. بناء APK
 
 ```bash
-npx cap open android
+cd android
+./gradlew assembleDebug
+cd ..
 ```
 
-### 7. بناء ملف APK
-
-في Android Studio:
-1. انقر على قائمة `Build`
-2. اختر `Build Bundle(s) / APK(s)`
-3. اختر `Build APK(s)`
-4. انتظر حتى انتهاء عملية البناء
-5. سيظهر إشعار مع رابط "locate" انقر عليه للوصول إلى ملف APK
-
-ملف APK سيكون موجوداً في:
+ستجد ملف APK في المسار:
 `android/app/build/outputs/apk/debug/app-debug.apk`
 
-### 8. تثبيت التطبيق على جهاز الأندرويد
-
-يمكنك نقل ملف APK إلى جهازك وتثبيته مباشرة. تأكد من تفعيل "تثبيت من مصادر غير معروفة" في إعدادات الجهاز.
-
-## تسهيل العملية
-
-استخدم السكريبت `build-apk.sh` الذي يقوم بتنفيذ الخطوات 1-6 تلقائياً:
-
+يمكنك نسخه إلى المجلد الرئيسي:
 ```bash
-# تنفيذ السكريبت (تأكد من إعطائه صلاحيات التنفيذ أولاً)
-chmod +x build-apk.sh
-./build-apk.sh
+cp android/app/build/outputs/apk/debug/app-debug.apk ./QuickRecipe.apk
 ```
 
-## الاختلافات بين تطبيق الويب والتطبيق المحمول
+## تثبيت التطبيق
 
-- **تجربة مستخدم أفضل**: تطبيق مخصص بدلاً من صفحة ويب في المتصفح
-- **الوصول دون اتصال**: يمكن استخدام بعض ميزات التطبيق حتى بدون اتصال بالإنترنت
-- **الإشعارات**: يمكن إرسال إشعارات للمستخدم
-- **الوصول لميزات الجهاز**: يمكن الوصول لميزات مثل الكاميرا والموقع وغيرها
+1. انقل ملف APK إلى هاتف أندرويد.
+2. قم بتثبيت التطبيق من خلال النقر على ملف APK.
+3. قبل التثبيت، تأكد من تمكين "المصادر غير المعروفة" في إعدادات الأمان بجهازك.
 
-## الخطوات المتقدمة (اختيارية)
+## ميزات التطبيق المُحوّل
 
-- **توقيع التطبيق**: إنشاء مفتاح توقيع مخصص لنشر التطبيق رسمياً
-- **تحسين الأداء**: تخصيص WebView لتحسين أداء التطبيق
-- **دعم الوضع المظلم**: تكييف الألوان والثيم مع إعدادات النظام
-- **تخصيص شاشة البداية**: إضافة رسوم متحركة لشاشة البداية
+- **واجهة مستخدم مشابهة:** التطبيق يحافظ على نفس مظهر وسلوك نسخة الويب.
+- **دعم وضع عدم الاتصال:** يعرض رسالة مناسبة عندما يكون الجهاز غير متصل بالإنترنت.
+- **شاشة بداية:** تعرض شعار التطبيق عند بدء التشغيل.
+- **دعم اللغة العربية:** واجهة المستخدم موجهة من اليمين إلى اليسار (RTL) لدعم اللغة العربية.
+- **تجربة مستخدم أصلية:** يعمل التطبيق بشكل مشابه للتطبيقات الأصلية مع دعم لزر العودة للخلف وتحسينات أخرى.
 
-## المشاكل الشائعة
+## استكشاف الأخطاء وإصلاحها
 
-1. **خطأ في بناء Android Studio**: تأكد من تحديث Android Studio و Gradle إلى أحدث إصدار
-2. **مشاكل في المكتبات**: تأكد من أن جميع التبعيات متوافقة
-3. **مشاكل العرض**: قد تحتاج لتعديل CSS للتوافق مع شاشات الأجهزة المحمولة
-4. **الاتصال بـ API**: تأكد من استخدام عناوين URL المطلقة للاتصال بخدمات API
+### الخطأ: لم يتم العثور على JDK
 
-## موارد إضافية
+تأكد من تثبيت JDK وتعيين متغير البيئة `JAVA_HOME` بشكل صحيح.
+
+```bash
+# للتحقق من تثبيت JDK
+java -version
+
+# للتحقق من JAVA_HOME
+echo $JAVA_HOME
+```
+
+### الخطأ: لم يتم العثور على Android SDK
+
+تأكد من تثبيت Android Studio وتعيين متغير البيئة `ANDROID_HOME` بشكل صحيح.
+
+```bash
+# للتحقق من ANDROID_HOME
+echo $ANDROID_HOME
+```
+
+### الخطأ: فشل في بناء APK
+
+تأكد من وجود جميع ملفات التكوين اللازمة، خاصة `capacitor.config.ts`.
+
+```bash
+# تصحيح إذن التنفيذ لـ gradlew
+chmod +x android/gradlew
+```
+
+## خطوات إضافية (اختيارية)
+
+### 1. إنشاء APK موقّع للإنتاج
+
+```bash
+cd android
+./gradlew assembleRelease
+cd ..
+```
+
+### 2. تعديل إعدادات Capacitor
+
+افتح ملف `capacitor.config.ts` وعدل الإعدادات حسب الحاجة، مثل اسم التطبيق أو معرف الحزمة.
+
+```typescript
+import { CapacitorConfig } from '@capacitor/cli';
+
+const config: CapacitorConfig = {
+  appId: 'com.egyptco.quickrecipe',
+  appName: 'كويك ريسب',
+  webDir: 'dist',
+  bundledWebRuntime: false
+};
+
+export default config;
+```
+
+## للمساعدة
+
+إذا واجهت أي مشاكل أثناء عملية البناء، يرجى مراجعة:
 
 - [توثيق Capacitor الرسمي](https://capacitorjs.com/docs)
-- [دليل تطوير تطبيقات Android](https://developer.android.com/guide)
-- [دليل توقيع التطبيقات](https://developer.android.com/studio/publish/app-signing)
+- [دليل Android Studio](https://developer.android.com/studio/intro)
