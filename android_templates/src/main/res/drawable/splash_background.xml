@@ -3,14 +3,14 @@
     <!-- لون الخلفية -->
     <item android:drawable="@color/colorBackground" />
 
-    <!-- شعار التطبيق في المنتصف -->
+    <!-- شعار التطبيق (الدب) في المنتصف -->
     <item>
         <bitmap
             android:gravity="center"
-            android:src="@mipmap/ic_launcher" />
+            android:src="@drawable/bear" />
     </item>
 
-    <!-- اسم التطبيق تحت الشعار -->
+    <!-- اسم التطبيق (مع صورة الدب المصغرة) تحت الشعار -->
     <item android:bottom="150dp">
         <bitmap
             android:gravity="bottom|center_horizontal"
