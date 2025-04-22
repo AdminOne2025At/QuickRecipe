@@ -16,6 +16,27 @@ export function SimpleHeader() {
   // التحقق ما إذا كان المستخدم مشرفًا
   const isAdmin = user?.isAdmin === true;
   
+  // استعادة بيانات المشرف من التخزين المحلي/جلسة كنسخة احتياطية
+  useEffect(() => {
+    if (!isAdmin) {
+      try {
+        // التحقق من sessionStorage أولاً
+        const isAdminLoggedIn = sessionStorage.getItem("adminLoggedIn");
+        const storedUser = sessionStorage.getItem("user");
+        
+        if (isAdminLoggedIn === "true" && storedUser) {
+          const parsedUser = JSON.parse(storedUser);
+          if (parsedUser.isAdmin) {
+            console.log("Admin found in sessionStorage, updating...");
+            // يمكننا أيضاً تحديث حالة isAdmin هنا ولكن هذه متغيرات لن تتغير أثناء دورة الحياة
+          }
+        }
+      } catch (error) {
+        console.error("Error checking admin session:", error);
+      }
+    }
+  }, [isAdmin]);
+  
   // debug
   console.log("SimpleHeader - User Info:", { user, isAdmin });
   
@@ -103,19 +124,8 @@ export function SimpleHeader() {
           
           {!isLoading ? (
             <div className="flex items-center gap-2">
-              {/* زر مدخل المشرفين أو لوحة المشرفين - يتغير حسب حالة المستخدم */}
-              {currentUser?.isAdmin ? (
-                <Link href="/admin-dashboard">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="gap-2 bg-amber-100 text-amber-800 hover:bg-amber-200"
-                  >
-                    <Shield className="h-4 w-4" />
-                    <span>لوحة المشرفين</span>
-                  </Button>
-                </Link>
-              ) : (
+              {/* زر مدخل المشرفين - يظهر فقط إذا لم يكن المستخدم مشرفًا */}
+              {!isAdmin && (
                 <Link href="/admin-login">
                   <Button 
                     variant="ghost" 
@@ -173,8 +183,8 @@ export function SimpleHeader() {
               </span>
             </Link>
             
-            {/* زر لوحة المشرفين للهواتف - فقط للمشرفين المسجلين */}
-            {!isLoading && currentUser?.isAdmin && (
+            {/* زر لوحة المشرفين للهواتف - يظهر فقط للمشرفين */}
+            {isAdmin && (
               <Link href="/admin-dashboard">
                 <span className="block py-2 px-3 bg-amber-100 hover:bg-amber-200 rounded-md text-amber-900 font-bold flex items-center gap-2">
                   <Shield className="h-4 w-4" />
@@ -195,8 +205,8 @@ export function SimpleHeader() {
             
             {!isLoading ? (
               <>
-                {/* مدخل المشرفين - فقط للزوار أو المستخدمين العاديين (غير المشرفين) */}
-                {!currentUser?.isAdmin && (
+                {/* مدخل المشرفين - يظهر فقط إذا لم يكن مشرفًا بالفعل */}
+                {!isAdmin && (
                   <Link href="/admin-login">
                     <span className="block py-2 px-3 hover:bg-amber-100 rounded-md text-amber-700 flex items-center gap-2">
                       <Shield className="h-4 w-4" />

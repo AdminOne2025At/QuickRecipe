@@ -220,7 +220,7 @@ export default function AdminDashboard() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("overview");
-  const [adminData, setAdminData] = useState(null);
+  const [adminData, setAdminData] = useState<any>(null);
   
   // التحقق من صلاحيات المشرف من SessionStorage & LocalStorage
   useEffect(() => {
