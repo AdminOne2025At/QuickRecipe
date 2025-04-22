@@ -649,44 +649,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // تمت إزالة نقطة نهاية الترجمة متعددة اللغات
 
   // Admin features
-  // Admin login
-  app.post("/api/admin/login", async (req, res) => {
+  // نقطة نهاية لإصلاح كلمة مرور المسؤول - هذه نقطة نهاية مؤقتة لإصلاح المشكلة
+  app.post("/api/admin/fix-password", async (req, res) => {
     try {
-      const loginSchema = z.object({
-        username: z.string().min(1),
-        password: z.string().min(1)
-      });
-
-      const validatedData = loginSchema.parse(req.body);
+      const { secretKey } = req.body;
       
-      // قائمة المشرفين المسموح لهم بالدخول (في تطبيق حقيقي، هذا سيكون في قاعدة البيانات)
-      const adminCredentials = {
-        username: "admin",
-        password: "admin123"
-      };
+      // التحقق من مفتاح الأمان (هذا مجرد إجراء أمان بسيط)
+      // استخدم الوقت الحالي ليكون المفتاح صالحًا لمدة 24 ساعة فقط
+      const validSecretKey = `fix_admin_${new Date().toISOString().split('T')[0]}`;
       
-      // التحقق من بيانات الدخول
-      if (validatedData.username !== adminCredentials.username || 
-          validatedData.password !== adminCredentials.password) {
-        return res.status(401).json({ message: "بيانات اعتماد غير صحيحة للمشرف" });
+      if (secretKey !== validSecretKey) {
+        return res.status(401).json({ 
+          message: "مفتاح أمان غير صالح",
+          hint: `المفتاح الصحيح يبدأ بـ "fix_admin_" متبوعًا بتاريخ اليوم بصيغة YYYY-MM-DD`
+        });
       }
-
-      // ملاحظة: تم نقل إرسال إشعار تسجيل الدخول إلى واجهة المستخدم
-      // سيتم إرسال الإشعار من خلال نقطة النهاية /api/login/notify بعد تسجيل الدخول بنجاح
-      // هذا يمنع إرسال إشعارات مزدوجة عند تسجيل دخول المشرف
       
-      // إرجاع بيانات المستخدم المشرف
-      return res.status(200).json({
-        id: 9999, // رقم تعريفي خاص بالمشرف
-        username: adminCredentials.username,
-        isAdmin: true
+      // الحصول على حساب المسؤول
+      const admin = await storage.getUserByUsername('admin');
+      
+      if (!admin) {
+        return res.status(404).json({ message: "لم يتم العثور على حساب المسؤول" });
+      }
+      
+      // تشفير كلمة المرور
+      const hashedPassword = await hashPassword('admin123');
+      
+      // تحديث كلمة المرور
+      await storage.updateUser(admin.id, { password: hashedPassword });
+      
+      console.log(`[ADMIN] Fixed admin password for user ID: ${admin.id}`);
+      
+      return res.status(200).json({ 
+        message: "تم إصلاح كلمة مرور المسؤول بنجاح",
+        username: "admin",
+        password: "admin123",
+        note: "هذه بيانات اعتماد افتراضية، قم بتغييرها فور تمكنك من تسجيل الدخول"
       });
     } catch (error) {
-      console.error("Admin login error:", error);
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ errors: error.errors });
-      }
-      return res.status(500).json({ message: "فشل تسجيل دخول المشرف" });
+      console.error("[ADMIN] Error fixing admin password:", error);
+      return res.status(500).json({ message: "حدث خطأ أثناء إصلاح كلمة المرور" });
     }
   });
   
