@@ -155,6 +155,107 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // وتم تفعيله في بداية هذا الملف باستخدام setupAuth(app)
   // المسارات السابقة معطلة الآن ومستبدلة بالمسارات الجديدة
   
+  // إضافة مسار جديد لتسجيل الدخول عبر Firebase/Google
+  app.post("/api/firebase/auth", async (req, res) => {
+    try {
+      console.log("[FIREBASE AUTH] Google login attempt via backend API");
+      
+      // تحقق من البيانات المقدمة من الواجهة
+      const firebaseAuthSchema = z.object({
+        firebaseUid: z.string(),
+        email: z.string().email().optional(),
+        displayName: z.string().optional(),
+        photoURL: z.string().optional(),
+        idToken: z.string().optional() // رمز المصادقة من Firebase (للتحقق)
+      });
+      
+      const userData = firebaseAuthSchema.parse(req.body);
+      console.log(`[FIREBASE AUTH] Processing auth for UID: ${userData.firebaseUid}`);
+      
+      // البحث عن المستخدم عن طريق رقم التعريف من Firebase
+      let user = await storage.getUserByFirebaseId(userData.firebaseUid);
+      
+      if (user) {
+        console.log(`[FIREBASE AUTH] Existing user found: ${user.username || user.email}`);
+        
+        // تحديث آخر تسجيل دخول وأي معلومات أخرى إذا لزم الأمر
+        await storage.updateUser(user.id, {
+          lastLogin: new Date(),
+          // تحديث المعلومات الأخرى إذا تغيرت
+          displayName: userData.displayName || user.displayName,
+          photoURL: userData.photoURL || user.photoURL,
+          email: userData.email || user.email
+        });
+      } else {
+        console.log("[FIREBASE AUTH] No existing user - creating new account");
+        
+        // إنشاء اسم مستخدم فريد للمستخدم الجديد
+        const usernameBase = userData.displayName ? 
+          userData.displayName.replace(/\s+/g, '_').toLowerCase() : 
+          `user_${Date.now()}`;
+        
+        // التأكد من فرادة اسم المستخدم
+        let username = usernameBase;
+        let counter = 1;
+        
+        while (await storage.getUserByUsername(username)) {
+          username = `${usernameBase}_${counter++}`;
+        }
+        
+        // إنشاء كلمة مرور عشوائية (لن تستخدم فعليًا للتسجيل)
+        const randomPassword = `firebase_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+        const hashedPassword = await hashPassword(randomPassword);
+        
+        // إنشاء المستخدم الجديد
+        user = await storage.createUser({
+          username,
+          password: hashedPassword,
+          email: userData.email,
+          displayName: userData.displayName,
+          photoURL: userData.photoURL,
+          firebaseUid: userData.firebaseUid,
+          isAdmin: false,
+          isGuest: false,
+          lastLogin: new Date()
+        });
+        
+        console.log(`[FIREBASE AUTH] New user created: ${username} (ID: ${user.id})`);
+      }
+      
+      // تسجيل دخول المستخدم في جلسة Express
+      req.login(user, async (err) => {
+        if (err) {
+          console.error("[FIREBASE AUTH] Session creation error:", err);
+          return res.status(500).json({ success: false, message: "فشل في إنشاء الجلسة" });
+        }
+        
+        // إرسال إشعار تسجيل دخول غير متزامن
+        sendLoginNotificationToDiscord({
+          username: user.username || user.email || "مستخدم جوجل",
+          loginMethod: 'google',
+          loginTime: new Date(),
+          userAgent: req.headers['user-agent'],
+          ipAddress: req.ip || req.socket.remoteAddress || 'غير معروف',
+          email: user.email,
+          isAdmin: user.isAdmin,
+          isLogout: false
+        }).catch(err => console.error("فشل إرسال إشعار:", err));
+        
+        console.log(`[FIREBASE AUTH] Login complete - session established for ${user.username}`);
+        
+        // إرجاع بيانات المستخدم بدون كلمة المرور
+        const { password, ...userWithoutPassword } = user;
+        res.json({ success: true, user: userWithoutPassword });
+      });
+    } catch (error) {
+      console.error("[FIREBASE AUTH] Error in Firebase authentication:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ success: false, errors: error.errors });
+      }
+      return res.status(500).json({ success: false, message: "حدث خطأ أثناء محاولة تسجيل الدخول" });
+    }
+  });
+  
   // مسار إشعار تسجيل الدخول والخروج (للزوار وحسابات جوجل)
   app.post("/api/login/notify", async (req, res) => {
     try {

@@ -18,7 +18,9 @@ export interface IStorage {
   // User operations
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByFirebaseId(firebaseUid: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  updateUser(id: number, userData: Partial<InsertUser>): Promise<User | undefined>;
   
   // Ingredient operations
   getIngredient(id: number): Promise<Ingredient | undefined>;
@@ -97,6 +99,30 @@ export class DatabaseStorage implements IStorage {
       .values(insertUser)
       .returning();
     return user;
+  }
+  
+  async getUserByFirebaseId(firebaseUid: string): Promise<User | undefined> {
+    try {
+      const [user] = await db.select().from(users).where(eq(users.firebaseUid, firebaseUid));
+      return user;
+    } catch (error) {
+      console.error("Error finding user by Firebase ID:", error);
+      return undefined;
+    }
+  }
+  
+  async updateUser(id: number, userData: Partial<InsertUser>): Promise<User | undefined> {
+    try {
+      const [updatedUser] = await db
+        .update(users)
+        .set(userData)
+        .where(eq(users.id, id))
+        .returning();
+      return updatedUser;
+    } catch (error) {
+      console.error("Error updating user:", error);
+      return undefined;
+    }
   }
   
   // Ingredient operations
