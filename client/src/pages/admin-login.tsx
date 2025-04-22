@@ -77,10 +77,23 @@ export default function AdminLoginPage() {
         variant: "default"
       });
       
+      // تخزين البيانات في sessionStorage أيضًا (لدعم أفضل على الهاتف)
+      sessionStorage.setItem("adminLoggedIn", "true");
+      sessionStorage.setItem("user", JSON.stringify(adminData));
+      
+      // حدد تأخيرًا أطول قليلاً للتأكد من حفظ البيانات
+      toast({
+        title: "جاري حفظ الجلسة...",
+        description: "يرجى الانتظار قليلاً",
+        variant: "default"
+      });
+      
       // يجب إعادة تحميل الصفحة بالكامل لضمان تحديث حالة المصادقة
       setTimeout(() => {
-        window.location.href = "/admin-dashboard";
-      }, 1000);
+        // استخدام موقع حالي بدلاً من window.location لتفادي مشاكل التنقل
+        const baseUrl = window.location.origin;
+        window.location.href = `${baseUrl}/admin-dashboard`;
+      }, 2500);
     },
     onError: (error: Error) => {
       toast({

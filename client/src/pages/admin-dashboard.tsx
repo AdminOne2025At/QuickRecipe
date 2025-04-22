@@ -220,27 +220,71 @@ export default function AdminDashboard() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("overview");
+  const [adminData, setAdminData] = useState(null);
   
-  // التحقق من صلاحيات المشرف
+  // التحقق من صلاحيات المشرف من SessionStorage & LocalStorage
   useEffect(() => {
     console.log("Admin Dashboard - Check Admin Access:", { user });
     
+    // محاولة استرداد بيانات المشرف من sessionStorage كخيار احتياطي
+    const checkAdminSessionStorage = () => {
+      try {
+        const isAdminLoggedIn = sessionStorage.getItem("adminLoggedIn");
+        const storedUser = sessionStorage.getItem("user");
+        
+        if (isAdminLoggedIn === "true" && storedUser) {
+          const parsedUser = JSON.parse(storedUser);
+          if (parsedUser.isAdmin) {
+            console.log("Admin session found in sessionStorage:", parsedUser);
+            setAdminData(parsedUser);
+            return true;
+          }
+        }
+        
+        // محاولة من localStorage
+        const localStorageUser = localStorage.getItem("user");
+        if (localStorageUser) {
+          const parsedLocalUser = JSON.parse(localStorageUser);
+          if (parsedLocalUser.isAdmin) {
+            console.log("Admin session found in localStorage:", parsedLocalUser);
+            setAdminData(parsedLocalUser);
+            return true;
+          }
+        }
+        
+        return false;
+      } catch (error) {
+        console.error("Error checking admin session:", error);
+        return false;
+      }
+    };
+    
     if (!user) {
-      console.log("No user found, redirecting...");
-      setLocation("/");
-      toast({
-        title: "وصول مرفوض",
-        description: "يجب تسجيل الدخول للوصول إلى هذه الصفحة",
-        variant: "destructive",
-      });
+      console.log("No user found in auth context, checking sessionStorage...");
+      const hasAdminSession = checkAdminSessionStorage();
+      
+      if (!hasAdminSession) {
+        console.log("No admin session found anywhere, redirecting...");
+        setLocation("/");
+        toast({
+          title: "وصول مرفوض",
+          description: "يجب تسجيل الدخول للوصول إلى هذه الصفحة",
+          variant: "destructive",
+        });
+      }
     } else if (!user.isAdmin) {
-      console.log("User is not admin, redirecting...");
-      setLocation("/");
-      toast({
-        title: "وصول مرفوض",
-        description: "هذه الصفحة مخصصة للمشرفين فقط",
-        variant: "destructive",
-      });
+      console.log("User is not admin in auth context, checking sessionStorage...");
+      const hasAdminSession = checkAdminSessionStorage();
+      
+      if (!hasAdminSession) {
+        console.log("No admin privileges found anywhere, redirecting...");
+        setLocation("/");
+        toast({
+          title: "وصول مرفوض",
+          description: "هذه الصفحة مخصصة للمشرفين فقط",
+          variant: "destructive",
+        });
+      }
     } else {
       console.log("Admin access verified!");
       // إظهار رسالة ترحيب للمشرف
@@ -252,10 +296,13 @@ export default function AdminDashboard() {
     }
   }, [user, setLocation, toast]);
   
+  // تحديد حالة المشرف الفعلية (من user أو adminData)
+  const isAdminUser = !!user?.isAdmin || !!adminData;
+  
   // استعلام عن المنشورات
   const { data: recentPosts = [], isLoading: isLoadingPosts } = useQuery<any[]>({
     queryKey: ['/api/community-posts/recent'],
-    enabled: !!user?.isAdmin
+    enabled: isAdminUser
   });
   
   // استعلام وهمي عن المستخدمين (سيتم تنفيذه لاحقًا)
@@ -279,7 +326,7 @@ export default function AdminDashboard() {
       }
       return res.json();
     },
-    enabled: !!user?.isAdmin,
+    enabled: isAdminUser,
     refetchOnWindowFocus: false
   });
   
@@ -290,8 +337,31 @@ export default function AdminDashboard() {
     resolved: reportedPosts.filter(post => post.reportCount >= 50).length
   };
   
-  if (!user?.isAdmin) {
-    return null;
+  // التحقق من صلاحيات المشرف قبل عرض لوحة التحكم
+  if (!user?.isAdmin && !adminData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Card className="w-full max-w-md p-6">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-amber-500 flex items-center">
+              <Shield className="h-5 w-5 mr-2" />
+              حالة المصادقة
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-center my-4">جاري التحقق من صلاحيات المشرف...</p>
+            <div className="flex justify-center">
+              <Loader2 className="h-8 w-8 animate-spin text-amber-500" />
+            </div>
+          </CardContent>
+          <CardFooter className="flex justify-center">
+            <Button variant="outline" onClick={() => setLocation("/admin-login")}>
+              العودة إلى صفحة تسجيل الدخول
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
+    );
   }
   
   return (
