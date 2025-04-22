@@ -77,10 +77,33 @@ export default function AdminLoginPage() {
         variant: "default"
       });
       
-      // يجب إعادة تحميل الصفحة بالكامل لضمان تحديث حالة المصادقة
+      // تأخير أطول (3 ثوان) للتحقق من نجاح تسجيل الدخول وتحديث حالة المستخدم
+      toast({
+        title: "جاري التحقق...",
+        description: "يرجى الانتظار... جاري التحقق من صلاحيات المشرف",
+        variant: "default"
+      });
+      
       setTimeout(() => {
-        window.location.href = "/admin-dashboard";
-      }, 1000);
+        // التحقق من صلاحيات المشرف مرة أخرى قبل التوجيه
+        const userCheck = JSON.parse(localStorage.getItem("user") || "{}");
+        console.log("Final admin verification check:", userCheck);
+        
+        if (userCheck.isAdmin === true) {
+          console.log("Admin verification successful, redirecting to dashboard...");
+          // تحديث واجهة المستخدم مرة أخرى
+          queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+          // التوجيه إلى لوحة المشرفين
+          window.location.href = "/admin-dashboard";
+        } else {
+          console.error("Admin verification failed after login!");
+          toast({
+            title: "فشل التحقق من صلاحيات المشرف",
+            description: "حدث خطأ أثناء التحقق من صلاحيات المشرف. يرجى المحاولة مرة أخرى.",
+            variant: "destructive"
+          });
+        }
+      }, 3000);
     },
     onError: (error: Error) => {
       toast({
