@@ -2,18 +2,31 @@ import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { BookmarkIcon, LogIn, User, Menu, X, Shield } from "lucide-react";
 import { useState, useEffect } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 import { useAuth } from "@/hooks/use-auth";
 
 export function SimpleHeader() {
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [location] = useLocation();
-  const { user, isLoading } = useAuth();
+  const { user } = useAuth();
   
-  // التحقق ما إذا كان المستخدم مشرفًا وتسجيل معلومات التصحيح
+  // التحقق ما إذا كان المستخدم مشرفًا
   const isAdmin = user?.isAdmin === true;
   
   // debug
-  console.log("SimpleHeader - User Info:", { user, isAdmin, isLoading });
+  console.log("SimpleHeader - User Info:", { user, isAdmin });
+  
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+      setIsLoading(false);
+    });
+    
+    return () => unsubscribe();
+  }, []);
   
   // إغلاق القائمة الجانبية عند تغيير الصفحة
   useEffect(() => {
@@ -75,7 +88,7 @@ export function SimpleHeader() {
             </Link>
           )}
           
-          {!isLoading && user && (
+          {!isLoading && currentUser && (
             <Link href="/saved-recipes">
               <Button 
                 variant="ghost" 
@@ -91,7 +104,7 @@ export function SimpleHeader() {
           {!isLoading ? (
             <div className="flex items-center gap-2">
               {/* زر مدخل المشرفين أو لوحة المشرفين - يتغير حسب حالة المستخدم */}
-              {user?.isAdmin ? (
+              {currentUser?.isAdmin ? (
                 <Link href="/admin-dashboard">
                   <Button 
                     variant="ghost" 
@@ -116,7 +129,7 @@ export function SimpleHeader() {
               )}
               
               {/* إظهار زر تسجيل الدخول فقط إذا لم يكن المستخدم مسجل (سواء عادي أو مشرف) */}
-              {!user && (
+              {!currentUser && (
                 <Link href="/auth">
                   <Button 
                     variant="outline" 
@@ -130,7 +143,7 @@ export function SimpleHeader() {
               )}
               
               {/* إظهار زر الملف الشخصي فقط إذا كان المستخدم مسجل */}
-              {user && (
+              {currentUser && (
                 <Link href="/profile">
                   <Button 
                     variant="outline" 
@@ -161,7 +174,7 @@ export function SimpleHeader() {
             </Link>
             
             {/* زر لوحة المشرفين للهواتف - فقط للمشرفين المسجلين */}
-            {!isLoading && user?.isAdmin && (
+            {!isLoading && currentUser?.isAdmin && (
               <Link href="/admin-dashboard">
                 <span className="block py-2 px-3 bg-amber-100 hover:bg-amber-200 rounded-md text-amber-900 font-bold flex items-center gap-2">
                   <Shield className="h-4 w-4" />
@@ -171,7 +184,7 @@ export function SimpleHeader() {
             )}
 
             {/* زر الوصفات المحفوظة للمستخدمين المسجلين */}
-            {!isLoading && user && (
+            {!isLoading && currentUser && (
               <Link href="/saved-recipes">
                 <span className="block py-2 px-3 hover:bg-gray-100 rounded-md text-orange-700 flex items-center gap-2">
                   <BookmarkIcon className="h-4 w-4" />
@@ -183,7 +196,7 @@ export function SimpleHeader() {
             {!isLoading ? (
               <>
                 {/* مدخل المشرفين - فقط للزوار أو المستخدمين العاديين (غير المشرفين) */}
-                {!user?.isAdmin && (
+                {!currentUser?.isAdmin && (
                   <Link href="/admin-login">
                     <span className="block py-2 px-3 hover:bg-amber-100 rounded-md text-amber-700 flex items-center gap-2">
                       <Shield className="h-4 w-4" />
@@ -193,14 +206,14 @@ export function SimpleHeader() {
                 )}
                 
                 {/* تسجيل الدخول - فقط للزوار (غير المسجلين) */}
-                {!user && (
+                {!currentUser && (
                   <Link href="/auth">
                     <span className="block py-2 px-3 hover:bg-gray-100 rounded-md">تسجيل الدخول</span>
                   </Link>
                 )}
                 
                 {/* الملف الشخصي - فقط للمستخدمين المسجلين */}
-                {user && (
+                {currentUser && (
                   <Link href="/profile">
                     <span className="block py-2 px-3 hover:bg-gray-100 rounded-md">الملف الشخصي</span>
                   </Link>
