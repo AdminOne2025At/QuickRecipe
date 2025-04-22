@@ -1,8 +1,7 @@
 import { useContext, createContext, ReactNode, useState, useEffect } from "react";
 import { getAuth, onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest, queryClient } from "@/lib/queryClient";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 
 interface AuthUser {
   id: number;
@@ -12,16 +11,6 @@ interface AuthUser {
   photoURL?: string;
   firebaseUid?: string;
   isAdmin?: boolean;
-  isGuest?: boolean;
-}
-
-interface LoginCredentials {
-  username: string;
-  password: string;
-}
-
-interface RegisterCredentials extends LoginCredentials {
-  email?: string;
 }
 
 interface AuthContextType {
@@ -29,11 +18,6 @@ interface AuthContextType {
   isLoading: boolean;
   firebaseUser: FirebaseUser | null;
   error: Error | null;
-  login: (credentials: LoginCredentials) => Promise<void>;
-  loginAsGuest: () => Promise<void>;
-  register: (credentials: RegisterCredentials) => Promise<void>;
-  logout: () => Promise<void>;
-  adminLogin: (credentials: LoginCredentials) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -45,345 +29,161 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
 
-  // Fetch session user data
-  const { data: sessionUser, isLoading: isSessionLoading } = useQuery({
-    queryKey: ['/api/user'],
-    queryFn: async () => {
+  useEffect(() => {
+    console.log("Auth context initializing...");
+    
+    // Check if user is already set in localStorage
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
       try {
-        const response = await fetch('/api/user');
-        if (!response.ok) {
-          if (response.status === 401) {
-            console.log('User not authenticated');
-            return null;
-          }
-          throw new Error('Failed to fetch user data');
+        const parsedUser = JSON.parse(storedUser);
+        console.log("User loaded from localStorage:", parsedUser);
+        
+        // تحقق من وجود حقل isAdmin وضبطه إلى true/false إذا كان موجوداً
+        const finalUser = {
+          ...parsedUser,
+          isAdmin: parsedUser.isAdmin === true
+        };
+        
+        console.log("Setting user with finalized data:", finalUser);
+        setUser(finalUser);
+        
+        // إذا كان المستخدم هو مشرف، نظهر رسالة ترحيب خاصة
+        if (finalUser.isAdmin) {
+          console.log("Admin user detected!");
+          toast({
+            title: "مرحباً بالمشرف",
+            description: "لديك صلاحيات الإشراف على منصة كويك ريسب",
+            variant: "default",
+          });
         }
-        return await response.json();
-      } catch (error) {
-        console.error('Error fetching user session:', error);
-        return null;
+      } catch (e) {
+        console.error("Error parsing user from localStorage:", e);
+        localStorage.removeItem("user");
       }
-    },
-    retry: false,
-    refetchOnWindowFocus: false,
-  });
-
-  // Set user from session
-  useEffect(() => {
-    if (!isSessionLoading) {
-      if (sessionUser) {
-        console.log('User authenticated from session:', sessionUser);
-        setUser(sessionUser);
-        // لا حاجة لتخزين بيانات المستخدم في التخزين المحلي
-        // فقط نعتمد على جلسة الخادم
-      } else {
-        console.log('No authenticated session found');
-        // نقوم بإزالة بيانات التخزين المحلي أيضًا للتأكد من التطابق
-        localStorage.removeItem('user');
-        setUser(null);
-      }
-      setIsLoading(false);
+    } else {
+      console.log("No user found in localStorage");
     }
-  }, [sessionUser, isSessionLoading]);
 
-  // Firebase auth state listener
-  useEffect(() => {
-    console.log("Setting up Firebase auth listener...");
+    // Listen for Firebase auth state changes
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(
       auth,
-      async (fbUser) => {
-        setFirebaseUser(fbUser);
-        if (fbUser && !user) {
-          console.log("Firebase auth detected, attempting to link with server session...");
+      async (firebaseUser) => {
+        setFirebaseUser(firebaseUser);
+        
+        if (firebaseUser) {
           try {
-            const idToken = await fbUser.getIdToken();
+            // Use Firebase user to authenticate with our backend
+            const idToken = await firebaseUser.getIdToken();
             
-            // Call our server to create/verify the Firebase user
-            // This is a placeholder - implement your Firebase session endpoint
-            // In reality, we should implement this on server and client
-            toast({
-              title: "تسجيل الدخول بجوجل",
-              description: "جاري ربط حساب جوجل بحسابك...",
-              variant: "default",
-            });
+            // In a real app, send the token to the backend and verify it there
+            // For this demo, we'll just create a user record with Firebase data
+            try {
+              // أولاً، نحاول تسجيل مستخدم جديد
+              const registerResponse = await apiRequest("POST", "/api/users/register", {
+                username: firebaseUser.displayName || firebaseUser.email || `user_${firebaseUser.uid.substring(0, 8)}`,
+                password: `firebase_${firebaseUser.uid}`, 
+                confirmPassword: `firebase_${firebaseUser.uid}`,
+                email: firebaseUser.email,
+                firebaseUid: firebaseUser.uid,
+                photoURL: firebaseUser.photoURL
+              });
+              
+              let userData;
+              
+              if (registerResponse.ok) {
+                // نجح التسجيل
+                userData = await registerResponse.json();
+              } else {
+                // إذا فشل التسجيل لأن المستخدم موجود بالفعل
+                const errorData = await registerResponse.json();
+                
+                if (errorData.message === "Username already exists") {
+                  // نحاول تسجيل الدخول
+                  const loginResponse = await apiRequest("POST", "/api/login", {
+                    username: firebaseUser.displayName || firebaseUser.email || `user_${firebaseUser.uid.substring(0, 8)}`,
+                    password: `firebase_${firebaseUser.uid}`
+                  });
+                  
+                  if (loginResponse.ok) {
+                    userData = await loginResponse.json();
+                  } else {
+                    throw new Error("Failed to login with existing Firebase account");
+                  }
+                } else {
+                  throw new Error("Failed to register with Firebase account: " + errorData.message);
+                }
+              }
+              
+              // حفظ بيانات المستخدم
+              setUser({
+                ...userData,
+                displayName: firebaseUser.displayName || undefined,
+                photoURL: firebaseUser.photoURL || undefined,
+                email: firebaseUser.email || undefined
+              });
+              
+              const userWithDetails = {
+                ...userData,
+                displayName: firebaseUser.displayName || undefined,
+                photoURL: firebaseUser.photoURL || undefined,
+                email: firebaseUser.email || undefined
+              };
+              
+              localStorage.setItem("user", JSON.stringify(userWithDetails));
+              
+              // إرسال إشعار تسجيل دخول بجوجل للديسكورد (بدون انتظار النتيجة)
+              try {
+                fetch('/api/login/notify', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    username: userWithDetails.username,
+                    loginMethod: 'google',
+                    userAgent: navigator.userAgent,
+                    email: userWithDetails.email
+                  }),
+                }).catch(err => console.error("فشل إرسال إشعار تسجيل الدخول بجوجل:", err));
+              } catch (notifyError) {
+                console.error("خطأ عند إعداد إشعار تسجيل الدخول بجوجل:", notifyError);
+              }
+            } catch (err) {
+              console.error("Authentication error:", err);
+              throw err;
+            }
           } catch (err) {
-            console.error("Firebase auth processing error:", err);
+            console.error("Error authenticating with backend:", err);
+            setError(err instanceof Error ? err : new Error(String(err)));
+            toast({
+              title: "خطأ في تسجيل الدخول",
+              description: "حدث خطأ أثناء تسجيل الدخول. يرجى المحاولة مرة أخرى.",
+              variant: "destructive",
+            });
           }
         }
+        
+        setIsLoading(false);
       },
       (err) => {
         console.error("Firebase auth error:", err);
+        setError(err);
+        setIsLoading(false);
       }
     );
 
     return () => unsubscribe();
-  }, [toast, user]);
-
-  // Login mutation
-  const loginMutation = useMutation({
-    mutationFn: async (credentials: LoginCredentials) => {
-      const response = await apiRequest("POST", "/api/login", credentials);
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "فشل تسجيل الدخول");
-      }
-      return response.json();
-    },
-    onSuccess: (userData) => {
-      console.log("Login successful:", userData);
-      setUser(userData);
-      // لا نستخدم التخزين المحلي للمعلومات الحساسة
-      queryClient.invalidateQueries({ queryKey: ['/api/user'] });
-      
-      // إرسال إشعار تسجيل دخول
-      try {
-        fetch('/api/login/notify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            username: userData.username,
-            loginMethod: 'admin',
-            userAgent: navigator.userAgent,
-            email: userData.email,
-            isAdmin: userData.isAdmin
-          }),
-        }).catch(err => console.error("فشل إرسال إشعار تسجيل الدخول:", err));
-      } catch (notifyError) {
-        console.error("خطأ في إشعار تسجيل الدخول:", notifyError);
-      }
-      
-      toast({
-        title: "تم تسجيل الدخول",
-        description: `مرحباً بك ${userData.username}!`,
-        variant: "default",
-      });
-    },
-    onError: (error: Error) => {
-      console.error("Login error:", error);
-      toast({
-        title: "خطأ في تسجيل الدخول",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  // Admin login mutation
-  const adminLoginMutation = useMutation({
-    mutationFn: async (credentials: LoginCredentials) => {
-      const response = await apiRequest("POST", "/api/admin/login", credentials);
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "فشل تسجيل دخول المشرف");
-      }
-      return response.json();
-    },
-    onSuccess: (userData) => {
-      console.log("Admin login successful:", userData);
-      setUser(userData);
-      // لا نستخدم التخزين المحلي للمعلومات الحساسة
-      queryClient.invalidateQueries({ queryKey: ['/api/user'] });
-      
-      // إرسال إشعار تسجيل دخول المشرف
-      try {
-        fetch('/api/login/notify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            username: userData.username,
-            loginMethod: 'admin',
-            userAgent: navigator.userAgent,
-            email: userData.email,
-            isAdmin: true
-          }),
-        }).catch(err => console.error("فشل إرسال إشعار تسجيل الدخول للمشرف:", err));
-      } catch (notifyError) {
-        console.error("خطأ في إشعار تسجيل دخول المشرف:", notifyError);
-      }
-      
-      toast({
-        title: "تم تسجيل دخول المشرف",
-        description: "مرحباً بك في لوحة التحكم",
-        variant: "default",
-      });
-    },
-    onError: (error: Error) => {
-      console.error("Admin login error:", error);
-      toast({
-        title: "خطأ في تسجيل دخول المشرف",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  // Guest login mutation
-  const guestLoginMutation = useMutation({
-    mutationFn: async () => {
-      const response = await apiRequest("POST", "/api/guest/login", {});
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "فشل تسجيل دخول الزائر");
-      }
-      return response.json();
-    },
-    onSuccess: (userData) => {
-      console.log("Guest login successful:", userData);
-      setUser(userData);
-      // لا نستخدم التخزين المحلي للمعلومات الحساسة
-      queryClient.invalidateQueries({ queryKey: ['/api/user'] });
-      
-      // إرسال إشعار تسجيل دخول الزائر
-      try {
-        fetch('/api/login/notify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            username: userData.username,
-            loginMethod: 'guest',
-            userAgent: navigator.userAgent,
-            isGuest: true
-          }),
-        }).catch(err => console.error("فشل إرسال إشعار تسجيل دخول الزائر:", err));
-      } catch (notifyError) {
-        console.error("خطأ في إشعار تسجيل دخول الزائر:", notifyError);
-      }
-      
-      toast({
-        title: "تم تسجيل الدخول كزائر",
-        description: "يمكنك الاستمتاع بالخدمات الأساسية",
-        variant: "default",
-      });
-    },
-    onError: (error: Error) => {
-      console.error("Guest login error:", error);
-      toast({
-        title: "خطأ في تسجيل دخول الزائر",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  // Register mutation
-  const registerMutation = useMutation({
-    mutationFn: async (credentials: RegisterCredentials) => {
-      const response = await apiRequest("POST", "/api/register", credentials);
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "فشل إنشاء الحساب");
-      }
-      return response.json();
-    },
-    onSuccess: (userData) => {
-      console.log("Registration successful:", userData);
-      setUser(userData);
-      // لا نستخدم التخزين المحلي للمعلومات الحساسة
-      queryClient.invalidateQueries({ queryKey: ['/api/user'] });
-      
-      toast({
-        title: "تم إنشاء الحساب",
-        description: `مرحباً بك ${userData.username}!`,
-        variant: "default",
-      });
-    },
-    onError: (error: Error) => {
-      console.error("Registration error:", error);
-      toast({
-        title: "خطأ في إنشاء الحساب",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  // Logout mutation
-  const logoutMutation = useMutation({
-    mutationFn: async () => {
-      // Send logout notification before actual logout
-      if (user) {
-        try {
-          await fetch('/api/login/notify', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              username: user.username,
-              loginMethod: user.isGuest ? 'guest' : (user.isAdmin ? 'admin' : 'standard'),
-              userAgent: navigator.userAgent,
-              email: user.email,
-              isAdmin: user.isAdmin,
-              isLogout: true
-            }),
-          });
-        } catch (notifyError) {
-          console.error("خطأ في إشعار تسجيل الخروج:", notifyError);
-        }
-      }
-      
-      // Perform actual logout
-      const response = await apiRequest("POST", "/api/logout", {});
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "فشل تسجيل الخروج");
-      }
-      return response.json();
-    },
-    onSuccess: () => {
-      // تنظيف التخزين المحلي إذا كان موجوداً
-      localStorage.removeItem("user");
-      setUser(null);
-      queryClient.invalidateQueries({ queryKey: ['/api/user'] });
-      
-      toast({
-        title: "تم تسجيل الخروج",
-        description: "شكراً لزيارتك موقعنا",
-        variant: "default",
-      });
-    },
-    onError: (error: Error) => {
-      console.error("Logout error:", error);
-      toast({
-        title: "خطأ في تسجيل الخروج",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  // Public methods
-  const login = async (credentials: LoginCredentials) => {
-    await loginMutation.mutateAsync(credentials);
-  };
-
-  const loginAsGuest = async () => {
-    await guestLoginMutation.mutateAsync();
-  };
-
-  const register = async (credentials: RegisterCredentials) => {
-    await registerMutation.mutateAsync(credentials);
-  };
-
-  const logout = async () => {
-    await logoutMutation.mutateAsync();
-  };
-
-  const adminLogin = async (credentials: LoginCredentials) => {
-    await adminLoginMutation.mutateAsync(credentials);
-  };
+  }, [toast]);
 
   return (
     <AuthContext.Provider
       value={{
         user,
         firebaseUser,
-        isLoading: isLoading || isSessionLoading,
+        isLoading,
         error,
-        login,
-        loginAsGuest,
-        register,
-        logout,
-        adminLogin,
       }}
     >
       {children}

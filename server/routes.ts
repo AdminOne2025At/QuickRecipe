@@ -8,50 +8,18 @@ import { getIngredientSubstitutes } from "./services/substitutions";
 // التحقق من المحتوى
 import { moderateContent, moderateComment } from "./services/content-moderation";
 // تمت إزالة استيراد الترجمة
-import { storage, IStorage } from "./storage";
+import { storage } from "./storage";
 import { insertRecipeCacheSchema, insertIngredientSchema, insertUserSchema, insertRecipeSchema, insertCommunityPostSchema, insertPostCommentSchema } from "@shared/schema";
 import { z } from "zod";
 // استيراد خدمة إشعارات Discord
 import { sendPostReportToDiscord, sendAutoRemovalNotification, sendLoginNotificationToDiscord } from "./services/discord-notifications";
 // استيراد نظام المصادقة الجديد
 import { setupAuth, comparePasswords, hashPassword } from "./auth";
-// استيراد WebSocket
-import ws from 'ws';
 
 // Import types for recipe interface
 import type { RecipeResult } from "./services/openai";
 
-// إنشاء حساب المشرف الافتراضي إذا لم يكن موجوداً
-async function ensureAdminUser(storage: IStorage) {
-  console.log('[SETUP] Checking for admin user...');
-  try {
-    const adminUser = await storage.getUserByUsername('admin');
-    if (adminUser) {
-      console.log('[SETUP] Admin user already exists');
-      return;
-    }
-
-    console.log('[SETUP] Creating default admin user...');
-    const hashedPassword = await hashPassword('admin123');
-    const admin = await storage.createUser({
-      username: 'admin',
-      password: hashedPassword,
-      isAdmin: true,
-      email: 'admin@quickrecipe.local'
-    });
-
-    console.log('[SETUP] Default admin user created with ID:', admin.id);
-  } catch (error) {
-    console.error('[SETUP] Error ensuring admin user:', error);
-  }
-}
-
 export async function registerRoutes(app: Express): Promise<Server> {
-  // إعداد نظام المصادقة الجديد
-  const { isAuthenticated, isAdmin } = setupAuth(app);
-  
-  // التأكد من وجود حساب المشرف
-  await ensureAdminUser(storage);
   // Route to fetch recipes based on ingredients
   app.post("/api/recipes", async (req, res) => {
     try {
@@ -151,108 +119,114 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // نظام المصادقة الجديد مضاف بالفعل في ملف auth.ts
-  // وتم تفعيله في بداية هذا الملف باستخدام setupAuth(app)
-  // المسارات السابقة معطلة الآن ومستبدلة بالمسارات الجديدة
-  
-  // إضافة مسار جديد لتسجيل الدخول عبر Firebase/Google
-  app.post("/api/firebase/auth", async (req, res) => {
+  // User registration endpoint
+  app.post("/api/users/register", async (req, res) => {
     try {
-      console.log("[FIREBASE AUTH] Google login attempt via backend API");
-      
-      // تحقق من البيانات المقدمة من الواجهة
-      const firebaseAuthSchema = z.object({
-        firebaseUid: z.string(),
-        email: z.string().email().optional(),
-        displayName: z.string().optional(),
-        photoURL: z.string().optional(),
-        idToken: z.string().optional() // رمز المصادقة من Firebase (للتحقق)
+      const userSchema = insertUserSchema.extend({
+        confirmPassword: z.string()
+      }).refine(data => data.password === data.confirmPassword, {
+        message: "Passwords don't match",
+        path: ["confirmPassword"]
       });
-      
-      const userData = firebaseAuthSchema.parse(req.body);
-      console.log(`[FIREBASE AUTH] Processing auth for UID: ${userData.firebaseUid}`);
-      
-      // البحث عن المستخدم عن طريق رقم التعريف من Firebase
-      let user = await storage.getUserByFirebaseId(userData.firebaseUid);
-      
-      if (user) {
-        console.log(`[FIREBASE AUTH] Existing user found: ${user.username || user.email}`);
-        
-        // تحديث آخر تسجيل دخول وأي معلومات أخرى إذا لزم الأمر
-        await storage.updateUser(user.id, {
-          lastLogin: new Date(),
-          // تحديث المعلومات الأخرى إذا تغيرت
-          displayName: userData.displayName || user.displayName,
-          photoURL: userData.photoURL || user.photoURL,
-          email: userData.email || user.email
-        });
-      } else {
-        console.log("[FIREBASE AUTH] No existing user - creating new account");
-        
-        // إنشاء اسم مستخدم فريد للمستخدم الجديد
-        const usernameBase = userData.displayName ? 
-          userData.displayName.replace(/\s+/g, '_').toLowerCase() : 
-          `user_${Date.now()}`;
-        
-        // التأكد من فرادة اسم المستخدم
-        let username = usernameBase;
-        let counter = 1;
-        
-        while (await storage.getUserByUsername(username)) {
-          username = `${usernameBase}_${counter++}`;
-        }
-        
-        // إنشاء كلمة مرور عشوائية (لن تستخدم فعليًا للتسجيل)
-        const randomPassword = `firebase_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
-        const hashedPassword = await hashPassword(randomPassword);
-        
-        // إنشاء المستخدم الجديد
-        user = await storage.createUser({
-          username,
-          password: hashedPassword,
-          email: userData.email,
-          displayName: userData.displayName,
-          photoURL: userData.photoURL,
-          firebaseUid: userData.firebaseUid,
-          isAdmin: false,
-          isGuest: false,
-          lastLogin: new Date()
-        });
-        
-        console.log(`[FIREBASE AUTH] New user created: ${username} (ID: ${user.id})`);
+
+      const validatedData = userSchema.parse(req.body);
+
+      // Check if username already exists
+      const existingUser = await storage.getUserByUsername(validatedData.username);
+      if (existingUser) {
+        return res.status(400).json({ message: "Username already exists" });
       }
-      
-      // تسجيل دخول المستخدم في جلسة Express
-      req.login(user, async (err) => {
-        if (err) {
-          console.error("[FIREBASE AUTH] Session creation error:", err);
-          return res.status(500).json({ success: false, message: "فشل في إنشاء الجلسة" });
-        }
-        
-        // إرسال إشعار تسجيل دخول غير متزامن
-        sendLoginNotificationToDiscord({
-          username: user.username || user.email || "مستخدم جوجل",
-          loginMethod: 'google',
-          loginTime: new Date(),
-          userAgent: req.headers['user-agent'],
-          ipAddress: req.ip || req.socket.remoteAddress || 'غير معروف',
-          email: user.email,
-          isAdmin: user.isAdmin,
-          isLogout: false
-        }).catch(err => console.error("فشل إرسال إشعار:", err));
-        
-        console.log(`[FIREBASE AUTH] Login complete - session established for ${user.username}`);
-        
-        // إرجاع بيانات المستخدم بدون كلمة المرور
-        const { password, ...userWithoutPassword } = user;
-        res.json({ success: true, user: userWithoutPassword });
+
+      // Create new user (password would be hashed in a real app)
+      const newUser = await storage.createUser({
+        username: validatedData.username,
+        password: validatedData.password, // In a real app, hash this password!
       });
+
+      // Return user without password
+      const { password, ...userWithoutPassword } = newUser;
+      return res.status(201).json(userWithoutPassword);
     } catch (error) {
-      console.error("[FIREBASE AUTH] Error in Firebase authentication:", error);
+      console.error("User registration error:", error);
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ success: false, errors: error.errors });
+        return res.status(400).json({ errors: error.errors });
       }
-      return res.status(500).json({ success: false, message: "حدث خطأ أثناء محاولة تسجيل الدخول" });
+      return res.status(500).json({ message: "Failed to register user" });
+    }
+  });
+
+  // User login endpoint
+  app.post("/api/users/login", async (req, res) => {
+    try {
+      const loginSchema = z.object({
+        username: z.string().min(1),
+        password: z.string().min(1)
+      });
+
+      const validatedData = loginSchema.parse(req.body);
+      
+      // Find user and check password (would use proper comparison in a real app)
+      const user = await storage.getUserByUsername(validatedData.username);
+      
+      if (!user || user.password !== validatedData.password) {
+        return res.status(401).json({ message: "Invalid username or password" });
+      }
+
+      // Return user without password
+      const { password, ...userWithoutPassword } = user;
+      return res.status(200).json(userWithoutPassword);
+    } catch (error) {
+      console.error("Login error:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ errors: error.errors });
+      }
+      return res.status(500).json({ message: "Login failed" });
+    }
+  });
+  
+  // Login with Firebase endpoint - for existing Firebase users
+  app.post("/api/login", async (req, res) => {
+    try {
+      const loginSchema = z.object({
+        username: z.string().min(1),
+        password: z.string().min(1)
+      });
+
+      const validatedData = loginSchema.parse(req.body);
+      
+      // Find user by username
+      const user = await storage.getUserByUsername(validatedData.username);
+      
+      if (!user || user.password !== validatedData.password) {
+        return res.status(401).json({ message: "Invalid username or password" });
+      }
+
+      // إرسال إشعار تسجيل دخول غير متزامن
+      try {
+        const userAgent = req.headers['user-agent'] || 'غير معروف';
+        const ipAddress = req.ip || req.socket.remoteAddress || 'غير معروف';
+        
+        sendLoginNotificationToDiscord({
+          userId: user.id,
+          username: user.username,
+          loginMethod: 'google', // باعتبار أنه تسجيل دخول عام
+          loginTime: new Date(),
+          userAgent,
+          ipAddress
+        }).catch(err => console.error("فشل إرسال إشعار تسجيل دخول:", err));
+      } catch (notificationError) {
+        console.error("خطأ عند إعداد إشعار تسجيل الدخول:", notificationError);
+      }
+
+      // Return user without password
+      const { password, ...userWithoutPassword } = user;
+      return res.status(200).json(userWithoutPassword);
+    } catch (error) {
+      console.error("Firebase login error:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ errors: error.errors });
+      }
+      return res.status(500).json({ message: "Login failed" });
     }
   });
   
@@ -649,46 +623,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // تمت إزالة نقطة نهاية الترجمة متعددة اللغات
 
   // Admin features
-  // نقطة نهاية لإصلاح كلمة مرور المسؤول - هذه نقطة نهاية مؤقتة لإصلاح المشكلة
-  app.post("/api/admin/fix-password", async (req, res) => {
+  // Admin login
+  app.post("/api/admin/login", async (req, res) => {
     try {
-      const { secretKey } = req.body;
+      const loginSchema = z.object({
+        username: z.string().min(1),
+        password: z.string().min(1)
+      });
+
+      const validatedData = loginSchema.parse(req.body);
       
-      // التحقق من مفتاح الأمان (هذا مجرد إجراء أمان بسيط)
-      // استخدم الوقت الحالي ليكون المفتاح صالحًا لمدة 24 ساعة فقط
-      const validSecretKey = `fix_admin_${new Date().toISOString().split('T')[0]}`;
-      
-      if (secretKey !== validSecretKey) {
-        return res.status(401).json({ 
-          message: "مفتاح أمان غير صالح",
-          hint: `المفتاح الصحيح يبدأ بـ "fix_admin_" متبوعًا بتاريخ اليوم بصيغة YYYY-MM-DD`
-        });
-      }
-      
-      // الحصول على حساب المسؤول
-      const admin = await storage.getUserByUsername('admin');
-      
-      if (!admin) {
-        return res.status(404).json({ message: "لم يتم العثور على حساب المسؤول" });
-      }
-      
-      // تشفير كلمة المرور
-      const hashedPassword = await hashPassword('admin123');
-      
-      // تحديث كلمة المرور
-      await storage.updateUser(admin.id, { password: hashedPassword });
-      
-      console.log(`[ADMIN] Fixed admin password for user ID: ${admin.id}`);
-      
-      return res.status(200).json({ 
-        message: "تم إصلاح كلمة مرور المسؤول بنجاح",
+      // قائمة المشرفين المسموح لهم بالدخول (في تطبيق حقيقي، هذا سيكون في قاعدة البيانات)
+      const adminCredentials = {
         username: "admin",
-        password: "admin123",
-        note: "هذه بيانات اعتماد افتراضية، قم بتغييرها فور تمكنك من تسجيل الدخول"
+        password: "admin123"
+      };
+      
+      // التحقق من بيانات الدخول
+      if (validatedData.username !== adminCredentials.username || 
+          validatedData.password !== adminCredentials.password) {
+        return res.status(401).json({ message: "بيانات اعتماد غير صحيحة للمشرف" });
+      }
+
+      // ملاحظة: تم نقل إرسال إشعار تسجيل الدخول إلى واجهة المستخدم
+      // سيتم إرسال الإشعار من خلال نقطة النهاية /api/login/notify بعد تسجيل الدخول بنجاح
+      // هذا يمنع إرسال إشعارات مزدوجة عند تسجيل دخول المشرف
+      
+      // إرجاع بيانات المستخدم المشرف
+      return res.status(200).json({
+        id: 9999, // رقم تعريفي خاص بالمشرف
+        username: adminCredentials.username,
+        isAdmin: true
       });
     } catch (error) {
-      console.error("[ADMIN] Error fixing admin password:", error);
-      return res.status(500).json({ message: "حدث خطأ أثناء إصلاح كلمة المرور" });
+      console.error("Admin login error:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ errors: error.errors });
+      }
+      return res.status(500).json({ message: "فشل تسجيل دخول المشرف" });
     }
   });
   
@@ -1390,10 +1362,5 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   const httpServer = createServer(app);
-  
-  // سيتم إضافة دعم WebSocket لاحقًا
-  // تم تعطيل التكوين مؤقتًا لحل المشكلات
-  console.log("المسار الرئيسي للتطبيق نشط على المنفذ 5000");
-  
   return httpServer;
 }

@@ -89,74 +89,40 @@ export const handleRedirectResult = async (): Promise<User | null> => {
     const result = await getRedirectResult(auth);
     
     if (result && result.user) {
-      // تم تسجيل الدخول بنجاح مع Firebase
-      console.log("Successfully got redirect result, user logged in with Firebase:", result.user.displayName);
+      // تم تسجيل الدخول بنجاح
+      console.log("Successfully got redirect result, user logged in:", result.user.displayName);
       
-      // الآن نقوم بالتكامل مع خادم Express لإنشاء جلسة المستخدم
+      // حفظ بيانات المستخدم في localStorage لتحسين التجربة عبر تحديثات الصفحة
       try {
-        // إرسال بيانات مستخدم Firebase للخادم
-        const response = await fetch('/api/firebase/auth', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            firebaseUid: result.user.uid,
-            email: result.user.email,
-            displayName: result.user.displayName,
-            photoURL: result.user.photoURL,
-            // يمكن إضافة idToken للتحقق من الهوية في جانب الخادم
-            idToken: await result.user.getIdToken()
-          }),
-          credentials: 'include' // مهم جداً لإرسال واستقبال الكوكيز
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          console.log("Successfully created server session for Firebase user:", data);
-          
-          // إعادة تحميل الصفحة للتأكد من تحديث حالة الجلسة
-          window.location.href = '/';
-          return result.user;
-        } else {
-          // لا يمكن إنشاء جلسة خلفية للمستخدم
-          const errorData = await response.json();
-          console.error("Error creating server session:", errorData);
-          throw new Error("Could not create server session for Firebase user");
-        }
-      } catch (serverError) {
-        console.error("Error syncing Firebase auth with server:", serverError);
-        
-        // في حالة فشل تزامن Firebase مع الخادم، يمكن استخدام بيانات Firebase
-        // مباشرة ولكن هذا ليس الحل الأمثل
-        console.warn("Falling back to Firebase-only authentication (not recommended)");
-        
-        // حفظ بيانات المستخدم في localStorage مؤقتًا
+        // إعداد كائن المستخدم مع المعلومات الضرورية
         const userData = {
           id: result.user.uid,
           displayName: result.user.displayName || 'مستخدم جوجل',
           email: result.user.email,
           photoURL: result.user.photoURL,
-          isFirebaseOnly: true // علامة لتوضيح أنه مستخدم Firebase فقط
+          isAdmin: false // المستخدمون من جوجل ليسوا مشرفين افتراضيًا
         };
         
-        localStorage.setItem('firebase_user', JSON.stringify(userData));
-        
-        // محاولة تسجيل دخول كزائر كحل بديل
-        try {
-          const guestLoginResponse = await fetch('/api/guest/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({}),
-            credentials: 'include'
-          });
-          
-          if (guestLoginResponse.ok) {
-            console.log("Fallback to guest login successful");
-            // إعادة تحميل الصفحة للتأكد من تحديث حالة الجلسة
-            window.location.href = '/';
-          }
-        } catch (guestLoginError) {
-          console.error("Fallback guest login also failed:", guestLoginError);
-        }
+        localStorage.setItem('user', JSON.stringify(userData));
+        console.log("User data saved to localStorage");
+      } catch (storageError) {
+        console.error("Failed to save user data to localStorage:", storageError);
+      }
+      
+      // إضافة إشعار تسجيل الدخول للديسكورد
+      try {
+        fetch('/api/login/notify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: result.user.displayName || result.user.email || 'مستخدم جوجل',
+            loginMethod: 'google',
+            userAgent: navigator.userAgent,
+            email: result.user.email
+          })
+        }).catch(err => console.error("Failed to send login notification:", err));
+      } catch (notifyError) {
+        console.error("Error setting up login notification:", notifyError);
       }
       
       return result.user;
@@ -176,25 +142,21 @@ export const handleRedirectResult = async (): Promise<User | null> => {
             يجب عليك إضافة "${window.location.origin}" إلى 
             قائمة النطاقات المصرح بها في إعدادات Firebase.
           `);
-          // في هذه الحالة، نقوم بمحاولة تسجيل الدخول كزائر من الخادم
+          // في هذه الحالة، نقوم بتسجيل الدخول كزائر تلقائيًا
           try {
-            const guestResponse = await fetch('/api/guest/login', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({}),
-              credentials: 'include'
-            });
+            const guestUser = {
+              id: Date.now(), // استخدام الطابع الزمني لإنشاء معرف فريد
+              displayName: "زائر (تلقائي)",
+              isGuest: true
+            };
             
-            if (guestResponse.ok) {
-              console.log("Automatic guest login successful after Firebase auth failed");
-              // إعادة تحميل الصفحة للتأكد من تحديث حالة الجلسة
-              window.location.href = '/';
-              return null;
-            } else {
-              console.error("Guest login failed after Firebase auth failed");
-            }
-          } catch (guestError) {
-            console.error("Failed to perform automatic guest login:", guestError);
+            localStorage.setItem("user", JSON.stringify(guestUser));
+            console.log("Automatic guest login due to unauthorized domain");
+            
+            // لا نقوم برمي الخطأ وبدلاً من ذلك نعود بـ null
+            return null;
+          } catch (fallbackError) {
+            console.error("Failed to perform automatic guest login:", fallbackError);
           }
           break;
           
@@ -216,26 +178,8 @@ export const handleRedirectResult = async (): Promise<User | null> => {
       }
     }
     
-    // في حالة الأخطاء الشديدة، نحاول تسجيل الدخول كزائر
-    try {
-      const guestResponse = await fetch('/api/guest/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({}),
-        credentials: 'include'
-      });
-      
-      if (guestResponse.ok) {
-        console.log("Fallback to guest login successful after auth error");
-        // إعادة تحميل الصفحة للتأكد من تحديث حالة الجلسة
-        window.location.href = '/';
-        return null;
-      }
-    } catch (finalError) {
-      console.error("All authentication methods failed:", finalError);
-    }
-    
-    return null;
+    // في حالة الأخطاء الشديدة، نقوم برمي الخطأ
+    throw error;
   }
 };
 

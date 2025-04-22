@@ -8,27 +8,20 @@ import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { Loader2, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/use-auth";
+import { queryClient } from "@/lib/queryClient";
 
 export default function AuthPage() {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { user, loginAsGuest, firebaseUser } = useAuth();
   
-  // إذا كان المستخدم مسجل الدخول بالفعل، توجيه إلى الصفحة الرئيسية
-  useEffect(() => {
-    if (user) {
-      setLocation("/");
-    }
-  }, [user, setLocation]);
-  
-  // تحقق من حالة تسجيل الدخول عبر فايربيس
+  // تحقق من حالة تسجيل الدخول ومعالجة نتيجة إعادة التوجيه
   useEffect(() => {
     const checkAuthAndRedirect = async () => {
       try {
         // التحقق من نتيجة إعادة التوجيه عند تحميل الصفحة
         const user = await handleRedirectResult();
+        
         if (user) {
           // تم تسجيل الدخول بنجاح من خلال إعادة التوجيه
           toast({
@@ -61,6 +54,8 @@ export default function AuthPage() {
             variant: "destructive",
           });
         }
+      } finally {
+        setIsLoading(false);
       }
     };
     
@@ -72,6 +67,7 @@ export default function AuthPage() {
       if (user) {
         setLocation("/");
       }
+      setIsLoading(false);
     });
     
     return () => unsubscribe();
@@ -112,49 +108,55 @@ export default function AuthPage() {
   };
   
   // التعامل مع تسجيل الدخول كزائر (وضع زائر)
-  const handleGuestLogin = async () => {
+  const handleGuestLogin = () => {
     try {
-      console.log("🔑 تسجيل دخول كزائر - بدء العملية...");
-      setIsLoading(true);
+      // إنشاء بيانات مستخدم زائر
+      const guestUser = {
+        id: 1, // استخدام معرف المستخدم الافتراضي
+        username: "زائر",
+        isGuest: true
+      };
       
-      // استخدام API مباشرة للتحايل على أي مشاكل في سياق المصادقة
-      const response = await fetch('/api/guest/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({}),
-        credentials: 'include' // مهم جداً لإرسال واستقبال الكوكيز
+      // تخزين بيانات المستخدم الزائر في localStorage
+      localStorage.setItem("user", JSON.stringify(guestUser));
+      
+      // تحديث React Query
+      queryClient.setQueryData(["/api/user"], guestUser);
+      
+      // إرسال إشعار تسجيل دخول للديسكورد (بدون انتظار النتيجة لتسريع العملية)
+      try {
+        fetch('/api/login/notify', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            username: guestUser.username,
+            loginMethod: 'guest',
+            userAgent: navigator.userAgent,
+            isGuest: true
+          }),
+        }).catch(err => console.error("فشل إرسال إشعار تسجيل الدخول:", err));
+      } catch (notifyError) {
+        console.error("خطأ عند إعداد إشعار تسجيل الدخول:", notifyError);
+      }
+      
+      toast({
+        title: "تم تسجيل الدخول كزائر",
+        description: "يمكنك الآن استخدام الموقع. بعض الميزات قد تكون محدودة.",
+        variant: "default"
       });
       
-      console.log("🔑 استجابة تسجيل دخول الزائر:", response.status, response.statusText);
-      
-      if (response.ok) {
-        const userData = await response.json();
-        console.log("🔑 تم تسجيل الدخول كزائر بنجاح:", userData);
-        
-        // إظهار رسالة للمستخدم
-        toast({
-          title: "تم تسجيل الدخول كزائر",
-          description: "يمكنك الاستمتاع بالخدمات الأساسية",
-          variant: "default"
-        });
-        
-        // إعادة تحميل الصفحة للتأكد من تحديث الجلسة بشكل صحيح
-        window.location.href = '/';
-      } else {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "فشل تسجيل دخول الزائر");
-      }
+      // التوجيه إلى الصفحة الرئيسية
+      setLocation("/");
     } catch (error) {
-      console.error("❌ خطأ في تسجيل دخول الزائر:", error);
+      console.error("Error logging in as guest:", error);
       
       toast({
         title: "حدث خطأ",
         description: "حدث خطأ أثناء محاولة تسجيل الدخول كزائر.",
         variant: "destructive"
       });
-      setIsLoading(false);
     }
   };
 
@@ -179,22 +181,11 @@ export default function AuthPage() {
                 <span className="flex-1">تسجيل الدخول باستخدام Google</span>
               </Button>
               
-              <div className="bg-amber-50 p-4 rounded-md border border-amber-200 text-xs">
-                <p className="font-medium text-amber-800 mb-1">ملاحظة: تسجيل الدخول بجوجل معطل مؤقتاً</p>
-                <p className="text-amber-700 mb-2">
-                  يجب إضافة نطاق الموقع الحالي إلى قائمة النطاقات المسموح بها في إعدادات Firebase.
-                </p>
-                <div className="bg-white p-2 rounded-md border border-amber-200">
-                  <p className="font-medium text-gray-700 mb-1">لإصلاح المشكلة:</p>
-                  <ol className="list-decimal list-inside text-gray-600 space-y-1">
-                    <li>افتح <a href="https://console.firebase.google.com/" target="_blank" className="text-blue-600 underline">لوحة تحكم Firebase</a></li>
-                    <li>اختر مشروع "fast-recipe-2025"</li>
-                    <li>اذهب إلى: Authentication → Settings → Authorized domains</li>
-                    <li>أضف النطاق: <span className="bg-gray-100 px-1 py-0.5 rounded font-mono text-xs">{window.location.origin}</span></li>
-                  </ol>
-                </div>
-                <p className="mt-2 text-amber-700">
-                  حتى يتم حل المشكلة، يرجى استخدام خيار "دخول سريع" أدناه.
+              <div className="bg-amber-50 p-3 rounded-md border border-amber-200 text-xs">
+                <p className="font-medium text-amber-800 mb-1">ملاحظة: تسجيل الدخول بجوجل معطل حاليًا</p>
+                <p className="text-amber-700">
+                  يجب إضافة نطاق الموقع إلى قائمة النطاقات المسموح بها في إعدادات Firebase.
+                  يرجى استخدام خيار "تخطي تسجيل الدخول" أدناه.
                 </p>
               </div>
             </div>

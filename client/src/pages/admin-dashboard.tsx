@@ -549,7 +549,7 @@ export default function AdminDashboard() {
                               method: 'POST',
                               headers: { 'Content-Type': 'application/json' },
                               body: JSON.stringify({
-                                username: user.username || user.displayName || 'Admin - مشرف النظام',
+                                username: user.username || user.displayName || 'مشرف النظام',
                                 loginMethod: 'admin',
                                 userAgent: navigator.userAgent,
                                 isAdmin: true,

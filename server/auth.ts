@@ -8,7 +8,6 @@ import connectPg from 'connect-pg-simple';
 import { storage } from './storage';
 import { pool } from './db';
 import { User, insertUserSchema } from '@shared/schema';
-import { sendLoginNotificationToDiscord } from './services/discord-notifications';
 
 // تهيئة مخزن جلسات PostgreSQL
 const PostgresStore = connectPg(session);
@@ -20,8 +19,6 @@ const sessionStore = new PostgresStore({
 
 // تسجيل النطاق في حقل السر للمساعدة في تحديد الجلسات
 const SESSION_SECRET = process.env.SESSION_SECRET || 'quick-recipe-local-dev-secret';
-console.log(`[AUTH] Using session secret: ${SESSION_SECRET ? '✓ Set' : '❌ Not set'}`);
-console.log(`[AUTH] Session store initialized with PostgreSQL connection`);
 
 // Crypto helpers for password hashing
 const scryptAsync = promisify(scrypt);
@@ -57,34 +54,18 @@ export async function comparePasswords(supplied: string, stored: string): Promis
  */
 export function setupAuth(app: Express): { isAuthenticated: (req: Request, res: Response, next: NextFunction) => void; isAdmin: (req: Request, res: Response, next: NextFunction) => void } {
   // Session configuration
-  const sessionOptions = {
-    store: sessionStore,
-    secret: SESSION_SECRET,
-    resave: false,
-    saveUninitialized: true, // تم تغييرها لتخزين الجلسات غير المهيأة
-    name: 'qr.sid', // اسم الكوكي المخصص
-    cookie: {
-      secure: false, // إيقاف مؤقت للـ HTTPS المطلوب للكوكيز الآمنة
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-      httpOnly: true,
-      path: '/',
-      sameSite: 'lax' as const, // تصحيح نوع البيانات
-    },
-  };
-  
-  console.log(`[AUTH] Setting up session with options:`, {
-    store: 'PostgreSQL',
-    secret: sessionOptions.secret ? 'Set' : 'Not set',
-    resave: sessionOptions.resave,
-    saveUninitialized: sessionOptions.saveUninitialized,
-    cookieOptions: {
-      secure: sessionOptions.cookie.secure,
-      httpOnly: sessionOptions.cookie.httpOnly,
-      sameSite: sessionOptions.cookie.sameSite,
-    }
-  });
-  
-  app.use(session(sessionOptions));
+  app.use(
+    session({
+      store: sessionStore,
+      secret: SESSION_SECRET,
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      },
+    })
+  );
 
   // Initialize Passport
   app.use(passport.initialize());
@@ -177,159 +158,56 @@ export function setupAuth(app: Express): { isAuthenticated: (req: Request, res: 
 
   // Login
   app.post('/api/login', (req, res, next) => {
-    console.log(`[AUTH] Login attempt for username: ${req.body.username || 'unknown'}`);
-    
     passport.authenticate('local', (err: Error | null, user: User | false, info: { message?: string } | undefined) => {
-      if (err) {
-        console.error('[AUTH] Login error:', err);
-        return next(err);
-      }
-      
+      if (err) return next(err);
       if (!user) {
-        console.log(`[AUTH] Login failed for ${req.body.username}: ${info?.message || 'Unknown reason'}`);
         return res.status(401).json({ message: info?.message || 'فشل تسجيل الدخول' });
       }
       
-      console.log(`[AUTH] User authenticated successfully: ${user.username} (id: ${user.id})`);
-      
       req.login(user, async (err: Error | null) => {
-        if (err) {
-          console.error('[AUTH] Session creation error:', err);
-          return next(err);
-        }
+        if (err) return next(err);
         
         try {
           // إرسال إشعار تسجيل الدخول (إذا لزم الأمر)
           // تم تنفيذه في واجهة المستخدم
           
-          // تأكيد تسجيل الدخول بنجاح
-          console.log(`[AUTH] Login complete - session established for ${user.username}`);
-          
           // إرجاع بيانات المستخدم بدون كلمة المرور
           const { password, ...userWithoutPassword } = user;
           res.json(userWithoutPassword);
         } catch (error) {
-          console.error('[AUTH] Error in login process:', error);
+          console.error('Error in login process:', error);
           next(error);
         }
       });
     })(req, res, next);
   });
 
-  // Admin Login - مسار تسجيل دخول المشرفين (معدل مع إصلاحات)
-  app.post('/api/admin/login', async (req, res, next) => {
-    try {
-      const { username, password } = req.body;
-      console.log(`[AUTH] Admin login attempt for username: ${username || 'unknown'}`);
+  // Admin Login - same endpoint with different credentials
+  app.post('/api/admin/login', (req, res, next) => {
+    passport.authenticate('local', (err: Error | null, user: User | false, info: { message?: string } | undefined) => {
+      if (err) return next(err);
       
-      // البحث عن المستخدم من خلال اسم المستخدم
-      const user = await storage.getUserByUsername(username);
-      
-      // التحقق من وجود المستخدم
-      if (!user) {
-        console.log(`[AUTH] Admin login failed - user not found: ${username}`);
+      // التحقق إذا كان المستخدم موجود ومسؤول
+      if (!user || !user.isAdmin) {
         return res.status(401).json({ message: 'بيانات اعتماد غير صحيحة للمشرف' });
       }
       
-      // التحقق من صلاحيات المشرف
-      if (!user.isAdmin) {
-        console.log(`[AUTH] Admin login failed - user not admin: ${user.username}`);
-        return res.status(401).json({ message: 'حساب المستخدم غير مصرح له بصلاحيات المشرف' });
-      }
-      
-      // التحقق من كلمة المرور
-      let passwordValid = false;
-      
-      try {
-        // محاولة التحقق باستخدام وظيفة مقارنة كلمات المرور المشفرة
-        passwordValid = await comparePasswords(password, user.password);
-      } catch (pwdError) {
-        console.warn("[AUTH] Error comparing hashed password (trying direct match):", pwdError);
-        
-        // حل بديل - إذا كانت كلمة المرور غير مشفرة (مشكلة معروفة في البيانات القديمة)
-        if (password === user.password) {
-          console.log("[AUTH] Admin login - matched with direct password (not hashed)");
-          passwordValid = true;
-          
-          // تحديث كلمة المرور لاستخدام التشفير في المستقبل
-          try {
-            const hashedPassword = await hashPassword(password);
-            await storage.updateUser(user.id, { password: hashedPassword });
-            console.log(`[AUTH] Updated admin password to hashed version for: ${user.username}`);
-          } catch (updateError) {
-            console.error("[AUTH] Failed to update password hash:", updateError);
-            // نستمر بالرغم من الخطأ
-          }
-        } else {
-          console.log(`[AUTH] Admin login failed - invalid password for user: ${user.username}`);
-          return res.status(401).json({ message: 'بيانات اعتماد غير صحيحة للمشرف' });
-        }
-      }
-      
-      // التحقق من صحة كلمة المرور (إما من خلال المقارنة المشفرة أو المطابقة المباشرة)
-      if (!passwordValid) {
-        console.log(`[AUTH] Admin login failed - invalid password for user: ${user.username}`);
-        return res.status(401).json({ message: 'بيانات اعتماد غير صحيحة للمشرف' });
-      }
-      
-      console.log(`[AUTH] Admin authenticated successfully: ${user.username} (id: ${user.id})`);
-      
-      // تحديث آخر تسجيل دخول
-      try {
-        await storage.updateUser(user.id, { lastLogin: new Date() });
-      } catch (updateError) {
-        console.warn("[AUTH] Failed to update last login time:", updateError);
-        // نستمر بالرغم من الخطأ
-      }
-      
-      // إنشاء جلسة للمستخدم
-      req.login(user, (loginErr: Error | null) => {
-        if (loginErr) {
-          console.error('[AUTH] Admin session creation error:', loginErr);
-          return next(loginErr);
-        }
-        
-        console.log(`[AUTH] Admin login complete - session established for ${user.username}`);
-        
-        // إرسال إشعار تسجيل دخول (اختياري) - غير متزامن
-        try {
-          // محاولة إرسال إشعار تسجيل الدخول إلى Discord
-          sendLoginNotificationToDiscord({
-            username: user.username,
-            loginMethod: 'admin',
-            loginTime: new Date(),
-            userAgent: req.headers['user-agent'] || 'غير معروف',
-            ipAddress: req.ip || req.socket.remoteAddress || 'غير معروف',
-            email: user.email || 'غير معروف',
-            isAdmin: true,
-            isLogout: false
-          }).catch(error => {
-            console.warn('[AUTH] Failed to send Discord notification:', error);
-          });
-        } catch (notifyError) {
-          // تجاهل أخطاء الإشعارات، فهي ليست حرجة لوظيفة تسجيل الدخول
-          console.warn('[AUTH] Error in notification system:', notifyError);
-        }
+      req.login(user, (err: Error | null) => {
+        if (err) return next(err);
         
         // إرجاع بيانات المستخدم المسؤول بدون كلمة المرور
         const { password, ...adminWithoutPassword } = user;
         res.json(adminWithoutPassword);
       });
-    } catch (error) {
-      console.error('[AUTH] Unexpected error in admin login:', error);
-      res.status(500).json({ message: 'حدث خطأ غير متوقع أثناء تسجيل الدخول' });
-    }
+    })(req, res, next);
   });
 
   // Guest Login - create temporary user account
   app.post('/api/guest/login', async (req, res) => {
-    console.log('[AUTH] Guest login attempt');
-    
     try {
       // إنشاء اسم مستخدم فريد للزائر
       const guestUsername = `guest_${Date.now()}`;
       const guestPassword = `guest_${randomBytes(16).toString('hex')}`;
-      console.log(`[AUTH] Created guest account: ${guestUsername}`);
       
       // تشفير كلمة المرور
       const hashedPassword = await hashPassword(guestPassword);
@@ -345,23 +223,19 @@ export function setupAuth(app: Express): { isAuthenticated: (req: Request, res: 
       
       // إنشاء حساب زائر مؤقت
       const guestUser = await storage.createUser(newUser);
-      console.log(`[AUTH] Guest user created in database with ID: ${guestUser.id}`);
       
       // تسجيل دخول الزائر
       req.login(guestUser, (err: Error | null) => {
         if (err) {
-          console.error('[AUTH] Guest login session error:', err);
           return res.status(500).json({ message: 'حدث خطأ أثناء تسجيل الدخول كزائر' });
         }
-        
-        console.log(`[AUTH] Guest login complete - session established for ${guestUser.username}`);
         
         // إرجاع بيانات الزائر بدون كلمة المرور
         const { password, ...userWithoutPassword } = guestUser;
         res.json(userWithoutPassword);
       });
     } catch (error) {
-      console.error('[AUTH] Error creating guest account:', error);
+      console.error('Error creating guest account:', error);
       res.status(500).json({ message: 'حدث خطأ أثناء إنشاء حساب زائر' });
     }
   });
@@ -369,38 +243,19 @@ export function setupAuth(app: Express): { isAuthenticated: (req: Request, res: 
   // Logout
   app.post('/api/logout', (req, res) => {
     const user = req.user;
-    if (user) {
-      console.log(`[AUTH] Logout request for user: ${(user as User).username}`);
-    } else {
-      console.log('[AUTH] Logout request for non-authenticated session');
-    }
-    
     req.logout((err) => {
       if (err) {
-        console.error('[AUTH] Logout error:', err);
         return res.status(500).json({ message: 'حدث خطأ أثناء تسجيل الخروج' });
       }
-      console.log('[AUTH] Logout successful - session terminated');
-      req.session.destroy((sessionErr) => {
-        if (sessionErr) {
-          console.error('[AUTH] Session destruction error:', sessionErr);
-        }
-        res.json({ message: 'تم تسجيل الخروج بنجاح' });
-      });
+      res.json({ message: 'تم تسجيل الخروج بنجاح' });
     });
   });
 
   // Get current user info
   app.get('/api/user', (req, res) => {
-    console.log(`[AUTH] User info request - is authenticated: ${req.isAuthenticated()}`);
-    console.log(`[AUTH] Session ID: ${req.sessionID || 'none'}`);
-    
-    if (!req.isAuthenticated() || !req.user) {
-      console.log('[AUTH] User not authenticated for /api/user request');
+    if (!req.user) {
       return res.status(401).json({ message: 'المستخدم غير مسجل الدخول' });
     }
-    
-    console.log(`[AUTH] Returning user data for: ${(req.user as User).username}`);
     
     // إرجاع بيانات المستخدم بدون كلمة المرور
     const { password, ...userWithoutPassword } = req.user as User;

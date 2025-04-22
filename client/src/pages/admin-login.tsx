@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/use-auth";
-import { useLocation } from "wouter";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,19 +11,87 @@ import { Shield, Loader2, Sparkles } from "lucide-react";
 export default function AdminLoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const { adminLogin, user } = useAuth();
-  const [, setLocation] = useLocation();
-
-  // التحقق إذا كان المستخدم مسجل الدخول بالفعل كمشرف
-  useEffect(() => {
-    if (user && user.isAdmin) {
-      setLocation("/admin-dashboard");
+  
+  const adminLoginMutation = useMutation({
+    mutationFn: async () => {
+      console.log("Attempting admin login with:", { username, password: "***" });
+      
+      const res = await apiRequest("POST", "/api/admin/login", {
+        username,
+        password
+      });
+      
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "فشل تسجيل الدخول كمشرف");
+      }
+      
+      const userData = await res.json();
+      console.log("Admin login successful, received data:", userData);
+      
+      // تأكد من أن حقل المشرف معين بشكل صريح
+      if (userData.isAdmin !== true) {
+        console.error("Error: Admin API returned user without isAdmin flag!");
+        throw new Error("بيانات المشرف غير صالحة، يرجى الاتصال بالدعم الفني");
+      }
+      
+      return userData;
+    },
+    onSuccess: (data) => {
+      // تأكد من تخزين البيانات مع حقل isAdmin=true بشكل صريح
+      const adminData = {
+        ...data,
+        isAdmin: true
+      };
+      
+      console.log("Storing admin data in localStorage:", adminData);
+      
+      // حفظ بيانات المشرف في localStorage
+      localStorage.setItem("user", JSON.stringify(adminData));
+      
+      // تحديث حالة المستخدم في React Query
+      queryClient.setQueryData(["/api/user"], adminData);
+      
+      // إرسال إشعار تسجيل دخول للديسكورد (بدون انتظار النتيجة لتسريع العملية)
+      try {
+        fetch('/api/login/notify', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            username: adminData.username,
+            loginMethod: 'admin',
+            userAgent: navigator.userAgent,
+            isAdmin: true
+          }),
+        }).catch(err => console.error("فشل إرسال إشعار تسجيل الدخول:", err));
+      } catch (notifyError) {
+        console.error("خطأ عند إعداد إشعار تسجيل الدخول:", notifyError);
+      }
+      
+      toast({
+        title: "تم تسجيل الدخول بنجاح",
+        description: "مرحباً بك في لوحة تحكم المشرفين",
+        variant: "default"
+      });
+      
+      // يجب إعادة تحميل الصفحة بالكامل لضمان تحديث حالة المصادقة
+      setTimeout(() => {
+        window.location.href = "/admin-dashboard";
+      }, 1000);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "فشل تسجيل الدخول",
+        description: error.message || "يرجى التحقق من اسم المستخدم وكلمة المرور",
+        variant: "destructive"
+      });
     }
-  }, [user, setLocation]);
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!username.trim() || !password.trim()) {
@@ -35,20 +103,7 @@ export default function AdminLoginPage() {
       return;
     }
     
-    try {
-      setIsLoading(true);
-      
-      // استخدام وظيفة تسجيل دخول المشرف من سياق المصادقة
-      await adminLogin({ username, password });
-      
-      // مع استخدام useAuth، سيتم الانتقال تلقائيًا عند التحقق من المستخدم
-      // في useEffect أعلاه
-    } catch (error: any) {
-      console.error("Error in admin login:", error);
-      // سيتم عرض رسالة الخطأ من خلال adminLogin
-    } finally {
-      setIsLoading(false);
-    }
+    adminLoginMutation.mutate();
   };
 
   return (
@@ -95,9 +150,9 @@ export default function AdminLoginPage() {
                   <Button 
                     type="submit" 
                     className="w-full bg-amber-500 hover:bg-amber-600"
-                    disabled={isLoading}
+                    disabled={adminLoginMutation.isPending}
                   >
-                    {isLoading ? (
+                    {adminLoginMutation.isPending ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         جاري تسجيل الدخول...
