@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- لون خلفية شاشة البداية - نفس لون الخلفية الرئيسية للتطبيق -->
+    <item android:drawable="@color/colorPrimary" />
+    
+    <!-- شعار التطبيق في المنتصف -->
+    <item
+        android:width="200dp"
+        android:height="200dp"
+        android:drawable="@drawable/splash_logo"
+        android:gravity="center" />
+</layer-list>
