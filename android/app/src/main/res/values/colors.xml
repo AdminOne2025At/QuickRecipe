@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- الألوان الرئيسية للتطبيق - نفس ألوان موقع الويب -->
+    <color name="colorPrimary">#B84414</color>
+    <color name="colorPrimaryDark">#963000</color>
+    <color name="colorAccent">#FF7B54</color>
+    <color name="colorSecondary">#2A9D8F</color>
+    <color name="colorBackground">#F9F7F2</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+</resources>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">كويك ريسب</string>
+    <string name="title_activity_main">كويك ريسب</string>
+    <string name="offline_message">تعذر الاتصال بالإنترنت</string>
+    <string name="check_connection">يرجى التحقق من اتصالك والمحاولة مرة أخرى</string>
+    <string name="retry_button">إعادة المحاولة</string>
+    <string name="splash_welcome">أهلاً بك في كويك ريسب!</string>
+    <string name="loading">جاري التحميل...</string>
+</resources>

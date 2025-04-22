@@ -101,41 +101,62 @@ export function SimpleHeader() {
             </Link>
           )}
           
-          {!isLoading && !currentUser ? (
+          {!isLoading ? (
             <div className="flex items-center gap-2">
-              <Link href="/admin-login">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="gap-2 text-amber-700 hover:text-amber-800 hover:bg-amber-50"
-                >
-                  <Shield className="h-4 w-4" />
-                  <span>المشرفين</span>
-                </Button>
-              </Link>
-              <Link href="/auth">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="gap-2"
-                >
-                  <LogIn className="h-4 w-4" />
-                  <span>تسجيل الدخول</span>
-                </Button>
-              </Link>
+              {/* زر مدخل المشرفين أو لوحة المشرفين - يتغير حسب حالة المستخدم */}
+              {currentUser?.isAdmin ? (
+                <Link href="/admin-dashboard">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="gap-2 bg-amber-100 text-amber-800 hover:bg-amber-200"
+                  >
+                    <Shield className="h-4 w-4" />
+                    <span>لوحة المشرفين</span>
+                  </Button>
+                </Link>
+              ) : (
+                <Link href="/admin-login">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="gap-2 text-amber-700 hover:text-amber-800 hover:bg-amber-50"
+                  >
+                    <Shield className="h-4 w-4" />
+                    <span>مدخل المشرفين</span>
+                  </Button>
+                </Link>
+              )}
+              
+              {/* إظهار زر تسجيل الدخول فقط إذا لم يكن المستخدم مسجل (سواء عادي أو مشرف) */}
+              {!currentUser && (
+                <Link href="/auth">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="gap-2"
+                  >
+                    <LogIn className="h-4 w-4" />
+                    <span>تسجيل الدخول</span>
+                  </Button>
+                </Link>
+              )}
+              
+              {/* إظهار زر الملف الشخصي فقط إذا كان المستخدم مسجل */}
+              {currentUser && (
+                <Link href="/profile">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="gap-2"
+                  >
+                    <User className="h-4 w-4" />
+                    <span>الملف الشخصي</span>
+                  </Button>
+                </Link>
+              )}
             </div>
-          ) : (
-            <Link href="/profile">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="gap-2"
-              >
-                <User className="h-4 w-4" />
-                <span>الملف الشخصي</span>
-              </Button>
-            </Link>
-          )}
+          ) : null}
         </div>
       </div>
       
@@ -152,8 +173,8 @@ export function SimpleHeader() {
               </span>
             </Link>
             
-            {/* زر لوحة المشرفين للهواتف */}
-            {isAdmin && (
+            {/* زر لوحة المشرفين للهواتف - فقط للمشرفين المسجلين */}
+            {!isLoading && currentUser?.isAdmin && (
               <Link href="/admin-dashboard">
                 <span className="block py-2 px-3 bg-amber-100 hover:bg-amber-200 rounded-md text-amber-900 font-bold flex items-center gap-2">
                   <Shield className="h-4 w-4" />
@@ -162,6 +183,7 @@ export function SimpleHeader() {
               </Link>
             )}
 
+            {/* زر الوصفات المحفوظة للمستخدمين المسجلين */}
             {!isLoading && currentUser && (
               <Link href="/saved-recipes">
                 <span className="block py-2 px-3 hover:bg-gray-100 rounded-md text-orange-700 flex items-center gap-2">
@@ -171,23 +193,33 @@ export function SimpleHeader() {
               </Link>
             )}
             
-            {!isLoading && !currentUser ? (
+            {!isLoading ? (
               <>
-                <Link href="/admin-login">
-                  <span className="block py-2 px-3 hover:bg-amber-100 rounded-md text-amber-700 flex items-center gap-2">
-                    <Shield className="h-4 w-4" />
-                    دخول المشرفين
-                  </span>
-                </Link>
-                <Link href="/auth">
-                  <span className="block py-2 px-3 hover:bg-gray-100 rounded-md">تسجيل الدخول</span>
-                </Link>
+                {/* مدخل المشرفين - فقط للزوار أو المستخدمين العاديين (غير المشرفين) */}
+                {!currentUser?.isAdmin && (
+                  <Link href="/admin-login">
+                    <span className="block py-2 px-3 hover:bg-amber-100 rounded-md text-amber-700 flex items-center gap-2">
+                      <Shield className="h-4 w-4" />
+                      مدخل المشرفين
+                    </span>
+                  </Link>
+                )}
+                
+                {/* تسجيل الدخول - فقط للزوار (غير المسجلين) */}
+                {!currentUser && (
+                  <Link href="/auth">
+                    <span className="block py-2 px-3 hover:bg-gray-100 rounded-md">تسجيل الدخول</span>
+                  </Link>
+                )}
+                
+                {/* الملف الشخصي - فقط للمستخدمين المسجلين */}
+                {currentUser && (
+                  <Link href="/profile">
+                    <span className="block py-2 px-3 hover:bg-gray-100 rounded-md">الملف الشخصي</span>
+                  </Link>
+                )}
               </>
-            ) : (
-              <Link href="/profile">
-                <span className="block py-2 px-3 hover:bg-gray-100 rounded-md">الملف الشخصي</span>
-              </Link>
-            )}
+            ) : null}
           </nav>
         </div>
       )}

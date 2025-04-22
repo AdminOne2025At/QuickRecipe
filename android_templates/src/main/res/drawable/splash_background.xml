@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- لون الخلفية -->
+    <item android:drawable="@color/colorBackground" />
+
+    <!-- شعار التطبيق (الدب) في المنتصف -->
+    <item>
+        <bitmap
+            android:gravity="center"
+            android:src="@drawable/bear" />
+    </item>
+
+    <!-- اسم التطبيق (مع صورة الدب المصغرة) تحت الشعار -->
+    <item android:bottom="150dp">
+        <bitmap
+            android:gravity="bottom|center_horizontal"
+            android:src="@drawable/app_name_logo" />
+    </item>
+</layer-list>
