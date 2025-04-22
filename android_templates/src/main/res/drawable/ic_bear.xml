@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="512"
+    android:viewportHeight="512">
+    
+    <!-- رأس الدب -->
+    <path
+        android:fillColor="#8B4513"
+        android:pathData="M256,100 C180,100 120,180 120,260 C120,360 180,420 256,420 C332,420 392,360 392,260 C392,180 332,100 256,100 Z" />
+    
+    <!-- آذان الدب -->
+    <path
+        android:fillColor="#8B4513"
+        android:pathData="M145,125 C125,95 100,95 90,110 C80,130 95,160 120,155 C130,153 140,135 145,125 Z" />
+    <path
+        android:fillColor="#8B4513"
+        android:pathData="M367,125 C387,95 412,95 422,110 C432,130 417,160 392,155 C382,153 372,135 367,125 Z" />
+    
+    <!-- وجه الدب -->
+    <path
+        android:fillColor="#D2B48C"
+        android:pathData="M256,180 C200,180 160,220 160,280 C160,340 200,380 256,380 C312,380 352,340 352,280 C352,220 312,180 256,180 Z" />
+    
+    <!-- عيون الدب -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M210,245 C198,245 190,260 190,270 C190,280 198,295 210,295 C222,295 230,280 230,270 C230,260 222,245 210,245 Z" />
+    <path
+        android:fillColor="#000000"
+        android:pathData="M302,245 C290,245 282,260 282,270 C282,280 290,295 302,295 C314,295 322,280 322,270 C322,260 314,245 302,245 Z" />
+    
+    <!-- أنف الدب -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M256,290 C243,290 230,300 230,310 C230,320 243,340 256,340 C269,340 282,320 282,310 C282,300 269,290 256,290 Z" />
+    
+    <!-- فم الدب -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M256,340 C230,340 210,330 210,330 L200,350 C200,350 230,365 256,365 C282,365 312,350 312,350 L302,330 C302,330 282,340 256,340 Z" />
+</vector>
