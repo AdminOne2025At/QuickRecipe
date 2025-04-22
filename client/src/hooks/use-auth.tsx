@@ -39,14 +39,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const parsedUser = JSON.parse(storedUser);
         console.log("User loaded from localStorage:", parsedUser);
         
-        // تصحيح معرّف المشرف 9999 إلى 5 (إذا كان هذا مشرف)
-        if (parsedUser.isAdmin === true && parsedUser.id === 9999) {
-          console.log("Converting admin ID from 9999 to 5 for compatibility");
-          parsedUser.id = 5;
+        // تصحيح معرّف المشرف 9999 أو 5 إلى 1 (إذا كان هذا مشرف)
+        if (parsedUser.isAdmin === true && (parsedUser.id === 9999 || parsedUser.id === 5)) {
+          console.log("Converting admin ID to 1 for compatibility");
+          parsedUser.id = 1;
           // تحديث localStorage للمستقبل
           localStorage.setItem("user", JSON.stringify({
             ...parsedUser,
-            id: 5
+            id: 1
           }));
         }
         

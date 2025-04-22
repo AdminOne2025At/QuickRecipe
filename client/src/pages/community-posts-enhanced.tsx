@@ -246,10 +246,10 @@ export default function CommunityPosts() {
       ? `${nameParts[0][0]}${nameParts[1][0]}` 
       : userName.substring(0, 2);
 
-    // التحقق من كون المستخدم مشرفًا (معرف المستخدم = 5 أو إذا كان المنشور موثقًا)
+    // التحقق من كون المستخدم مشرفًا (معرف المستخدم = 1 أو إذا كان المنشور موثقًا)
     // check if dbPost.isVerified is true or if user is admin ID
     console.log("Post verification status:", dbPost.id, dbPost.isVerified);
-    const isAdmin = dbPost.userId === 5 || dbPost.isVerified === true;
+    const isAdmin = dbPost.userId === 1 || dbPost.isVerified === true;
     
     // معالجة تاريخ الإنشاء
     const createdAt = new Date(dbPost.createdAt);
@@ -329,8 +329,8 @@ export default function CommunityPosts() {
       tagsList.push(isArabic ? "وصفة" : "recipe");
     }
     
-    // التحقق من كون المستخدم هو المشرف (في هذه الحالة نستخدم userId = 5)
-    const isAdminUser = user?.isAdmin || currentUserId === 5;
+    // التحقق من كون المستخدم هو المشرف (في هذه الحالة نستخدم userId = 1)
+    const isAdminUser = user?.isAdmin || currentUserId === 1;
     
     // صورة نجمة المشرفين
     const adminStarAvatar = "https://cdn-icons-png.flaticon.com/512/1177/1177428.png";

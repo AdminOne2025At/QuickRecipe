@@ -859,7 +859,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // تحقق مما إذا كان المستخدم مشرفًا أو مرسل من معرف المشرف
-      const isAdmin = user.isAdmin || postData.userId === 5 || Boolean(postData.isVerified);
+      const isAdmin = user.isAdmin || postData.userId === 1 || Boolean(postData.isVerified);
       
       let safeContent = postData.content;
       
@@ -924,7 +924,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // تحقق مما إذا كان المستخدم الذي يقوم بالتعديل مشرفًا أو من معرف المشرف
       const user = await storage.getUser(existingPost.userId);
-      const isAdmin = (user && user.isAdmin) || existingPost.userId === 5 || Boolean(existingPost.isVerified);
+      const isAdmin = (user && user.isAdmin) || existingPost.userId === 1 || Boolean(existingPost.isVerified);
       
       const updateData = insertCommunityPostSchema.partial().parse(req.body);
       
