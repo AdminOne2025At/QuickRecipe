@@ -8,6 +8,7 @@ import connectPg from 'connect-pg-simple';
 import { storage } from './storage';
 import { pool } from './db';
 import { User, insertUserSchema } from '@shared/schema';
+import { sendLoginNotificationToDiscord } from './services/discord-notifications';
 
 // تهيئة مخزن جلسات PostgreSQL
 const PostgresStore = connectPg(session);
@@ -215,42 +216,101 @@ export function setupAuth(app: Express): { isAuthenticated: (req: Request, res: 
     })(req, res, next);
   });
 
-  // Admin Login - same endpoint with different credentials
-  app.post('/api/admin/login', (req, res, next) => {
-    console.log(`[AUTH] Admin login attempt for username: ${req.body.username || 'unknown'}`);
-    
-    passport.authenticate('local', (err: Error | null, user: User | false, info: { message?: string } | undefined) => {
-      if (err) {
-        console.error('[AUTH] Admin login error:', err);
-        return next(err);
-      }
+  // Admin Login - مسار تسجيل دخول المشرفين (معدل مع إصلاحات)
+  app.post('/api/admin/login', async (req, res, next) => {
+    try {
+      const { username, password } = req.body;
+      console.log(`[AUTH] Admin login attempt for username: ${username || 'unknown'}`);
       
-      // التحقق إذا كان المستخدم موجود ومسؤول
+      // البحث عن المستخدم من خلال اسم المستخدم
+      const user = await storage.getUserByUsername(username);
+      
+      // التحقق من وجود المستخدم
       if (!user) {
-        console.log(`[AUTH] Admin login failed - user not found: ${req.body.username}`);
+        console.log(`[AUTH] Admin login failed - user not found: ${username}`);
         return res.status(401).json({ message: 'بيانات اعتماد غير صحيحة للمشرف' });
       }
       
+      // التحقق من صلاحيات المشرف
       if (!user.isAdmin) {
         console.log(`[AUTH] Admin login failed - user not admin: ${user.username}`);
         return res.status(401).json({ message: 'حساب المستخدم غير مصرح له بصلاحيات المشرف' });
       }
       
+      // التحقق من كلمة المرور
+      let passwordValid = false;
+      
+      try {
+        // محاولة التحقق باستخدام وظيفة مقارنة كلمات المرور المشفرة
+        passwordValid = await comparePasswords(password, user.password);
+      } catch (pwdError) {
+        console.warn("[AUTH] Error comparing hashed password (trying direct match):", pwdError);
+        
+        // حل بديل - إذا كانت كلمة المرور غير مشفرة (مشكلة معروفة في البيانات القديمة)
+        if (password === user.password) {
+          console.log("[AUTH] Admin login - matched with direct password (not hashed)");
+          passwordValid = true;
+          
+          // تحديث كلمة المرور لاستخدام التشفير في المستقبل
+          try {
+            const hashedPassword = await hashPassword(password);
+            await storage.updateUser(user.id, { password: hashedPassword });
+            console.log(`[AUTH] Updated admin password to hashed version for: ${user.username}`);
+          } catch (updateError) {
+            console.error("[AUTH] Failed to update password hash:", updateError);
+            // نستمر بالرغم من الخطأ
+          }
+        } else {
+          console.log(`[AUTH] Admin login failed - invalid password for user: ${user.username}`);
+          return res.status(401).json({ message: 'بيانات اعتماد غير صحيحة للمشرف' });
+        }
+      }
+      
+      // التحقق من صحة كلمة المرور (إما من خلال المقارنة المشفرة أو المطابقة المباشرة)
+      if (!passwordValid) {
+        console.log(`[AUTH] Admin login failed - invalid password for user: ${user.username}`);
+        return res.status(401).json({ message: 'بيانات اعتماد غير صحيحة للمشرف' });
+      }
+      
       console.log(`[AUTH] Admin authenticated successfully: ${user.username} (id: ${user.id})`);
       
-      req.login(user, (err: Error | null) => {
-        if (err) {
-          console.error('[AUTH] Admin session creation error:', err);
-          return next(err);
+      // تحديث آخر تسجيل دخول
+      try {
+        await storage.updateUser(user.id, { lastLogin: new Date() });
+      } catch (updateError) {
+        console.warn("[AUTH] Failed to update last login time:", updateError);
+        // نستمر بالرغم من الخطأ
+      }
+      
+      // إنشاء جلسة للمستخدم
+      req.login(user, (loginErr: Error | null) => {
+        if (loginErr) {
+          console.error('[AUTH] Admin session creation error:', loginErr);
+          return next(loginErr);
         }
         
         console.log(`[AUTH] Admin login complete - session established for ${user.username}`);
+        
+        // إرسال إشعار تسجيل دخول (اختياري) - غير متزامن
+        sendLoginNotificationToDiscord({
+          username: user.username,
+          loginMethod: 'admin',
+          loginTime: new Date(),
+          userAgent: req.headers['user-agent'],
+          ipAddress: req.ip || req.socket.remoteAddress || 'غير معروف',
+          email: user.email,
+          isAdmin: true,
+          isLogout: false
+        }).catch(err => console.error("فشل إرسال إشعار:", err));
         
         // إرجاع بيانات المستخدم المسؤول بدون كلمة المرور
         const { password, ...adminWithoutPassword } = user;
         res.json(adminWithoutPassword);
       });
-    })(req, res, next);
+    } catch (error) {
+      console.error('[AUTH] Unexpected error in admin login:', error);
+      res.status(500).json({ message: 'حدث خطأ غير متوقع أثناء تسجيل الدخول' });
+    }
   });
 
   // Guest Login - create temporary user account
