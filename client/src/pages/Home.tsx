@@ -11,6 +11,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Ingredient, Recipe } from "@/lib/types";
 import { fetchRecipes, searchRecipesByName as apiSearchRecipesByName } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Home() {
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
@@ -21,12 +22,13 @@ export default function Home() {
   const [ingredientInput, setIngredientInput] = useState<string>("");
   const [recipeNameInput, setRecipeNameInput] = useState<string>("");
   const { toast } = useToast();
+  const { language, isArabic } = useLanguage();
   
-  // Set RTL direction for the document
+  // Set correct language direction for the document
   useEffect(() => {
-    document.documentElement.dir = 'rtl';
-    document.documentElement.lang = 'ar-EG';
-  }, []);
+    document.documentElement.dir = isArabic ? 'rtl' : 'ltr';
+    document.documentElement.lang = isArabic ? 'ar-EG' : 'en-US';
+  }, [isArabic]);
 
   const addIngredient = (name: string) => {
     if (!name.trim()) return;
@@ -138,8 +140,8 @@ export default function Home() {
 
   return (
     <div 
-      dir="rtl" 
-      lang="ar-EG" 
+      dir={isArabic ? "rtl" : "ltr"} 
+      lang={isArabic ? "ar-EG" : "en-US"} 
       className="min-h-screen bg-animated text-gray-800 flex flex-col"
     >
       {/* أيقونات الطعام المتحركة في الخلفية */}
@@ -159,7 +161,9 @@ export default function Home() {
           </h1>
           <div className="flex items-center gap-3">
             <span className="hidden md:inline text-sm md:text-base">
-              دوّر على أكلات من المكونات اللي عندك في البيت
+              {isArabic 
+                ? "دوّر على أكلات من المكونات اللي عندك في البيت" 
+                : "Find recipes using ingredients at home"}
             </span>
             <div className="flex items-center gap-2">
               <Button 
@@ -168,11 +172,11 @@ export default function Home() {
                 disabled={ingredients.length === 0}
                 size="sm"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg xmlns="http://www.w3.org/2000/svg" className={`h-5 w-5 ${isArabic ? 'ml-1' : 'mr-1'}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="11" cy="11" r="8" />
                   <line x1="21" y1="21" x2="16.65" y2="16.65" />
                 </svg>
-                دوّر
+                {isArabic ? "دوّر" : "Search"}
               </Button>
             </div>
           </div>
@@ -195,19 +199,21 @@ export default function Home() {
                       searchRecipesByName();
                     }
                   }}
-                  placeholder="ابحث عن وصفة بالاسم..."
-                  className="flex-grow py-2 px-3 bg-white text-right focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50"
+                  placeholder={isArabic ? "ابحث عن وصفة بالاسم..." : "Search recipes by name..."}
+                  className={`flex-grow py-2 px-3 bg-white ${isArabic ? 'text-right' : 'text-left'} focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50`}
                 />
                 <Button
                   onClick={searchRecipesByName}
                   disabled={!recipeNameInput.trim() || isLoading}
                   className="px-3 py-2 bg-primary text-white hover:bg-primary-dark transition-all duration-300"
                 >
-                  <span>🔍</span> بحث
+                  <span>🔍</span> {isArabic ? "بحث" : "Search"}
                 </Button>
               </div>
               <div className="text-center my-2">
-                <span className="text-gray-500 font-medium bg-gray-100 px-4 py-1 rounded-full text-xs">أو</span>
+                <span className="text-gray-500 font-medium bg-gray-100 px-4 py-1 rounded-full text-xs">
+                  {isArabic ? "أو" : "OR"}
+                </span>
               </div>
             </div>
           </div>
@@ -228,8 +234,8 @@ export default function Home() {
                       }
                     }
                   }}
-                  placeholder="اكتب المكون اللي عندك في البيت..."
-                  className="flex-grow py-2 px-3 bg-white text-right focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50"
+                  placeholder={isArabic ? "اكتب المكون اللي عندك في البيت..." : "Enter ingredients you have at home..."}
+                  className={`flex-grow py-2 px-3 bg-white ${isArabic ? 'text-right' : 'text-left'} focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50`}
                 />
                 <Button
                   onClick={() => {
@@ -240,7 +246,7 @@ export default function Home() {
                   }}
                   className="px-3 py-2 bg-primary text-white hover:bg-primary-dark transition-all duration-300"
                 >
-                  <span>✨</span> حطّه
+                  <span>✨</span> {isArabic ? "حطّه" : "Add"}
                 </Button>
               </div>
             </div>
