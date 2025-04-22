@@ -34,6 +34,7 @@ type DbPost = {
   userName?: string;
   userLevel?: string;
   userAvatar?: string;
+  isVerified?: boolean; // حقل علامة التوثيق للمنشورات التي نشرها المشرفون
 };
 
 // نمط البوست المستخدم في واجهة المستخدم
@@ -245,8 +246,8 @@ export default function CommunityPosts() {
       ? `${nameParts[0][0]}${nameParts[1][0]}` 
       : userName.substring(0, 2);
 
-    // التحقق من كون المستخدم مشرفًا (معرف المستخدم = 9999)
-    const isAdmin = dbPost.userId === 9999;
+    // التحقق من كون المستخدم مشرفًا (معرف المستخدم = 9999 أو إذا كان المنشور موثقًا)
+    const isAdmin = dbPost.userId === 9999 || dbPost.isVerified === true;
     
     // معالجة تاريخ الإنشاء
     const createdAt = new Date(dbPost.createdAt);
