@@ -855,35 +855,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Ensure user exists
       const user = await storage.getUser(postData.userId);
       if (!user) {
-        return res.status(404).json({ message: "User not found" });
+        return res.status(404).json({ message: "المستخدم غير موجود" });
       }
       
-      // التحقق من المحتوى للكشف عن المحتوى غير اللائق
-      const moderationResult = await moderateContent(
-        postData.content,
-        postData.title,
-        postData.imageUrl || undefined
-      );
-      
-      // إذا كان المحتوى غير مناسب، ارفض إنشاء المنشور
-      if (!moderationResult.isAppropriate) {
-        return res.status(400).json({
-          message: "محتوى غير مناسب",
-          reason: moderationResult.reason || "يحتوي المنشور على محتوى غير لائق أو مخالف للقواعد."
-        });
-      }
-      
-      // إذا كان هناك محتوى معدل (تم تنقيته)، استخدمه بدلاً من المحتوى الأصلي
-      const safeContent = moderationResult.moderatedContent || postData.content;
-      
-      // إضافة معلومات المستخدم الإضافية (الاسم والصورة) للمنشور
       // تحقق مما إذا كان المستخدم مشرفًا أو مرسل من معرفات المشرفين الخاصة
       const isAdmin = user.isAdmin || postData.userId === 5 || postData.userId === 9999 || Boolean(postData.isVerified);
       
+      let safeContent = postData.content;
+      
+      // التحقق من المحتوى للكشف عن المحتوى غير اللائق - فقط للمستخدمين العاديين
+      if (!isAdmin) {
+        const moderationResult = await moderateContent(
+          postData.content,
+          postData.title,
+          postData.imageUrl || undefined
+        );
+        
+        // إذا كان المحتوى غير مناسب، ارفض إنشاء المنشور (فقط للمستخدمين العاديين)
+        if (!moderationResult.isAppropriate) {
+          return res.status(400).json({
+            message: "تعذر نشر المحتوى",
+            reason: moderationResult.reason || "يتضمن المحتوى عبارات أو صور غير مناسبة للنشر في منصة كويك ريسب"
+          });
+        }
+        
+        // إذا كان هناك محتوى معدل (تم تنقيته)، استخدمه بدلاً من المحتوى الأصلي
+        safeContent = moderationResult.moderatedContent || postData.content;
+      }
+      
+      // إضافة معلومات المستخدم الإضافية (الاسم والصورة) للمنشور
       const enrichedPostData = {
         ...postData,
-        content: safeContent, // استخدام المحتوى الآمن
-        userName: isAdmin ? "فريق كويك ريسب" : (userName || user.username || "User"),
+        content: safeContent, // استخدام المحتوى الأصلي للمشرف أو المحتوى الآمن للمستخدم العادي
+        userName: isAdmin ? "فريق كويك ريسب" : (userName || user.username || "مستخدم"),
         userAvatar: isAdmin ? "https://cdn-icons-png.flaticon.com/512/1177/1177428.png" : (userAvatar || ""),
         userLevel: isAdmin ? "Admin" : (postData.userLevel || undefined), // دائماً "Admin" للمشرفين
         isVerified: isAdmin, // إضافة علامة التوثيق للمشرفين
@@ -891,21 +895,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const post = await storage.createCommunityPost(enrichedPostData);
       
-      // إذا تم تعديل المحتوى للتنقية، أخبر المستخدم
-      if (moderationResult.moderatedContent) {
-        return res.status(201).json({
-          ...post,
-          message: "تم نشر المحتوى بعد التعديل لإزالة أي محتوى غير لائق."
-        });
-      }
-      
       return res.status(201).json(post);
     } catch (error) {
       console.error("Error creating post:", error);
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ errors: error.errors });
+        return res.status(400).json({ 
+          message: "خطأ في بيانات المنشور", 
+          errors: error.errors 
+        });
       }
-      return res.status(500).json({ message: "Failed to create post" });
+      return res.status(500).json({ message: "تعذر إنشاء المنشور، الرجاء المحاولة مرة أخرى" });
     }
   });
 
@@ -914,19 +913,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
-        return res.status(400).json({ message: "Invalid post ID" });
+        return res.status(400).json({ message: "معرف المنشور غير صالح" });
       }
       
-      // Verify the post exists
+      // التحقق من وجود المنشور
       const existingPost = await storage.getCommunityPost(id);
       if (!existingPost) {
-        return res.status(404).json({ message: "Post not found" });
+        return res.status(404).json({ message: "المنشور غير موجود" });
       }
-      
-      // Verify the user owns the post (in a real app)
-      // if (existingPost.userId !== req.user.id) {
-      //  return res.status(403).json({ message: "Not authorized to update this post" });
-      // }
       
       // تحقق مما إذا كان المستخدم الذي يقوم بالتعديل مشرفًا أو من معرفات المشرفين
       const user = await storage.getUser(existingPost.userId);
@@ -938,19 +932,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       updateData.isVerified = isAdmin;
       updateData.userLevel = isAdmin ? "Admin" : updateData.userLevel;
       
-      // التحقق من المحتوى إذا تم تحديثه
-      if (updateData.content || updateData.title || updateData.imageUrl) {
+      // التحقق من المحتوى إذا تم تحديثه - فقط للمستخدمين العاديين
+      if (!isAdmin && (updateData.content || updateData.title || updateData.imageUrl)) {
         const moderationResult = await moderateContent(
           updateData.content || existingPost.content,
           updateData.title || existingPost.title,
           (updateData.imageUrl || existingPost.imageUrl || undefined)
         );
         
-        // إذا كان المحتوى غير مناسب، ارفض التحديث
+        // إذا كان المحتوى غير مناسب، ارفض التحديث (فقط للمستخدمين العاديين)
         if (!moderationResult.isAppropriate) {
           return res.status(400).json({
-            message: "محتوى غير مناسب",
-            reason: moderationResult.reason || "يحتوي التحديث على محتوى غير لائق أو مخالف للقواعد."
+            message: "تعذر تحديث المنشور",
+            reason: moderationResult.reason || "يتضمن التحديث عبارات أو صور غير مناسبة للنشر في منصة كويك ريسب"
           });
         }
         
@@ -966,9 +960,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating post:", error);
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ errors: error.errors });
+        return res.status(400).json({ 
+          message: "خطأ في بيانات تحديث المنشور", 
+          errors: error.errors 
+        });
       }
-      return res.status(500).json({ message: "Failed to update post" });
+      return res.status(500).json({ message: "تعذر تحديث المنشور، الرجاء المحاولة مرة أخرى" });
     }
   });
 
