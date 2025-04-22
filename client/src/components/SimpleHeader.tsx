@@ -3,17 +3,20 @@ import { Button } from "@/components/ui/button";
 import { BookmarkIcon, LogIn, User as UserIcon, Menu, X, Shield } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
+import { useLanguage } from "@/contexts/LanguageContext";
+import LanguageToggleButton from "./LanguageToggleButton";
 
 export function SimpleHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [location] = useLocation();
   const { user, isLoading } = useAuth();
+  const { isArabic } = useLanguage();
   
   // التحقق ما إذا كان المستخدم مشرفًا بشكل صريح
   const isAdmin = user?.isAdmin === true;
   
   // تسجيل للتشخيص
-  console.log("SimpleHeader - User Info:", { user, isAdmin });
+  console.log("SimpleHeader - User Info:", { user, isAdmin, isArabic });
   
   // إغلاق القائمة الجانبية عند تغيير الصفحة
   useEffect(() => {
