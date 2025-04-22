@@ -16,27 +16,6 @@ export function SimpleHeader() {
   // التحقق ما إذا كان المستخدم مشرفًا
   const isAdmin = user?.isAdmin === true;
   
-  // استعادة بيانات المشرف من التخزين المحلي/جلسة كنسخة احتياطية
-  useEffect(() => {
-    if (!isAdmin) {
-      try {
-        // التحقق من sessionStorage أولاً
-        const isAdminLoggedIn = sessionStorage.getItem("adminLoggedIn");
-        const storedUser = sessionStorage.getItem("user");
-        
-        if (isAdminLoggedIn === "true" && storedUser) {
-          const parsedUser = JSON.parse(storedUser);
-          if (parsedUser.isAdmin) {
-            console.log("Admin found in sessionStorage, updating...");
-            // يمكننا أيضاً تحديث حالة isAdmin هنا ولكن هذه متغيرات لن تتغير أثناء دورة الحياة
-          }
-        }
-      } catch (error) {
-        console.error("Error checking admin session:", error);
-      }
-    }
-  }, [isAdmin]);
-  
   // debug
   console.log("SimpleHeader - User Info:", { user, isAdmin });
   
@@ -122,51 +101,41 @@ export function SimpleHeader() {
             </Link>
           )}
           
-          {!isLoading ? (
+          {!isLoading && !currentUser ? (
             <div className="flex items-center gap-2">
-              {/* زر مدخل المشرفين - يظهر فقط إذا لم يكن المستخدم مشرفًا */}
-              {!isAdmin && (
-                <Link href="/admin-login">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="gap-2 text-amber-700 hover:text-amber-800 hover:bg-amber-50"
-                  >
-                    <Shield className="h-4 w-4" />
-                    <span>مدخل المشرفين</span>
-                  </Button>
-                </Link>
-              )}
-              
-              {/* إظهار زر تسجيل الدخول فقط إذا لم يكن المستخدم مسجل (سواء عادي أو مشرف) */}
-              {!currentUser && (
-                <Link href="/auth">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="gap-2"
-                  >
-                    <LogIn className="h-4 w-4" />
-                    <span>تسجيل الدخول</span>
-                  </Button>
-                </Link>
-              )}
-              
-              {/* إظهار زر الملف الشخصي فقط إذا كان المستخدم مسجل */}
-              {currentUser && (
-                <Link href="/profile">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="gap-2"
-                  >
-                    <User className="h-4 w-4" />
-                    <span>الملف الشخصي</span>
-                  </Button>
-                </Link>
-              )}
+              <Link href="/admin-login">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="gap-2 text-amber-700 hover:text-amber-800 hover:bg-amber-50"
+                >
+                  <Shield className="h-4 w-4" />
+                  <span>المشرفين</span>
+                </Button>
+              </Link>
+              <Link href="/auth">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="gap-2"
+                >
+                  <LogIn className="h-4 w-4" />
+                  <span>تسجيل الدخول</span>
+                </Button>
+              </Link>
             </div>
-          ) : null}
+          ) : (
+            <Link href="/profile">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="gap-2"
+              >
+                <User className="h-4 w-4" />
+                <span>الملف الشخصي</span>
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
       
@@ -183,7 +152,7 @@ export function SimpleHeader() {
               </span>
             </Link>
             
-            {/* زر لوحة المشرفين للهواتف - يظهر فقط للمشرفين */}
+            {/* زر لوحة المشرفين للهواتف */}
             {isAdmin && (
               <Link href="/admin-dashboard">
                 <span className="block py-2 px-3 bg-amber-100 hover:bg-amber-200 rounded-md text-amber-900 font-bold flex items-center gap-2">
@@ -193,7 +162,6 @@ export function SimpleHeader() {
               </Link>
             )}
 
-            {/* زر الوصفات المحفوظة للمستخدمين المسجلين */}
             {!isLoading && currentUser && (
               <Link href="/saved-recipes">
                 <span className="block py-2 px-3 hover:bg-gray-100 rounded-md text-orange-700 flex items-center gap-2">
@@ -203,33 +171,23 @@ export function SimpleHeader() {
               </Link>
             )}
             
-            {!isLoading ? (
+            {!isLoading && !currentUser ? (
               <>
-                {/* مدخل المشرفين - يظهر فقط إذا لم يكن مشرفًا بالفعل */}
-                {!isAdmin && (
-                  <Link href="/admin-login">
-                    <span className="block py-2 px-3 hover:bg-amber-100 rounded-md text-amber-700 flex items-center gap-2">
-                      <Shield className="h-4 w-4" />
-                      مدخل المشرفين
-                    </span>
-                  </Link>
-                )}
-                
-                {/* تسجيل الدخول - فقط للزوار (غير المسجلين) */}
-                {!currentUser && (
-                  <Link href="/auth">
-                    <span className="block py-2 px-3 hover:bg-gray-100 rounded-md">تسجيل الدخول</span>
-                  </Link>
-                )}
-                
-                {/* الملف الشخصي - فقط للمستخدمين المسجلين */}
-                {currentUser && (
-                  <Link href="/profile">
-                    <span className="block py-2 px-3 hover:bg-gray-100 rounded-md">الملف الشخصي</span>
-                  </Link>
-                )}
+                <Link href="/admin-login">
+                  <span className="block py-2 px-3 hover:bg-amber-100 rounded-md text-amber-700 flex items-center gap-2">
+                    <Shield className="h-4 w-4" />
+                    دخول المشرفين
+                  </span>
+                </Link>
+                <Link href="/auth">
+                  <span className="block py-2 px-3 hover:bg-gray-100 rounded-md">تسجيل الدخول</span>
+                </Link>
               </>
-            ) : null}
+            ) : (
+              <Link href="/profile">
+                <span className="block py-2 px-3 hover:bg-gray-100 rounded-md">الملف الشخصي</span>
+              </Link>
+            )}
           </nav>
         </div>
       )}

@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Shield, Users, FileText, AlertTriangle, Trash2, Settings, ExternalLink, RefreshCw, BarChart4, Save, Eye, Flag, X, AlertCircle, Loader2, ArrowRight } from "lucide-react";
+import { Shield, Users, FileText, AlertTriangle, Trash2, Settings, ExternalLink, RefreshCw, BarChart4, Save, Eye, Flag, X, AlertCircle, Loader2 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -220,71 +220,27 @@ export default function AdminDashboard() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("overview");
-  const [adminData, setAdminData] = useState<any>(null);
   
-  // التحقق من صلاحيات المشرف من SessionStorage & LocalStorage
+  // التحقق من صلاحيات المشرف
   useEffect(() => {
     console.log("Admin Dashboard - Check Admin Access:", { user });
     
-    // محاولة استرداد بيانات المشرف من sessionStorage كخيار احتياطي
-    const checkAdminSessionStorage = () => {
-      try {
-        const isAdminLoggedIn = sessionStorage.getItem("adminLoggedIn");
-        const storedUser = sessionStorage.getItem("user");
-        
-        if (isAdminLoggedIn === "true" && storedUser) {
-          const parsedUser = JSON.parse(storedUser);
-          if (parsedUser.isAdmin) {
-            console.log("Admin session found in sessionStorage:", parsedUser);
-            setAdminData(parsedUser);
-            return true;
-          }
-        }
-        
-        // محاولة من localStorage
-        const localStorageUser = localStorage.getItem("user");
-        if (localStorageUser) {
-          const parsedLocalUser = JSON.parse(localStorageUser);
-          if (parsedLocalUser.isAdmin) {
-            console.log("Admin session found in localStorage:", parsedLocalUser);
-            setAdminData(parsedLocalUser);
-            return true;
-          }
-        }
-        
-        return false;
-      } catch (error) {
-        console.error("Error checking admin session:", error);
-        return false;
-      }
-    };
-    
     if (!user) {
-      console.log("No user found in auth context, checking sessionStorage...");
-      const hasAdminSession = checkAdminSessionStorage();
-      
-      if (!hasAdminSession) {
-        console.log("No admin session found anywhere, redirecting...");
-        setLocation("/");
-        toast({
-          title: "وصول مرفوض",
-          description: "يجب تسجيل الدخول للوصول إلى هذه الصفحة",
-          variant: "destructive",
-        });
-      }
+      console.log("No user found, redirecting...");
+      setLocation("/");
+      toast({
+        title: "وصول مرفوض",
+        description: "يجب تسجيل الدخول للوصول إلى هذه الصفحة",
+        variant: "destructive",
+      });
     } else if (!user.isAdmin) {
-      console.log("User is not admin in auth context, checking sessionStorage...");
-      const hasAdminSession = checkAdminSessionStorage();
-      
-      if (!hasAdminSession) {
-        console.log("No admin privileges found anywhere, redirecting...");
-        setLocation("/");
-        toast({
-          title: "وصول مرفوض",
-          description: "هذه الصفحة مخصصة للمشرفين فقط",
-          variant: "destructive",
-        });
-      }
+      console.log("User is not admin, redirecting...");
+      setLocation("/");
+      toast({
+        title: "وصول مرفوض",
+        description: "هذه الصفحة مخصصة للمشرفين فقط",
+        variant: "destructive",
+      });
     } else {
       console.log("Admin access verified!");
       // إظهار رسالة ترحيب للمشرف
@@ -296,13 +252,10 @@ export default function AdminDashboard() {
     }
   }, [user, setLocation, toast]);
   
-  // تحديد حالة المشرف الفعلية (من user أو adminData)
-  const isAdminUser = !!user?.isAdmin || !!adminData;
-  
   // استعلام عن المنشورات
   const { data: recentPosts = [], isLoading: isLoadingPosts } = useQuery<any[]>({
     queryKey: ['/api/community-posts/recent'],
-    enabled: isAdminUser
+    enabled: !!user?.isAdmin
   });
   
   // استعلام وهمي عن المستخدمين (سيتم تنفيذه لاحقًا)
@@ -326,7 +279,7 @@ export default function AdminDashboard() {
       }
       return res.json();
     },
-    enabled: isAdminUser,
+    enabled: !!user?.isAdmin,
     refetchOnWindowFocus: false
   });
   
@@ -337,99 +290,22 @@ export default function AdminDashboard() {
     resolved: reportedPosts.filter(post => post.reportCount >= 50).length
   };
   
-  // إضافة وظيفة تسجيل دخول المشرف يدوياً كإجراء بديل (ليعمل على الأجهزة النقالة)
-  const manualLoginAdmin = () => {
-    try {
-      // بيانات المشرف الافتراضية
-      const adminData = {
-        id: 9999,
-        username: "admin",
-        isAdmin: true
-      };
-      
-      // تخزين البيانات في sessionStorage و localStorage
-      sessionStorage.setItem("adminLoggedIn", "true");
-      sessionStorage.setItem("user", JSON.stringify(adminData));
-      localStorage.setItem("user", JSON.stringify(adminData));
-      
-      // تحديث حالة adminData
-      setAdminData(adminData);
-      
-      // إظهار رسالة نجاح
-      toast({
-        title: "تمكين صلاحيات المشرف",
-        description: "تم تمكين صلاحيات المشرف بشكل يدوي",
-        variant: "default"
-      });
-    } catch (error) {
-      console.error("Error manually logging in admin:", error);
-      toast({
-        title: "خطأ في تسجيل الدخول",
-        description: "فشل تسجيل الدخول اليدوي للمشرف",
-        variant: "destructive"
-      });
-    }
-  };
-  
-  // التحقق من صلاحيات المشرف قبل عرض لوحة التحكم
-  if (!user?.isAdmin && !adminData) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-amber-500 flex items-center">
-              <Shield className="h-5 w-5 mr-2" />
-              حالة المصادقة
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <p className="text-center my-4">لم يتم العثور على جلسة مشرف نشطة</p>
-              
-              <Alert className="bg-amber-50 border-amber-200 text-amber-800">
-                <AlertTriangle className="h-4 w-4" />
-                <AlertTitle>مشكلة في المصادقة</AlertTitle>
-                <AlertDescription>
-                  إذا كنت تستخدم تطبيق الجوال، قد تواجه مشكلة في حفظ جلسة المشرف. يمكنك محاولة تمكين صلاحيات المشرف يدوياً.
-                </AlertDescription>
-              </Alert>
-            </div>
-          </CardContent>
-          <CardFooter className="flex flex-col sm:flex-row gap-2 justify-center">
-            <Button 
-              variant="default"
-              className="w-full sm:w-auto bg-amber-500 hover:bg-amber-600"
-              onClick={manualLoginAdmin}
-            >
-              تمكين صلاحيات المشرف يدوياً
-            </Button>
-            <Button 
-              variant="outline" 
-              className="w-full sm:w-auto"
-              onClick={() => setLocation("/admin-login")}
-            >
-              العودة إلى صفحة تسجيل الدخول
-            </Button>
-          </CardFooter>
-        </Card>
-      </div>
-    );
+  if (!user?.isAdmin) {
+    return null;
   }
   
   return (
-    <div className="container mx-auto px-4 py-4 md:py-8 overflow-x-hidden">
-      <div className="flex flex-col sm:flex-row items-center justify-between mb-4 md:mb-8 gap-2">
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex items-center justify-between mb-8">
         <div className="flex items-center">
-          <Shield className="h-6 w-6 md:h-8 md:w-8 text-amber-500 mr-2 md:mr-3" />
-          <h1 className="text-xl md:text-3xl font-bold">لوحة تحكم المشرفين</h1>
+          <Shield className="h-8 w-8 text-amber-500 mr-3" />
+          <h1 className="text-3xl font-bold">لوحة تحكم المشرفين</h1>
         </div>
         <Button 
           onClick={() => setLocation("/")}
           variant="outline"
-          size="sm"
-          className="gap-1 w-full sm:w-auto mt-2 sm:mt-0 text-sm"
+          className="gap-2"
         >
-          <ArrowRight className="h-4 w-4" />
           العودة إلى الصفحة الرئيسية
         </Button>
       </div>

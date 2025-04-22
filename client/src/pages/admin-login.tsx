@@ -77,23 +77,10 @@ export default function AdminLoginPage() {
         variant: "default"
       });
       
-      // تخزين البيانات في sessionStorage أيضًا (لدعم أفضل على الهاتف)
-      sessionStorage.setItem("adminLoggedIn", "true");
-      sessionStorage.setItem("user", JSON.stringify(adminData));
-      
-      // حدد تأخيرًا أطول قليلاً للتأكد من حفظ البيانات
-      toast({
-        title: "جاري حفظ الجلسة...",
-        description: "يرجى الانتظار قليلاً",
-        variant: "default"
-      });
-      
       // يجب إعادة تحميل الصفحة بالكامل لضمان تحديث حالة المصادقة
       setTimeout(() => {
-        // استخدام موقع حالي بدلاً من window.location لتفادي مشاكل التنقل
-        const baseUrl = window.location.origin;
-        window.location.href = `${baseUrl}/admin-dashboard`;
-      }, 2500);
+        window.location.href = "/admin-dashboard";
+      }, 1000);
     },
     onError: (error: Error) => {
       toast({
@@ -129,7 +116,7 @@ export default function AdminLoginPage() {
               <div className="text-center mb-6">
                 <div className="flex items-center justify-center mb-2">
                   <Shield className="h-5 w-5 mr-2 text-amber-500" />
-                  <h2 className="text-2xl font-bold">مدخل المشرفين</h2>
+                  <h2 className="text-2xl font-bold">تسجيل دخول المشرفين</h2>
                 </div>
                 <p className="text-gray-500 text-sm">
                   لوحة التحكم الخاصة بالمشرفين فقط

@@ -645,21 +645,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "بيانات اعتماد غير صحيحة للمشرف" });
       }
 
+      // ملاحظة: تم نقل إرسال إشعار تسجيل الدخول إلى واجهة المستخدم
+      // سيتم إرسال الإشعار من خلال نقطة النهاية /api/login/notify بعد تسجيل الدخول بنجاح
+      // هذا يمنع إرسال إشعارات مزدوجة عند تسجيل دخول المشرف
+      
       // إرجاع بيانات المستخدم المشرف
-      // لأن req.login غير متوفر هنا، سنقوم بإرجاع البيانات مباشرة
-      // ويتم التعامل مع الجلسة في الواجهة الأمامية
-      const adminData = {
+      return res.status(200).json({
         id: 9999, // رقم تعريفي خاص بالمشرف
         username: adminCredentials.username,
         isAdmin: true
-      };
-      
-      console.log("Admin authenticated successfully");
-      
-      // ملاحظة: تم نقل إرسال إشعار تسجيل الدخول إلى واجهة المستخدم
-      // سيتم إرسال الإشعار من خلال نقطة النهاية /api/login/notify
-      
-      return res.status(200).json(adminData);
+      });
     } catch (error) {
       console.error("Admin login error:", error);
       if (error instanceof z.ZodError) {

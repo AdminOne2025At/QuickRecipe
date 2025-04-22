@@ -68,7 +68,7 @@ export default function AdminLoginForm() {
       <CardHeader className="space-y-1">
         <CardTitle className="text-2xl text-center flex items-center justify-center">
           <Shield className="h-5 w-5 mr-2 text-amber-500" />
-          مدخل المشرفين
+          تسجيل دخول المشرفين
         </CardTitle>
         <CardDescription className="text-center">
           لوحة التحكم الخاصة بالمشرفين فقط

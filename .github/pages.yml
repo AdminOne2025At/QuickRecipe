@@ -1,4 +1,0 @@
-source:
-  branch: main
-  path: /  # Use the root directory for GitHub Pages
-permalink: pretty
