@@ -55,12 +55,9 @@ check_requirements() {
     echo -e "للمتابعة:"
     echo -e "  1. تنزيل ملفات المشروع ومتابعة البناء على جهاز محلي به JDK."
     echo -e "  2. استخدام خدمة بناء سحابية مثل GitHub Actions أو Bitrise."
-    read -p "هل تريد تخطي عملية بناء APK والاكتفاء بمزامنة المشروع؟ (y/n): " SKIP_APK
-    if [[ $SKIP_APK == "y" || $SKIP_APK == "Y" ]]; then
-      SKIP_APK_BUILD=true
-    else
-      print_error "لا يمكن متابعة عملية البناء بدون Java."
-    fi
+    echo -e ""
+    echo -e "سنقوم بتخطي مرحلة بناء APK والاكتفاء بتجهيز وإعداد المشروع..."
+    SKIP_APK_BUILD=true
   fi
   
   print_success "جميع المتطلبات الأساسية متوفرة"
