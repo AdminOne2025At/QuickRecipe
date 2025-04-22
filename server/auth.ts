@@ -292,16 +292,24 @@ export function setupAuth(app: Express): { isAuthenticated: (req: Request, res: 
         console.log(`[AUTH] Admin login complete - session established for ${user.username}`);
         
         // إرسال إشعار تسجيل دخول (اختياري) - غير متزامن
-        sendLoginNotificationToDiscord({
-          username: user.username,
-          loginMethod: 'admin',
-          loginTime: new Date(),
-          userAgent: req.headers['user-agent'],
-          ipAddress: req.ip || req.socket.remoteAddress || 'غير معروف',
-          email: user.email,
-          isAdmin: true,
-          isLogout: false
-        }).catch(err => console.error("فشل إرسال إشعار:", err));
+        try {
+          // محاولة إرسال إشعار تسجيل الدخول إلى Discord
+          sendLoginNotificationToDiscord({
+            username: user.username,
+            loginMethod: 'admin',
+            loginTime: new Date(),
+            userAgent: req.headers['user-agent'] || 'غير معروف',
+            ipAddress: req.ip || req.socket.remoteAddress || 'غير معروف',
+            email: user.email || 'غير معروف',
+            isAdmin: true,
+            isLogout: false
+          }).catch(error => {
+            console.warn('[AUTH] Failed to send Discord notification:', error);
+          });
+        } catch (notifyError) {
+          // تجاهل أخطاء الإشعارات، فهي ليست حرجة لوظيفة تسجيل الدخول
+          console.warn('[AUTH] Error in notification system:', notifyError);
+        }
         
         // إرجاع بيانات المستخدم المسؤول بدون كلمة المرور
         const { password, ...adminWithoutPassword } = user;
