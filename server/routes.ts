@@ -645,34 +645,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "بيانات اعتماد غير صحيحة للمشرف" });
       }
 
-      // إنشاء بيانات المستخدم المشرف
-      const adminUser = {
+      // إرجاع بيانات المستخدم المشرف
+      // لأن req.login غير متوفر هنا، سنقوم بإرجاع البيانات مباشرة
+      // ويتم التعامل مع الجلسة في الواجهة الأمامية
+      const adminData = {
         id: 9999, // رقم تعريفي خاص بالمشرف
         username: adminCredentials.username,
-        isAdmin: true,
-        password: "hashed_password_not_needed" // لن يتم استخدامه، فقط لتوافق النوع
+        isAdmin: true
       };
       
-      // تسجيل دخول المشرف باستخدام جلسة Passport
-      req.login(adminUser, (err) => {
-        if (err) {
-          console.error("Error logging in admin:", err);
-          return res.status(500).json({ message: "حدث خطأ أثناء تسجيل الدخول" });
-        }
-        
-        console.log("Admin logged in successfully, session ID:", req.sessionID);
-
-        // ملاحظة: تم نقل إرسال إشعار تسجيل الدخول إلى واجهة المستخدم
-        // سيتم إرسال الإشعار من خلال نقطة النهاية /api/login/notify
-        
-        // إرجاع بيانات المستخدم المشرف (بدون كلمة المرور)
-        const adminWithoutPassword = {
-          id: adminUser.id,
-          username: adminUser.username,
-          isAdmin: adminUser.isAdmin
-        };
-        return res.status(200).json(adminWithoutPassword);
-      });
+      console.log("Admin authenticated successfully");
+      
+      // ملاحظة: تم نقل إرسال إشعار تسجيل الدخول إلى واجهة المستخدم
+      // سيتم إرسال الإشعار من خلال نقطة النهاية /api/login/notify
+      
+      return res.status(200).json(adminData);
     } catch (error) {
       console.error("Admin login error:", error);
       if (error instanceof z.ZodError) {
