@@ -664,6 +664,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // حذف جميع المنشورات بواسطة المشرف - يجب أن يكون قبل مسار :postId للتعامل مع المسارات بشكل صحيح
+  app.delete("/api/admin/posts/all", async (req, res) => {
+    try {
+      // التحقق من صلاحيات المشرف
+      if (!verifyAdminAccess(req, res)) return;
+      
+      // طلب تأكيد إضافي عبر معلمة خاصة
+      if (req.query.confirmDelete !== "true") {
+        return res.status(400).json({ 
+          message: "يجب تأكيد حذف جميع المنشورات عبر إضافة معلمة confirmDelete=true", 
+          requiresConfirmation: true 
+        });
+      }
+      
+      // حذف جميع المنشورات
+      const deletedCount = await storage.deleteAllCommunityPosts();
+      
+      // إرسال إشعار Discord (اختياري) للحذف الجماعي
+      try {
+        await sendAutoRemovalNotification(0, 0, `تم حذف جميع المنشورات (${deletedCount} منشور) بواسطة مشرف`);
+      } catch (error) {
+        console.warn("Could not send Discord notification:", error);
+      }
+      
+      return res.status(200).json({ 
+        message: `تم حذف جميع المنشورات بنجاح (${deletedCount} منشور)`,
+        deletedCount
+      });
+    } catch (error) {
+      console.error("Admin delete all posts error:", error);
+      return res.status(500).json({ message: "فشل حذف جميع المنشورات" });
+    }
+  });
+  
   // حذف منشور بواسطة المشرف
   app.delete("/api/admin/posts/:postId", async (req, res) => {
     try {
@@ -696,40 +730,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Admin delete post error:", error);
       return res.status(500).json({ message: "فشل حذف المنشور" });
-    }
-  });
-  
-  // حذف جميع المنشورات بواسطة المشرف
-  app.delete("/api/admin/posts/all", async (req, res) => {
-    try {
-      // التحقق من صلاحيات المشرف
-      if (!verifyAdminAccess(req, res)) return;
-      
-      // طلب تأكيد إضافي عبر معلمة خاصة
-      if (req.query.confirmDelete !== "true") {
-        return res.status(400).json({ 
-          message: "يجب تأكيد حذف جميع المنشورات عبر إضافة معلمة confirmDelete=true", 
-          requiresConfirmation: true 
-        });
-      }
-      
-      // حذف جميع المنشورات
-      const deletedCount = await storage.deleteAllCommunityPosts();
-      
-      // إرسال إشعار Discord (اختياري) للحذف الجماعي
-      try {
-        await sendAutoRemovalNotification(0, 0, `تم حذف جميع المنشورات (${deletedCount} منشور) بواسطة مشرف`);
-      } catch (error) {
-        console.warn("Could not send Discord notification:", error);
-      }
-      
-      return res.status(200).json({ 
-        message: `تم حذف جميع المنشورات بنجاح (${deletedCount} منشور)`,
-        deletedCount
-      });
-    } catch (error) {
-      console.error("Admin delete all posts error:", error);
-      return res.status(500).json({ message: "فشل حذف جميع المنشورات" });
     }
   });
   
