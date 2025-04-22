@@ -70,10 +70,8 @@ setup_capacitor() {
   print_step "إعداد Capacitor..."
   
   # تثبيت Capacitor إذا لم يكن موجوداً
-  if ! command -v npx cap &> /dev/null; then
-    print_step "تثبيت Capacitor CLI..."
-    npm install @capacitor/cli || print_error "فشل تثبيت Capacitor CLI"
-  fi
+  print_step "تثبيت حزم Capacitor اللازمة..."
+  npm install @capacitor/cli @capacitor/android || print_error "فشل تثبيت حزم Capacitor"
   
   # إضافة منصة Android
   print_step "إضافة منصة Android..."
