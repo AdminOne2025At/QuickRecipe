@@ -1,0 +1,4 @@
+source:
+  branch: main
+  path: docs  # Use the docs folder for GitHub Pages
+permalink: pretty

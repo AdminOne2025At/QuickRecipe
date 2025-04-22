@@ -1,3 +1,7 @@
 theme: jekyll-theme-minimal
 title: كويك ريسب - وصفات سريعة
 description: اكتشف وصفات لذيذة باستخدام المكونات المتوفرة لديك
+baseurl: ""
+url: "https://adminone2025at.github.io"
+include: ["index.html"]
+exclude: ["netlify.toml", "package.json", "node_modules"]
