@@ -7,6 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, Search, AlertCircle } from "lucide-react";
 import { getIngredientSubstitutes } from "@/lib/api";
 import { SubstitutionResponse } from "@/lib/types";
+import { useLanguage } from "@/contexts/LanguageContext";
+import translations from "@/lib/translations";
 
 export function IngredientSubstitution() {
   const [ingredientQuery, setIngredientQuery] = useState("");
@@ -14,10 +16,17 @@ export function IngredientSubstitution() {
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<SubstitutionResponse | null>(null);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const { language, isArabic } = useLanguage();
   const [commonIngredients, setCommonIngredients] = useState<string[]>([
     "دقيق", "سكر", "زبدة", "بيض", "حليب", "زيت زيتون", 
     "خل", "ملح", "فلفل", "بصل", "ثوم", "طماطم", "ليمون"
   ]);
+  
+  // English common ingredients
+  const englishCommonIngredients = [
+    "flour", "sugar", "butter", "eggs", "milk", "olive oil",
+    "vinegar", "salt", "pepper", "onion", "garlic", "tomato", "lemon"
+  ];
 
   const fetchSubstitutes = async (ingredient: string) => {
     if (!ingredient.trim()) return;
@@ -54,11 +63,29 @@ export function IngredientSubstitution() {
     }
   };
 
+  // Use appropriate ingredients list based on language
+  useEffect(() => {
+    if (isArabic) {
+      setCommonIngredients([
+        "دقيق", "سكر", "زبدة", "بيض", "حليب", "زيت زيتون", 
+        "خل", "ملح", "فلفل", "بصل", "ثوم", "طماطم", "ليمون"
+      ]);
+    } else {
+      setCommonIngredients([
+        "flour", "sugar", "butter", "eggs", "milk", "olive oil",
+        "vinegar", "salt", "pepper", "onion", "garlic", "tomato", "lemon"
+      ]);
+    }
+  }, [isArabic]);
+
   return (
     <Card className="w-full shadow-md overflow-hidden">
       <CardHeader className="bg-primary/5">
         <CardTitle className="text-xl font-bold flex items-center gap-2">
-          <span className="text-2xl">🔄</span> بدائل المكونات
+          <span className="text-2xl">🔄</span> 
+          {isArabic 
+            ? translations['ingredientSubstitutes']['ar-EG'] 
+            : translations['ingredientSubstitutes']['en-US']}
         </CardTitle>
       </CardHeader>
       
@@ -67,11 +94,14 @@ export function IngredientSubstitution() {
           <div className="flex gap-2">
             <div className="flex-grow">
               <Input
-                placeholder="أدخل اسم المكون للبحث عن بدائله..."
+                placeholder={isArabic 
+                  ? translations['enterIngredient']['ar-EG'] 
+                  : translations['enterIngredient']['en-US']}
                 value={ingredientQuery}
                 onChange={(e) => setIngredientQuery(e.target.value)}
                 onKeyPress={handleKeyPress}
-                className="w-full"
+                className={`w-full ${isArabic ? 'text-right' : 'text-left'}`}
+                dir={isArabic ? 'rtl' : 'ltr'}
               />
             </div>
             <Button
@@ -84,7 +114,11 @@ export function IngredientSubstitution() {
               ) : (
                 <Search className="h-4 w-4" />
               )}
-              <span className="ml-2">بحث</span>
+              <span className={isArabic ? 'mr-2' : 'ml-2'}>
+                {isArabic 
+                  ? translations['search']['ar-EG'] 
+                  : translations['search']['en-US']}
+              </span>
             </Button>
           </div>
           
@@ -98,8 +132,16 @@ export function IngredientSubstitution() {
         
         <Tabs defaultValue="common">
           <TabsList className="w-full">
-            <TabsTrigger value="common" className="flex-1">مكونات شائعة</TabsTrigger>
-            <TabsTrigger value="recent" className="flex-1">عمليات بحث سابقة</TabsTrigger>
+            <TabsTrigger value="common" className="flex-1">
+              {isArabic 
+                ? translations['commonIngredients']['ar-EG'] 
+                : translations['commonIngredients']['en-US']}
+            </TabsTrigger>
+            <TabsTrigger value="recent" className="flex-1">
+              {isArabic 
+                ? translations['recentSearches']['ar-EG'] 
+                : translations['recentSearches']['en-US']}
+            </TabsTrigger>
           </TabsList>
           
           <TabsContent value="common" className="py-2">
@@ -141,7 +183,9 @@ export function IngredientSubstitution() {
               </div>
             ) : (
               <p className="text-gray-500 text-sm italic text-center py-2">
-                لم تقم بأي عمليات بحث بعد
+                {isArabic 
+                  ? translations['noRecentSearches']['ar-EG'] 
+                  : translations['noRecentSearches']['en-US']}
               </p>
             )}
           </TabsContent>
@@ -149,20 +193,24 @@ export function IngredientSubstitution() {
         
         {results && (
           <div className="mt-6 bg-gray-50 p-4 rounded-lg border border-gray-200">
-            <h3 className="text-lg font-bold mb-3">بدائل لـ "{results.originalIngredient}"</h3>
+            <h3 className="text-lg font-bold mb-3">
+              {isArabic 
+                ? `${translations['substitutesFor']['ar-EG']} "${results.originalIngredient}"` 
+                : `${translations['substitutesFor']['en-US']} "${results.originalIngredient}"`}
+            </h3>
             
             {results.substitutes.length > 0 ? (
               <ul className="space-y-3">
                 {results.substitutes.map((substitute, index) => (
                   <li key={index} className="bg-white p-3 rounded-md shadow-sm border border-gray-100">
-                    <div className="flex items-start">
-                      <span className="bg-primary text-white rounded-full w-5 h-5 flex items-center justify-center mr-2 flex-shrink-0 mt-1 text-xs">
+                    <div className={`flex items-start ${!isArabic && 'flex-row-reverse text-left'}`}>
+                      <span className={`bg-primary text-white rounded-full w-5 h-5 flex items-center justify-center ${isArabic ? 'mr-2' : 'ml-2'} flex-shrink-0 mt-1 text-xs`}>
                         {index + 1}
                       </span>
                       <div>
                         <div className="font-medium">{substitute.name}</div>
                         <div className="text-sm text-gray-600">
-                          النسبة: {substitute.ratio}
+                          {isArabic ? 'النسبة:' : 'Ratio:'} {substitute.ratio}
                         </div>
                         {substitute.notes && (
                           <div className="text-sm text-gray-500 mt-1 italic">
@@ -176,7 +224,9 @@ export function IngredientSubstitution() {
               </ul>
             ) : (
               <p className="text-gray-500 italic">
-                لم نجد بدائل لهذا المكون. حاول البحث عن مكون آخر.
+                {isArabic 
+                  ? translations['noSubstitutesFound']['ar-EG'] 
+                  : translations['noSubstitutesFound']['en-US']}
               </p>
             )}
           </div>
