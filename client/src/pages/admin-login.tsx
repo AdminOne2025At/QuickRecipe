@@ -77,13 +77,23 @@ export default function AdminLoginPage() {
         variant: "default"
       });
       
-      // تأخير أطول (3 ثوان) للتحقق من نجاح تسجيل الدخول وتحديث حالة المستخدم
+      // تأخير أطول (5 ثوان) للتحقق من نجاح تسجيل الدخول وتحديث حالة المستخدم
       toast({
         title: "جاري التحقق...",
         description: "يرجى الانتظار... جاري التحقق من صلاحيات المشرف",
         variant: "default"
       });
       
+      // عرض رسالة إضافية بعد ثانيتين
+      setTimeout(() => {
+        toast({
+          title: "...لا تزال المعالجة جارية",
+          description: "تتم الآن مزامنة جلسة المستخدم. يرجى الانتظار...",
+          variant: "default"
+        });
+      }, 2000);
+      
+      // التحقق واتخاذ الإجراء بعد 5 ثوان (وقت كافٍ للتأكد من تحديث الحالة)
       setTimeout(() => {
         // التحقق من صلاحيات المشرف مرة أخرى قبل التوجيه
         const userCheck = JSON.parse(localStorage.getItem("user") || "{}");
@@ -91,10 +101,20 @@ export default function AdminLoginPage() {
         
         if (userCheck.isAdmin === true) {
           console.log("Admin verification successful, redirecting to dashboard...");
+          
           // تحديث واجهة المستخدم مرة أخرى
           queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+          
+          toast({
+            title: "تم التحقق بنجاح!",
+            description: "تم التحقق من صلاحيات المشرف. جاري التوجيه إلى لوحة التحكم...",
+            variant: "success"
+          });
+          
           // التوجيه إلى لوحة المشرفين
-          window.location.href = "/admin-dashboard";
+          setTimeout(() => {
+            window.location.href = "/admin-dashboard";
+          }, 1000);
         } else {
           console.error("Admin verification failed after login!");
           toast({
@@ -103,7 +123,7 @@ export default function AdminLoginPage() {
             variant: "destructive"
           });
         }
-      }, 3000);
+      }, 5000);
     },
     onError: (error: Error) => {
       toast({
