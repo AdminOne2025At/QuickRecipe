@@ -171,6 +171,7 @@ export const communityPosts = pgTable("community_posts", {
   isVerified: boolean("is_verified").default(false), // علامة التوثيق للمنشورات التي تم نشرها من قبل المشرفين
   userName: text("user_name"), // اسم المستخدم المقدم من Google
   userAvatar: text("user_avatar"), // رابط صورة المستخدم المقدمة من Google
+  userLevel: text("user_level"), // مستوى المستخدم (عضو، مشرف، الخ)
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
