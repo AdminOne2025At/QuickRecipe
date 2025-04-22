@@ -1,25 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="200dp"
-    android:height="50dp"
-    android:viewportWidth="200"
-    android:viewportHeight="50">
+    android:width="250dp"
+    android:height="70dp"
+    android:viewportWidth="250"
+    android:viewportHeight="70">
+    
+    <!-- رمز الدب -->
+    <path
+        android:fillColor="#8B4513"
+        android:pathData="M25,35 C18,20 20,15 30,20 C35,22 35,30 30,35 Z" />
+    
+    <!-- "كويك ريسب" بالعربية - مكتوبة بشكل مبسط -->
     <path
         android:fillColor="#B84414"
-        android:pathData="M20,25 L25,10 L35,10 L40,25 L35,40 L25,40 Z" />
+        android:pathData="M60,40 C60,30 65,25 75,25 C85,25 90,30 90,40 C90,50 85,55 75,55 C65,55 60,50 60,40 Z" />
     <path
         android:fillColor="#B84414"
-        android:pathData="M50,25 C50,15 55,10 65,10 C75,10 80,15 80,25 C80,35 75,40 65,40 C55,40 50,35 50,25 Z" />
+        android:pathData="M100,25 L110,25 L115,40 L110,55 L100,55 L95,40 Z" />
     <path
         android:fillColor="#B84414"
-        android:pathData="M90,10 L95,10 L100,25 L95,40 L90,40 L90,10 Z" />
+        android:pathData="M125,25 L135,25 L140,40 L135,55 L125,55 L120,40 Z" />
     <path
         android:fillColor="#B84414"
-        android:pathData="M110,10 L125,10 L130,25 L125,40 L110,40 L110,10 Z" />
+        android:pathData="M150,25 L155,25 L160,40 L155,55 L150,55 L150,25 Z" />
     <path
         android:fillColor="#B84414"
-        android:pathData="M145,10 L140,25 L145,40 L160,40 L165,25 L160,10 Z" />
+        android:pathData="M170,25 L185,25 L190,40 L185,55 L170,55 L170,25 Z" />
     <path
         android:fillColor="#B84414"
-        android:pathData="M175,25 C175,15 180,10 190,10 C195,10 200,15 200,25 L190,25 L190,40 L180,40 L180,25 L175,25 Z" />
+        android:pathData="M205,25 L215,25 L220,40 L215,55 L205,55 L200,40 Z" />
+    
+    <!-- صورة مبسطة للدب بجانب النص -->
+    <path
+        android:fillColor="#8B4513"
+        android:pathData="M40,35 C35,25 30,25 25,35 C20,45 25,50 40,50 C55,50 60,45 55,35 C50,25 45,25 40,35 Z" />
+    
+    <!-- عيني الدب -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M32,35 C31,33 29,33 28,35 C27,37 29,39 32,37 Z" />
+    <path
+        android:fillColor="#000000"
+        android:pathData="M42,35 C41,33 39,33 38,35 C37,37 39,39 42,37 Z" />
+    
+    <!-- أنف الدب -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M36,40 C34,40 33,41 33,42 C33,43 34,44 36,44 C38,44 39,43 39,42 C39,41 38,40 36,40 Z" />
 </vector>

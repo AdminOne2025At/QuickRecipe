@@ -71,7 +71,7 @@ public class OfflineWebViewClient extends WebViewClient {
             webView.setVisibility(View.GONE);
             
             // إعداد زر إعادة المحاولة
-            Button retryButton = offlineView.findViewById(R.id.btn_retry);
+            Button retryButton = offlineView.findViewById(R.id.btnRetry);
             if (retryButton != null) {
                 retryButton.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -84,12 +84,6 @@ public class OfflineWebViewClient extends WebViewClient {
                         }
                     }
                 });
-            }
-            
-            // عرض رسالة عدم الاتصال
-            TextView offlineMessage = offlineView.findViewById(R.id.tv_offline_message);
-            if (offlineMessage != null) {
-                offlineMessage.setText(R.string.offline_message);
             }
         }
     }
