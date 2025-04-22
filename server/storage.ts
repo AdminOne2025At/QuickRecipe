@@ -58,6 +58,7 @@ export interface IStorage {
   createCommunityPost(post: InsertCommunityPost): Promise<CommunityPost>;
   updateCommunityPost(id: number, post: Partial<InsertCommunityPost>): Promise<CommunityPost | undefined>;
   deleteCommunityPost(id: number): Promise<void>;
+  deleteAllCommunityPosts(): Promise<number>; // وظيفة جديدة لحذف جميع المنشورات
   likePost(id: number): Promise<void>;
   
   // Post comments operations
