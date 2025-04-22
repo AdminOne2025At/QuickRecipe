@@ -168,6 +168,7 @@ export const communityPosts = pgTable("community_posts", {
   recipeId: integer("recipe_id").references(() => recipes.id),
   isLikedByUser: boolean("is_liked_by_user").default(false),
   isFeatured: boolean("is_featured").default(false),
+  isVerified: boolean("is_verified").default(false), // علامة التوثيق للمنشورات التي تم نشرها من قبل المشرفين
   userName: text("user_name"), // اسم المستخدم المقدم من Google
   userAvatar: text("user_avatar"), // رابط صورة المستخدم المقدمة من Google
   createdAt: timestamp("created_at").defaultNow().notNull(),

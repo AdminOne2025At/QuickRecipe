@@ -843,11 +843,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const safeContent = moderationResult.moderatedContent || postData.content;
       
       // إضافة معلومات المستخدم الإضافية (الاسم والصورة) للمنشور
+      // تحقق مما إذا كان المستخدم مشرفًا لإضافة علامة التوثيق
+      const isAdmin = user.isAdmin || false;
+      
       const enrichedPostData = {
         ...postData,
         content: safeContent, // استخدام المحتوى الآمن
         userName: userName || user.username || "User",
         userAvatar: userAvatar || "",
+        isVerified: isAdmin, // إضافة علامة التوثيق للمشرفين
       };
       
       const post = await storage.createCommunityPost(enrichedPostData);
@@ -889,7 +893,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       //  return res.status(403).json({ message: "Not authorized to update this post" });
       // }
       
+      // تحقق مما إذا كان المستخدم الذي يقوم بالتعديل مشرفًا
+      const user = await storage.getUser(existingPost.userId);
+      const isAdmin = user && user.isAdmin ? true : false;
+      
       const updateData = insertCommunityPostSchema.partial().parse(req.body);
+      
+      // حفظ حالة التوثيق: إذا كان المنشور منشورًا من قبل مشرف، يبقى موثقًا
+      updateData.isVerified = isAdmin;
       
       // التحقق من المحتوى إذا تم تحديثه
       if (updateData.content || updateData.title || updateData.imageUrl) {
