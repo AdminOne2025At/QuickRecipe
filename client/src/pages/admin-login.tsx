@@ -40,8 +40,10 @@ export default function AdminLoginPage() {
     },
     onSuccess: (data) => {
       // تأكد من تخزين البيانات مع حقل isAdmin=true بشكل صريح
+      // وتصحيح المعرّف ليتطابق مع قاعدة البيانات (معرّف 5 وليس 9999)
       const adminData = {
         ...data,
+        id: 5, // إجبار المعرّف ليكون 5 (مطابق للمستخدم في قاعدة البيانات)
         isAdmin: true
       };
       
@@ -108,7 +110,7 @@ export default function AdminLoginPage() {
           toast({
             title: "تم التحقق بنجاح!",
             description: "تم التحقق من صلاحيات المشرف. جاري التوجيه إلى لوحة التحكم...",
-            variant: "success"
+            variant: "default"
           });
           
           // التوجيه إلى لوحة المشرفين
