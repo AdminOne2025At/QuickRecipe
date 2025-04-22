@@ -247,7 +247,9 @@ export default function CommunityPosts() {
       : userName.substring(0, 2);
 
     // التحقق من كون المستخدم مشرفًا (معرف المستخدم = 9999 أو إذا كان المنشور موثقًا)
-    const isAdmin = dbPost.userId === 9999 || dbPost.isVerified === true;
+    // check if dbPost.isVerified is true or if user is admin ID
+    console.log("Post verification status:", dbPost.id, dbPost.isVerified);
+    const isAdmin = dbPost.userId === 5 || dbPost.userId === 9999 || dbPost.isVerified === true;
     
     // معالجة تاريخ الإنشاء
     const createdAt = new Date(dbPost.createdAt);
