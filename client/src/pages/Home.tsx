@@ -152,9 +152,9 @@ export default function Home() {
       <header className="bg-primary text-white shadow-md">
         <div className="container mx-auto px-4 py-6 flex justify-between items-center max-w-5xl">
           <h1 className="text-3xl md:text-4xl flex items-center gap-3">
-            <img src="/quick-recipe-new-logo.png" alt="Quick Recipe Logo" className="h-10 md:h-12" />
+            <img src="/app_assets/quick-logo-new.png" alt="Quick Recipe Logo" className="h-12 md:h-14" />
             <span className="font-extrabold text-white tracking-wide" style={{ fontFamily: 'Comic Sans MS, cursive, sans-serif', textShadow: '1px 1px 2px rgba(0,0,0,0.2)' }}>
-           Recipes
+           كويك ريسب
             </span>
           </h1>
           <div className="flex items-center gap-3">
@@ -276,9 +276,9 @@ export default function Home() {
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-4 md:mb-0">
               <h2 className="text-xl flex items-center gap-2">
-                <img src="/quick-recipe-new-logo.png" alt="Quick Recipe Logo" className="h-7 md:h-8" />
+                <img src="/app_assets/quick-logo-new.png" alt="Quick Recipe Logo" className="h-8 md:h-10" />
                 <span className="font-extrabold text-white tracking-wide" style={{ fontFamily: 'Comic Sans MS, cursive, sans-serif', textShadow: '1px 1px 2px rgba(0,0,0,0.2)' }}>
-                  Quick Recipe
+                  كويك ريسب
                 </span>
               </h2>
               <p className="text-gray-400 text-sm mt-1">
