@@ -1,85 +1,77 @@
 package com.egyptco.quickrecipe;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.view.View;
+import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.view.View;
-import android.view.WindowManager;
-import android.graphics.Color;
-import com.getcapacitor.BridgeActivity;
+import android.widget.Toast;
 
-public class MainActivity extends BridgeActivity {
-    private WebView customWebView;
+import androidx.appcompat.app.AppCompatActivity;
 
+/**
+ * النشاط الرئيسي للتطبيق الذي يحتوي على WebView 
+ * لعرض تطبيق الويب
+ */
+public class MainActivity extends AppCompatActivity {
+    private WebView webView;
+    private View offlineView;
+    private long backPressedTime = 0;
+
+    @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
-        // إعداد الشاشة بدون شريط العنوان
-        getWindow().getDecorView().setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
-                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-        getWindow().setStatusBarColor(Color.TRANSPARENT);
+        // الحصول على مرجع WebView
+        webView = findViewById(R.id.webview);
+        offlineView = findViewById(R.id.offline_view);
 
-        // إعداد الـ WebView المخصص للتطبيق الخاص بنا
-        setupCustomWebView();
-    }
-
-    private void setupCustomWebView() {
-        // الحصول على WebView الموجود في Capacitor
-        WebView capacitorWebView = getBridge().getWebView();
+        // تكوين إعدادات WebView
+        WebSettings webSettings = webView.getSettings();
+        webSettings.setJavaScriptEnabled(true);        // تمكين جافا سكريبت
+        webSettings.setDomStorageEnabled(true);        // تمكين تخزين DOM
+        webSettings.setDatabaseEnabled(true);          // تمكين قاعدة البيانات
+        webSettings.setCacheMode(WebSettings.LOAD_DEFAULT); // استخدام التخزين المؤقت بشكل افتراضي
+        webSettings.setMediaPlaybackRequiresUserGesture(false); // السماح بتشغيل الوسائط دون تفاعل المستخدم
         
-        // تطبيق الإعدادات المخصصة
-        WebSettings settings = capacitorWebView.getSettings();
-        
-        // تفعيل JavaScript (ضروري لتطبيقنا الذي يعتمد على React)
-        settings.setJavaScriptEnabled(true);
-        
-        // تخزين مؤقت محسن
-        settings.setDomStorageEnabled(true);
-        settings.setAppCacheEnabled(true);
-        
-        // تمكين الوضع بدون اتصال بالإنترنت
-        settings.setCacheMode(WebSettings.LOAD_DEFAULT);
-        
-        // تمكين تكبير المحتوى (pinch-to-zoom)
-        settings.setBuiltInZoomControls(true);
-        settings.setDisplayZoomControls(false);
+        // للتطبيقات المستجيبة
+        webSettings.setUseWideViewPort(true);          // استخدام منفذ عرض واسع
+        webSettings.setLoadWithOverviewMode(true);     // تحميل الصفحات في وضع النظرة العامة
         
         // تحسين الأداء
-        settings.setRenderPriority(WebSettings.RenderPriority.HIGH);
+        webSettings.setRenderPriority(WebSettings.RenderPriority.HIGH);
+        webSettings.setAppCacheEnabled(true);
         
-        // إعداد WebViewClient مخصص
-        capacitorWebView.setWebViewClient(new QuickRecipeWebViewClient());
+        // تعيين WebViewClient مخصص للتعامل مع حالة عدم الاتصال
+        webView.setWebViewClient(new OfflineWebViewClient(this, offlineView));
+        
+        // تعيين WebChromeClient للتعامل مع مربعات الحوار والتنبيهات
+        webView.setWebChromeClient(new WebChromeClient());
+        
+        // تحميل عنوان URL للتطبيق
+        webView.loadUrl("https://quickrecipe.repl.co/");
     }
 
-    // فئة WebViewClient المخصصة
-    private class QuickRecipeWebViewClient extends WebViewClient {
-        @Override
-        public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            // التعامل مع الروابط داخل التطبيق
-            if (url.contains(getBridge().getServerUrl())) {
-                // الروابط الداخلية تفتح داخل WebView
-                return false;
+    /**
+     * التعامل مع زر العودة للخلف
+     * إذا كان WebView يمكنه العودة للخلف، سينتقل للخلف
+     * وإلا سيتم عرض رسالة "اضغط مرة أخرى للخروج" ثم الخروج عند الضغط مرة ثانية
+     */
+    @Override
+    public void onBackPressed() {
+        if (webView.canGoBack()) {
+            webView.goBack();
+        } else {
+            if (backPressedTime + 2000 > System.currentTimeMillis()) {
+                super.onBackPressed();
+                return;
+            } else {
+                Toast.makeText(this, "اضغط مرة أخرى للخروج", Toast.LENGTH_SHORT).show();
             }
-            
-            // يمكنك هنا إضافة منطق إضافي للتعامل مع الروابط الخارجية
-            // مثلاً فتحها في المتصفح الخارجي أو التعامل معها بشكل خاص
-            
-            return super.shouldOverrideUrlLoading(view, url);
-        }
-        
-        @Override
-        public void onPageFinished(WebView view, String url) {
-            super.onPageFinished(view, url);
-            
-            // تنفيذ JavaScript لضبط الاتجاه RTL ودعم اللغة العربية
-            view.evaluateJavascript(
-                "document.documentElement.dir = 'rtl';" +
-                "document.documentElement.lang = 'ar-EG';", 
-                null
-            );
+            backPressedTime = System.currentTimeMillis();
         }
     }
 }
