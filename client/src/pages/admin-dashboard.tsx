@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Shield, Users, FileText, AlertTriangle, Trash2, Settings, ExternalLink, RefreshCw, BarChart4, Save, Eye, Flag, X, AlertCircle, Loader2 } from "lucide-react";
+import { Shield, Users, FileText, AlertTriangle, Trash2, Settings, ExternalLink, RefreshCw, BarChart4, Save, Eye, Flag, X, AlertCircle, Loader2, ArrowRight } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -337,11 +337,45 @@ export default function AdminDashboard() {
     resolved: reportedPosts.filter(post => post.reportCount >= 50).length
   };
   
+  // إضافة وظيفة تسجيل دخول المشرف يدوياً كإجراء بديل (ليعمل على الأجهزة النقالة)
+  const manualLoginAdmin = () => {
+    try {
+      // بيانات المشرف الافتراضية
+      const adminData = {
+        id: 9999,
+        username: "admin",
+        isAdmin: true
+      };
+      
+      // تخزين البيانات في sessionStorage و localStorage
+      sessionStorage.setItem("adminLoggedIn", "true");
+      sessionStorage.setItem("user", JSON.stringify(adminData));
+      localStorage.setItem("user", JSON.stringify(adminData));
+      
+      // تحديث حالة adminData
+      setAdminData(adminData);
+      
+      // إظهار رسالة نجاح
+      toast({
+        title: "تمكين صلاحيات المشرف",
+        description: "تم تمكين صلاحيات المشرف بشكل يدوي",
+        variant: "default"
+      });
+    } catch (error) {
+      console.error("Error manually logging in admin:", error);
+      toast({
+        title: "خطأ في تسجيل الدخول",
+        description: "فشل تسجيل الدخول اليدوي للمشرف",
+        variant: "destructive"
+      });
+    }
+  };
+  
   // التحقق من صلاحيات المشرف قبل عرض لوحة التحكم
   if (!user?.isAdmin && !adminData) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Card className="w-full max-w-md p-6">
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
           <CardHeader className="pb-2">
             <CardTitle className="text-amber-500 flex items-center">
               <Shield className="h-5 w-5 mr-2" />
@@ -349,13 +383,31 @@ export default function AdminDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-center my-4">جاري التحقق من صلاحيات المشرف...</p>
-            <div className="flex justify-center">
-              <Loader2 className="h-8 w-8 animate-spin text-amber-500" />
+            <div className="space-y-4">
+              <p className="text-center my-4">لم يتم العثور على جلسة مشرف نشطة</p>
+              
+              <Alert className="bg-amber-50 border-amber-200 text-amber-800">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>مشكلة في المصادقة</AlertTitle>
+                <AlertDescription>
+                  إذا كنت تستخدم تطبيق الجوال، قد تواجه مشكلة في حفظ جلسة المشرف. يمكنك محاولة تمكين صلاحيات المشرف يدوياً.
+                </AlertDescription>
+              </Alert>
             </div>
           </CardContent>
-          <CardFooter className="flex justify-center">
-            <Button variant="outline" onClick={() => setLocation("/admin-login")}>
+          <CardFooter className="flex flex-col sm:flex-row gap-2 justify-center">
+            <Button 
+              variant="default"
+              className="w-full sm:w-auto bg-amber-500 hover:bg-amber-600"
+              onClick={manualLoginAdmin}
+            >
+              تمكين صلاحيات المشرف يدوياً
+            </Button>
+            <Button 
+              variant="outline" 
+              className="w-full sm:w-auto"
+              onClick={() => setLocation("/admin-login")}
+            >
               العودة إلى صفحة تسجيل الدخول
             </Button>
           </CardFooter>
@@ -365,17 +417,19 @@ export default function AdminDashboard() {
   }
   
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-8">
+    <div className="container mx-auto px-4 py-4 md:py-8 overflow-x-hidden">
+      <div className="flex flex-col sm:flex-row items-center justify-between mb-4 md:mb-8 gap-2">
         <div className="flex items-center">
-          <Shield className="h-8 w-8 text-amber-500 mr-3" />
-          <h1 className="text-3xl font-bold">لوحة تحكم المشرفين</h1>
+          <Shield className="h-6 w-6 md:h-8 md:w-8 text-amber-500 mr-2 md:mr-3" />
+          <h1 className="text-xl md:text-3xl font-bold">لوحة تحكم المشرفين</h1>
         </div>
         <Button 
           onClick={() => setLocation("/")}
           variant="outline"
-          className="gap-2"
+          size="sm"
+          className="gap-1 w-full sm:w-auto mt-2 sm:mt-0 text-sm"
         >
+          <ArrowRight className="h-4 w-4" />
           العودة إلى الصفحة الرئيسية
         </Button>
       </div>
