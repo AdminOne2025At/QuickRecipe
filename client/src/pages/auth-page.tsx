@@ -179,11 +179,22 @@ export default function AuthPage() {
                 <span className="flex-1">تسجيل الدخول باستخدام Google</span>
               </Button>
               
-              <div className="bg-amber-50 p-3 rounded-md border border-amber-200 text-xs">
-                <p className="font-medium text-amber-800 mb-1">ملاحظة: تسجيل الدخول بجوجل معطل حاليًا</p>
-                <p className="text-amber-700">
-                  يجب إضافة نطاق الموقع إلى قائمة النطاقات المسموح بها في إعدادات Firebase.
-                  يرجى استخدام خيار "تخطي تسجيل الدخول" أدناه.
+              <div className="bg-amber-50 p-4 rounded-md border border-amber-200 text-xs">
+                <p className="font-medium text-amber-800 mb-1">ملاحظة: تسجيل الدخول بجوجل معطل مؤقتاً</p>
+                <p className="text-amber-700 mb-2">
+                  يجب إضافة نطاق الموقع الحالي إلى قائمة النطاقات المسموح بها في إعدادات Firebase.
+                </p>
+                <div className="bg-white p-2 rounded-md border border-amber-200">
+                  <p className="font-medium text-gray-700 mb-1">لإصلاح المشكلة:</p>
+                  <ol className="list-decimal list-inside text-gray-600 space-y-1">
+                    <li>افتح <a href="https://console.firebase.google.com/" target="_blank" className="text-blue-600 underline">لوحة تحكم Firebase</a></li>
+                    <li>اختر مشروع "fast-recipe-2025"</li>
+                    <li>اذهب إلى: Authentication → Settings → Authorized domains</li>
+                    <li>أضف النطاق: <span className="bg-gray-100 px-1 py-0.5 rounded font-mono text-xs">{window.location.origin}</span></li>
+                  </ol>
+                </div>
+                <p className="mt-2 text-amber-700">
+                  حتى يتم حل المشكلة، يرجى استخدام خيار "دخول سريع" أدناه.
                 </p>
               </div>
             </div>

@@ -95,9 +95,36 @@ export function UserMenu() {
             } catch (error) {
               console.error('Failed to send logout notification:', error);
             } finally {
-              // المتابعة بتسجيل الخروج بغض النظر عن نجاح إرسال الإشعار
-              localStorage.removeItem('user');
-              window.location.href = '/auth';
+              // تسجيل الخروج الفعلي من الخادم عبر API
+              fetch('/api/logout', {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' }
+              })
+              .then(response => {
+                if (response.ok) {
+                  console.log('تم تسجيل الخروج بنجاح من الخادم');
+                  // إزالة البيانات المحلية
+                  localStorage.removeItem('user');
+                  sessionStorage.clear();
+                  
+                  // استخدام وظيفة تسجيل الخروج المتوافقة مع الأجهزة المحمولة
+                  if (isNativePlatform()) {
+                    logoutFromDevice();
+                  } else {
+                    // إعادة توجيه للمتصفح
+                    window.location.href = '/auth';
+                  }
+                } else {
+                  console.error('فشل في تسجيل الخروج من الخادم');
+                  // محاولة إعادة توجيه على أي حال
+                  window.location.href = '/auth';
+                }
+              })
+              .catch(error => {
+                console.error('خطأ أثناء تسجيل الخروج:', error);
+                window.location.href = '/auth';
+              });
             }
           }} 
           className="text-red-600 gap-2 cursor-pointer"
@@ -105,6 +132,16 @@ export function UserMenu() {
           <LogOut className="h-4 w-4" />
           <span>تسجيل الخروج</span>
         </DropdownMenuItem>
+        
+        {isNativePlatform() && (
+          <DropdownMenuItem
+            onClick={() => console.log("معلومات الجهاز المحمول")}
+            className="gap-2 cursor-pointer"
+          >
+            <Smartphone className="h-4 w-4" />
+            <span>معلومات الجهاز</span>
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );
