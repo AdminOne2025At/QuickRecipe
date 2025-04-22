@@ -327,6 +327,15 @@ export default function CommunityPosts() {
       tagsList.push(isArabic ? "وصفة" : "recipe");
     }
     
+    // التحقق من كون المستخدم هو المشرف (في هذه الحالة نستخدم userId = 9999)
+    const isAdminUser = user?.isAdmin || currentUserId === 9999;
+    
+    // صورة نجمة المشرفين
+    const adminStarAvatar = "https://cdn-icons-png.flaticon.com/512/1177/1177428.png";
+    
+    // تعيين اسم المشرف "فريق كويك ريسب" للمشرفين
+    const adminName = isArabic ? "فريق كويك ريسب" : "Quick Recipe Team";
+    
     // إنشاء كائن المنشور الجديد لإرساله إلى الخادم
     const postData = {
       userId: currentUserId,
@@ -335,8 +344,9 @@ export default function CommunityPosts() {
       postType: "recipe", // النوع الافتراضي هو وصفة
       tags: tagsList, // إرسال المصفوفة مباشرة بدلاً من تحويلها إلى نص
       imageUrl: "", // سنحتاج إلى رفع الصورة إلى خدمة تخزين سحابية في التطبيق الكامل
-      userName: userName || (isArabic ? "مستخدم" : "User"),
-      userAvatar: userAvatar || "https://i.pravatar.cc/150?img=33",
+      userName: isAdminUser ? adminName : (userName || (isArabic ? "مستخدم" : "User")),
+      userAvatar: isAdminUser ? adminStarAvatar : (userAvatar || "https://i.pravatar.cc/150?img=33"),
+      isVerified: isAdminUser, // إضافة علامة التوثيق للمشرفين
     };
     
     // إرسال المنشور الجديد إلى الخادم
