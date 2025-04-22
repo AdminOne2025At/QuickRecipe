@@ -114,12 +114,40 @@ export default function AuthPage() {
   // التعامل مع تسجيل الدخول كزائر (وضع زائر)
   const handleGuestLogin = async () => {
     try {
+      console.log("🔑 تسجيل دخول كزائر - بدء العملية...");
       setIsLoading(true);
-      // استخدام وظيفة تسجيل الدخول كزائر من سياق المصادقة
-      await loginAsGuest();
-      setLocation("/");
+      
+      // استخدام API مباشرة للتحايل على أي مشاكل في سياق المصادقة
+      const response = await fetch('/api/guest/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({}),
+        credentials: 'include' // مهم جداً لإرسال واستقبال الكوكيز
+      });
+      
+      console.log("🔑 استجابة تسجيل دخول الزائر:", response.status, response.statusText);
+      
+      if (response.ok) {
+        const userData = await response.json();
+        console.log("🔑 تم تسجيل الدخول كزائر بنجاح:", userData);
+        
+        // إظهار رسالة للمستخدم
+        toast({
+          title: "تم تسجيل الدخول كزائر",
+          description: "يمكنك الاستمتاع بالخدمات الأساسية",
+          variant: "default"
+        });
+        
+        // إعادة تحميل الصفحة للتأكد من تحديث الجلسة بشكل صحيح
+        window.location.href = '/';
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "فشل تسجيل دخول الزائر");
+      }
     } catch (error) {
-      console.error("Error logging in as guest:", error);
+      console.error("❌ خطأ في تسجيل دخول الزائر:", error);
       
       toast({
         title: "حدث خطأ",

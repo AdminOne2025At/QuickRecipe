@@ -67,7 +67,7 @@ export function setupAuth(app: Express): { isAuthenticated: (req: Request, res: 
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
       httpOnly: true,
       path: '/',
-      sameSite: 'lax',
+      sameSite: 'lax' as const, // تصحيح نوع البيانات
     },
   };
   

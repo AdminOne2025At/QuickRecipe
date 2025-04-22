@@ -8,7 +8,7 @@ import { getIngredientSubstitutes } from "./services/substitutions";
 // التحقق من المحتوى
 import { moderateContent, moderateComment } from "./services/content-moderation";
 // تمت إزالة استيراد الترجمة
-import { storage } from "./storage";
+import { storage, IStorage } from "./storage";
 import { insertRecipeCacheSchema, insertIngredientSchema, insertUserSchema, insertRecipeSchema, insertCommunityPostSchema, insertPostCommentSchema } from "@shared/schema";
 import { z } from "zod";
 // استيراد خدمة إشعارات Discord
@@ -22,7 +22,7 @@ import ws from 'ws';
 import type { RecipeResult } from "./services/openai";
 
 // إنشاء حساب المشرف الافتراضي إذا لم يكن موجوداً
-async function ensureAdminUser(storage) {
+async function ensureAdminUser(storage: IStorage) {
   console.log('[SETUP] Checking for admin user...');
   try {
     const adminUser = await storage.getUserByUsername('admin');
