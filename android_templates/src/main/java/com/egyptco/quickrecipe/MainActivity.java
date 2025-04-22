@@ -37,13 +37,21 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setCacheMode(WebSettings.LOAD_DEFAULT); // استخدام التخزين المؤقت بشكل افتراضي
         webSettings.setMediaPlaybackRequiresUserGesture(false); // السماح بتشغيل الوسائط دون تفاعل المستخدم
         
+        // تمكين ملفات تعريف الارتباط والجلسات
+        android.webkit.CookieManager cookieManager = android.webkit.CookieManager.getInstance();
+        cookieManager.setAcceptCookie(true);
+        cookieManager.setAcceptThirdPartyCookies(webView, true);
+        cookieManager.flush();
+        
         // للتطبيقات المستجيبة
         webSettings.setUseWideViewPort(true);          // استخدام منفذ عرض واسع
         webSettings.setLoadWithOverviewMode(true);     // تحميل الصفحات في وضع النظرة العامة
         
-        // تحسين الأداء
+        // تحسين الأداء وحفظ الحالة
         webSettings.setRenderPriority(WebSettings.RenderPriority.HIGH);
         webSettings.setAppCacheEnabled(true);
+        webSettings.setSaveFormData(true);
+        webSettings.setSavePassword(true);
         
         // تعيين WebViewClient مخصص للتعامل مع حالة عدم الاتصال
         webView.setWebViewClient(new OfflineWebViewClient(this, offlineView));
