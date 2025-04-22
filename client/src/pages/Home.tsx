@@ -206,7 +206,65 @@ export default function Home() {
                   <span>🔍</span> بحث
                 </Button>
               </div>
+              <div className="text-center my-2">
+                <span className="text-gray-500 font-medium bg-gray-100 px-4 py-1 rounded-full text-xs">أو</span>
+              </div>
             </div>
+          </div>
+          
+          {/* Ingredient search */}
+          <div className="flex flex-col md:flex-row items-center gap-2">
+            <div className="flex-grow w-full">
+              <div className="flex rounded-lg border border-gray-300 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
+                <input
+                  type="text"
+                  value={ingredientInput}
+                  onChange={(e) => setIngredientInput(e.target.value)} 
+                  onKeyPress={(e) => {
+                    if (e.key === "Enter") {
+                      if (ingredientInput.trim()) {
+                        addIngredient(ingredientInput);
+                        setIngredientInput("");
+                      }
+                    }
+                  }}
+                  placeholder="اكتب المكون اللي عندك في البيت..."
+                  className="flex-grow py-2 px-3 bg-white text-right focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50"
+                />
+                <Button
+                  onClick={() => {
+                    if (ingredientInput.trim()) {
+                      addIngredient(ingredientInput);
+                      setIngredientInput("");
+                    }
+                  }}
+                  className="px-3 py-2 bg-primary text-white hover:bg-primary-dark transition-all duration-300"
+                >
+                  <span>✨</span> حطّه
+                </Button>
+              </div>
+            </div>
+            <Button
+              onClick={searchRecipes}
+              className="bg-secondary text-white py-2 px-5 rounded-lg flex items-center gap-1 hover:bg-secondary-dark hover:scale-105 transition-all duration-300 w-full md:w-auto mt-2 md:mt-0"
+              disabled={ingredients.length === 0 || isLoading}
+            >
+              {isLoading ? (
+                <svg className="animate-spin h-5 w-5 ml-2" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              ) : (
+                <>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                  </svg>
+                  <span>🔍</span>
+                </>
+              )}
+              طلّعلي أكلات
+            </Button>
           </div>
         </div>
       </div>
