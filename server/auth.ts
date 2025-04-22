@@ -156,6 +156,49 @@ export function setupAuth(app: Express): { isAuthenticated: (req: Request, res: 
     }
   });
 
+  // مسار تسجيل مستخدمي جوجل/فايربيس
+  app.post('/api/users/register', async (req, res, next) => {
+    try {
+      const { username, password, email, firebaseUid, photoURL, displayName } = req.body;
+      
+      // التحقق من وجود المستخدم
+      const existingUser = await storage.getUserByUsername(username);
+      
+      if (existingUser) {
+        return res.status(400).json({ message: "Username already exists" });
+      }
+      
+      // إنشاء وتخزين المستخدم الجديد
+      const hashedPassword = await hashPassword(password);
+      
+      const newUser = await storage.createUser({
+        username,
+        password: hashedPassword,
+        email: email || "",
+        displayName: displayName || username, // استخدام اسم العرض إذا كان متوفرًا أو استخدام اسم المستخدم
+        photoURL: photoURL, // إضافة صورة المستخدم إذا كانت متوفرة
+        firebaseUid: firebaseUid, // تخزين معرف Firebase للمستخدم
+        isAdmin: false, // المستخدمون الجدد ليسوا مشرفين بشكل افتراضي
+        isGuest: false, // مستخدمي جوجل ليسوا زوارًا
+        lastLogin: new Date() // تسجيل وقت آخر دخول
+      });
+      
+      // تسجيل الدخول تلقائيًا بعد التسجيل
+      req.login(newUser, (err) => {
+        if (err) {
+          console.error("Login error after registration:", err);
+          return res.status(500).json({ message: "Failed to login after registration" });
+        }
+        
+        console.log("Firebase user registered and logged in:", username);
+        res.status(201).json(newUser);
+      });
+    } catch (error) {
+      console.error("Error registering user:", error);
+      res.status(500).json({ message: "Failed to register user" });
+    }
+  });
+
   // Login
   app.post('/api/login', (req, res, next) => {
     passport.authenticate('local', (err: Error | null, user: User | false, info: { message?: string } | undefined) => {

@@ -92,21 +92,56 @@ export const handleRedirectResult = async (): Promise<User | null> => {
       // تم تسجيل الدخول بنجاح
       console.log("Successfully got redirect result, user logged in:", result.user.displayName);
       
-      // حفظ بيانات المستخدم في localStorage لتحسين التجربة عبر تحديثات الصفحة
+      // التسجيل مع الخادم الخلفي (backend) - مهم للمصادقة المزدوجة
       try {
-        // إعداد كائن المستخدم مع المعلومات الضرورية
-        const userData = {
-          id: result.user.uid,
-          displayName: result.user.displayName || 'مستخدم جوجل',
-          email: result.user.email,
-          photoURL: result.user.photoURL,
-          isAdmin: false // المستخدمون من جوجل ليسوا مشرفين افتراضيًا
-        };
+        // أولاً، نحاول تسجيل المستخدم في الخادم الخلفي
+        console.log("Registering Firebase user with backend...");
         
-        localStorage.setItem('user', JSON.stringify(userData));
-        console.log("User data saved to localStorage");
-      } catch (storageError) {
-        console.error("Failed to save user data to localStorage:", storageError);
+        const response = await fetch('/api/users/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: result.user.displayName || result.user.email || `user_${result.user.uid.substring(0, 8)}`,
+            password: `firebase_${result.user.uid}`,
+            email: result.user.email || '',
+            firebaseUid: result.user.uid,
+            photoURL: result.user.photoURL
+          }),
+          credentials: 'include' // مهم لحفظ ملفات تعريف الارتباط للجلسة
+        });
+        
+        if (response.ok) {
+          const userData = await response.json();
+          console.log("User registered with backend:", userData);
+          
+          // دمج بيانات المستخدم من Firebase و backend
+          const combinedUserData = {
+            ...userData,
+            displayName: result.user.displayName || 'مستخدم جوجل',
+            email: result.user.email,
+            photoURL: result.user.photoURL,
+            firebaseUid: result.user.uid
+          };
+          
+          // حفظ بيانات المستخدم المدمجة في localStorage
+          localStorage.setItem('user', JSON.stringify(combinedUserData));
+          console.log("Combined user data saved to localStorage");
+        } else {
+          console.error("Failed to register user with backend. Falling back to Firebase-only auth");
+          // إذا فشل التسجيل مع الخادم، نستخدم البيانات من Firebase فقط
+          const userData = {
+            id: result.user.uid,
+            username: result.user.displayName || result.user.email || `user_${result.user.uid.substring(0, 8)}`,
+            displayName: result.user.displayName || 'مستخدم جوجل',
+            email: result.user.email,
+            photoURL: result.user.photoURL,
+            isAdmin: false
+          };
+          
+          localStorage.setItem('user', JSON.stringify(userData));
+        }
+      } catch (backendError) {
+        console.error("Error registering with backend:", backendError);
       }
       
       // إضافة إشعار تسجيل الدخول للديسكورد
