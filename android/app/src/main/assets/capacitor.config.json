@@ -1,0 +1,16 @@
+{
+	"appId": "com.egyptco.quickrecipe",
+	"appName": "كويك ريسب",
+	"webDir": "dist/public",
+	"server": {
+		"androidScheme": "https"
+	},
+	"plugins": {
+		"SplashScreen": {
+			"launchShowDuration": 3000,
+			"backgroundColor": "#B84414",
+			"splashFullScreen": true,
+			"splashImmersive": true
+		}
+	}
+}
