@@ -849,9 +849,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const enrichedPostData = {
         ...postData,
         content: safeContent, // استخدام المحتوى الآمن
-        userName: userName || user.username || "User",
-        userAvatar: userAvatar || "",
-        userLevel: postData.userLevel || (isAdmin ? "Admin" : undefined), // ضمان استخدام "Admin" للمشرفين
+        userName: isAdmin ? "فريق كويك ريسب" : (userName || user.username || "User"),
+        userAvatar: isAdmin ? "https://cdn-icons-png.flaticon.com/512/1177/1177428.png" : (userAvatar || ""),
+        userLevel: isAdmin ? "Admin" : (postData.userLevel || undefined), // دائماً "Admin" للمشرفين
         isVerified: isAdmin, // إضافة علامة التوثيق للمشرفين
       };
       
