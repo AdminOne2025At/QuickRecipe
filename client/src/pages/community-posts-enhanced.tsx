@@ -282,16 +282,19 @@ export default function CommunityPosts() {
     // صورة نجمة المشرفين
     const adminStarAvatar = "https://cdn-icons-png.flaticon.com/512/1177/1177428.png";
     
+    // تعيين اسم المشرف "فريق كويك ريسب" للمشرفين
+    const adminName = isArabic ? "فريق كويك ريسب" : "Quick Recipe Team";
+    
     return {
       id: dbPost.id,
       user: {
         id: dbPost.userId,
-        name: userName,
+        name: isAdmin ? adminName : userName,
         // تغيير "عضو" أو "Member" إلى "مشرف" أو "Admin" للمشرفين
         level: isAdmin ? (isArabic ? "مشرف" : "Admin") : (dbPost.userLevel || (isArabic ? "عضو" : "Member")),
         // استخدام صورة النجمة للمشرفين
         avatar: isAdmin ? adminStarAvatar : (dbPost.userAvatar || guestAvatarUrl),
-        initials: initials.toUpperCase(),
+        initials: isAdmin ? "QR" : initials.toUpperCase(),
         isAdmin: isAdmin // إضافة حقل للإشارة إلى كون المستخدم مشرفًا
       },
       title: dbPost.title,
@@ -356,23 +359,30 @@ export default function CommunityPosts() {
     <Card key={post.id} className="overflow-hidden max-w-3xl mx-auto shadow-md hover:shadow-lg transition-shadow duration-300">
       <CardHeader className="flex flex-row items-center justify-between pb-2 border-b">
         <div className="flex items-center gap-4">
-          <Avatar className="h-12 w-12 border-2 border-gray-100">
+          <Avatar className={`h-12 w-12 ${post.user.isAdmin ? 'border-2 border-amber-400 ring-2 ring-amber-200 ring-opacity-50 shadow-lg' : 'border-2 border-gray-100'}`}>
             <AvatarImage src={post.user.avatar} alt={post.user.name} />
-            <AvatarFallback>{post.user.initials}</AvatarFallback>
+            <AvatarFallback className={post.user.isAdmin ? 'bg-amber-100 text-amber-800 font-bold' : ''}>
+              {post.user.initials}
+            </AvatarFallback>
           </Avatar>
           <div>
             <CardTitle className="flex items-center text-lg font-bold">
-              {post.user.name}
+              {post.user.isAdmin ? 
+                <span className="text-amber-700 bg-gradient-to-b from-amber-50 to-amber-100 px-2 py-0.5 rounded">{post.user.name}</span> : 
+                post.user.name}
               {post.user.isAdmin && (
-                <Badge className="ml-2 bg-amber-500 text-amber-950" variant="secondary">
+                <Badge 
+                  className="ml-2 bg-gradient-to-r from-amber-400 to-amber-600 text-white shadow-sm animate-pulse hover:animate-none hover:from-amber-500 hover:to-amber-700 transition-all duration-300" 
+                  variant="secondary"
+                >
                   <svg 
                     xmlns="http://www.w3.org/2000/svg" 
-                    width="12" 
-                    height="12" 
+                    width="14" 
+                    height="14" 
                     viewBox="0 0 24 24" 
                     fill="none" 
                     stroke="currentColor" 
-                    strokeWidth="2" 
+                    strokeWidth="2.5" 
                     strokeLinecap="round" 
                     strokeLinejoin="round"
                     className="mr-1"
@@ -380,7 +390,7 @@ export default function CommunityPosts() {
                     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                     <polyline points="22 4 12 14.01 9 11.01"></polyline>
                   </svg>
-                  {isArabic ? "موثّق" : "Verified"}
+                  <span className="font-bold">{isArabic ? "موثّق" : "Verified"}</span>
                 </Badge>
               )}
               {post.postType === 'challenge' && (
