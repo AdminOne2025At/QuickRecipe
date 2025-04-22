@@ -385,6 +385,25 @@ export class DatabaseStorage implements IStorage {
       })
       .where(eq(communityPosts.id, id));
   }
+  
+  async deleteAllCommunityPosts(): Promise<number> {
+    // حذف جميع البيانات المرتبطة أولاً
+    
+    // 1. حذف جميع البلاغات
+    await db.delete(postReports);
+    
+    // 2. حذف جميع التعليقات
+    await db.delete(postComments);
+    
+    // 3. حذف جميع علامات الحفظ
+    await db.delete(savedPosts);
+    
+    // 4. حذف جميع المنشورات وإرجاع عدد السجلات المحذوفة
+    const result = await db.delete(communityPosts).returning({ deletedId: communityPosts.id });
+    
+    // إرجاع عدد المنشورات التي تم حذفها
+    return result.length;
+  }
 
   // Post comments operations
   async getPostComments(postId: number): Promise<PostComment[]> {
