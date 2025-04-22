@@ -182,25 +182,8 @@ export function setupAuth(app: Express): { isAuthenticated: (req: Request, res: 
     })(req, res, next);
   });
 
-  // Admin Login - same endpoint with different credentials
-  app.post('/api/admin/login', (req, res, next) => {
-    passport.authenticate('local', (err: Error | null, user: User | false, info: { message?: string } | undefined) => {
-      if (err) return next(err);
-      
-      // التحقق إذا كان المستخدم موجود ومسؤول
-      if (!user || !user.isAdmin) {
-        return res.status(401).json({ message: 'بيانات اعتماد غير صحيحة للمشرف' });
-      }
-      
-      req.login(user, (err: Error | null) => {
-        if (err) return next(err);
-        
-        // إرجاع بيانات المستخدم المسؤول بدون كلمة المرور
-        const { password, ...adminWithoutPassword } = user;
-        res.json(adminWithoutPassword);
-      });
-    })(req, res, next);
-  });
+  // ملاحظة: تم نقل مسار تسجيل دخول المشرف إلى ملف routes.ts 
+  // للتأكد من عدم وجود تداخل بين مسارات API
 
   // Guest Login - create temporary user account
   app.post('/api/guest/login', async (req, res) => {
