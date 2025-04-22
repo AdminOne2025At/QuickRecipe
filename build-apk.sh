@@ -45,6 +45,24 @@ check_requirements() {
     print_error "لم يتم العثور على npm! تأكد من تثبيت Node.js بشكل صحيح."
   fi
   
+  # التحقق من وجود Java (مطلوب لبناء APK)
+  JAVA_MISSING=false
+  if ! command -v java &> /dev/null; then
+    JAVA_MISSING=true
+    echo -e "${RED}تنبيه: Java غير مثبت أو غير متاح في مسار النظام.${NC}"
+    echo -e "بناء تطبيق Android يتطلب وجود JDK."
+    echo -e "في منصة Replit، قد لا تتمكن من بناء APK مباشرة."
+    echo -e "للمتابعة:"
+    echo -e "  1. تنزيل ملفات المشروع ومتابعة البناء على جهاز محلي به JDK."
+    echo -e "  2. استخدام خدمة بناء سحابية مثل GitHub Actions أو Bitrise."
+    read -p "هل تريد تخطي عملية بناء APK والاكتفاء بمزامنة المشروع؟ (y/n): " SKIP_APK
+    if [[ $SKIP_APK == "y" || $SKIP_APK == "Y" ]]; then
+      SKIP_APK_BUILD=true
+    else
+      print_error "لا يمكن متابعة عملية البناء بدون Java."
+    fi
+  fi
+  
   print_success "جميع المتطلبات الأساسية متوفرة"
 }
 
@@ -150,6 +168,9 @@ build_apk() {
   fi
 }
 
+# متغيرات عامة للسكريبت
+SKIP_APK_BUILD=false
+
 # تنفيذ جميع الخطوات
 main() {
   echo -e "${BLUE}=========================================${NC}"
@@ -161,12 +182,20 @@ main() {
   setup_capacitor
   copy_custom_files
   sync_project
-  build_apk
   
-  echo -e "${BLUE}=========================================${NC}"
-  echo -e "${GREEN}   تم إنشاء تطبيق كويك ريسب بنجاح!   ${NC}"
-  echo -e "${BLUE}=========================================${NC}"
-  echo -e "يمكنك الآن تثبيت الملف ${YELLOW}QuickRecipe.apk${NC} على جهاز أندرويد"
+  # بناء APK فقط إذا لم يتم تخطي الخطوة
+  if [ "$SKIP_APK_BUILD" = false ]; then
+    build_apk
+    echo -e "${BLUE}=========================================${NC}"
+    echo -e "${GREEN}   تم إنشاء تطبيق كويك ريسب بنجاح!   ${NC}"
+    echo -e "${BLUE}=========================================${NC}"
+    echo -e "يمكنك الآن تثبيت الملف ${YELLOW}QuickRecipe.apk${NC} على جهاز أندرويد"
+  else
+    echo -e "${BLUE}=========================================${NC}"
+    echo -e "${GREEN}   تم إعداد المشروع بنجاح!   ${NC}"
+    echo -e "${BLUE}=========================================${NC}"
+    echo -e "لإكمال بناء ملف APK، قم بتنزيل المشروع وبنائه على جهاز به Java/JDK."
+  fi
 }
 
 # تنفيذ البرنامج الرئيسي
