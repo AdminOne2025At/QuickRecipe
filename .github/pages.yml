@@ -1,4 +1,4 @@
 source:
   branch: main
-  path: docs  # Use the docs folder for GitHub Pages
+  path: /  # Use the root directory for GitHub Pages
 permalink: pretty
