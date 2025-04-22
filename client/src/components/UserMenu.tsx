@@ -9,7 +9,8 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 import { useLocation } from "wouter";
-import { LogIn, LogOut, Settings, User } from "lucide-react";
+import { LogIn, LogOut, Settings, User, Smartphone } from "lucide-react";
+import { isNativePlatform, logoutFromDevice } from "@/lib/capacitor-utils";
 
 export function UserMenu() {
   const { user, firebaseUser, isLoading } = useAuth();
