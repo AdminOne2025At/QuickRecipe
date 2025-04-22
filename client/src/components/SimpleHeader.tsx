@@ -103,7 +103,7 @@ export function SimpleHeader() {
           
           {!isLoading ? (
             <div className="flex items-center gap-2">
-              {/* زر مدخل المشرفين - متاح دائماً لكن بمظهر مختلف للمشرفين المسجلين */}
+              {/* زر مدخل المشرفين أو لوحة المشرفين - يتغير حسب حالة المستخدم */}
               {currentUser?.isAdmin ? (
                 <Link href="/admin-dashboard">
                   <Button 
@@ -128,8 +128,8 @@ export function SimpleHeader() {
                 </Link>
               )}
               
-              {/* لا تظهر زر تسجيل الدخول للمشرف المسجل */}
-              {!currentUser ? (
+              {/* إظهار زر تسجيل الدخول فقط إذا لم يكن المستخدم مسجل (سواء عادي أو مشرف) */}
+              {!currentUser && (
                 <Link href="/auth">
                   <Button 
                     variant="outline" 
@@ -140,7 +140,10 @@ export function SimpleHeader() {
                     <span>تسجيل الدخول</span>
                   </Button>
                 </Link>
-              ) : (
+              )}
+              
+              {/* إظهار زر الملف الشخصي فقط إذا كان المستخدم مسجل */}
+              {currentUser && (
                 <Link href="/profile">
                   <Button 
                     variant="outline" 
