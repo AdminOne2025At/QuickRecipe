@@ -73,9 +73,14 @@ setup_capacitor() {
   print_step "تثبيت حزم Capacitor اللازمة..."
   npm install @capacitor/cli @capacitor/android || print_error "فشل تثبيت حزم Capacitor"
   
-  # إضافة منصة Android
-  print_step "إضافة منصة Android..."
-  npx cap add android || print_error "فشل إضافة منصة Android"
+  # التحقق مما إذا كانت منصة Android موجودة بالفعل
+  if [ -d "android" ]; then
+    print_step "منصة Android موجودة بالفعل، جاري تخطي الإضافة..."
+  else
+    # إضافة منصة Android
+    print_step "إضافة منصة Android..."
+    npx cap add android || print_error "فشل إضافة منصة Android"
+  fi
   
   print_success "تم إعداد Capacitor بنجاح"
 }
