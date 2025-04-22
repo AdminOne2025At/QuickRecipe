@@ -290,8 +290,8 @@ export default function CommunityPosts() {
       user: {
         id: dbPost.userId,
         name: isAdmin ? adminName : userName,
-        // تغيير "عضو" أو "Member" إلى "مشرف" أو "Admin" للمشرفين
-        level: isAdmin ? (isArabic ? "مشرف" : "Admin") : (dbPost.userLevel || (isArabic ? "عضو" : "Member")),
+        // تغيير مستوى المستخدم إلى "Admin" للمشرفين دائمًا
+        level: isAdmin ? "Admin" : (dbPost.userLevel || (isArabic ? "عضو" : "Member")),
         // استخدام صورة النجمة للمشرفين
         avatar: isAdmin ? adminStarAvatar : (dbPost.userAvatar || guestAvatarUrl),
         initials: isAdmin ? "QR" : initials.toUpperCase(),
@@ -346,6 +346,7 @@ export default function CommunityPosts() {
       imageUrl: "", // سنحتاج إلى رفع الصورة إلى خدمة تخزين سحابية في التطبيق الكامل
       userName: isAdminUser ? adminName : (userName || (isArabic ? "مستخدم" : "User")),
       userAvatar: isAdminUser ? adminStarAvatar : (userAvatar || "https://i.pravatar.cc/150?img=33"),
+      userLevel: isAdminUser ? "Admin" : undefined, // استخدام "Admin" للمشرف دائماً
       isVerified: isAdminUser, // إضافة علامة التوثيق للمشرفين
     };
     

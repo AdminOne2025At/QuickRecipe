@@ -851,6 +851,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         content: safeContent, // استخدام المحتوى الآمن
         userName: userName || user.username || "User",
         userAvatar: userAvatar || "",
+        userLevel: postData.userLevel || (isAdmin ? "Admin" : undefined), // ضمان استخدام "Admin" للمشرفين
         isVerified: isAdmin, // إضافة علامة التوثيق للمشرفين
       };
       
@@ -899,8 +900,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const updateData = insertCommunityPostSchema.partial().parse(req.body);
       
-      // حفظ حالة التوثيق: إذا كان المنشور منشورًا من قبل مشرف، يبقى موثقًا
+      // حفظ حالة التوثيق وتحديث userLevel للمشرفين
       updateData.isVerified = isAdmin;
+      updateData.userLevel = isAdmin ? "Admin" : updateData.userLevel;
       
       // التحقق من المحتوى إذا تم تحديثه
       if (updateData.content || updateData.title || updateData.imageUrl) {
