@@ -858,8 +858,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "المستخدم غير موجود" });
       }
       
-      // تحقق مما إذا كان المستخدم مشرفًا أو مرسل من معرفات المشرفين الخاصة
-      const isAdmin = user.isAdmin || postData.userId === 5 || postData.userId === 9999 || Boolean(postData.isVerified);
+      // تحقق مما إذا كان المستخدم مشرفًا أو مرسل من معرف المشرف
+      const isAdmin = user.isAdmin || postData.userId === 5 || Boolean(postData.isVerified);
       
       let safeContent = postData.content;
       
@@ -922,9 +922,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "المنشور غير موجود" });
       }
       
-      // تحقق مما إذا كان المستخدم الذي يقوم بالتعديل مشرفًا أو من معرفات المشرفين
+      // تحقق مما إذا كان المستخدم الذي يقوم بالتعديل مشرفًا أو من معرف المشرف
       const user = await storage.getUser(existingPost.userId);
-      const isAdmin = (user && user.isAdmin) || existingPost.userId === 5 || existingPost.userId === 9999 || Boolean(existingPost.isVerified);
+      const isAdmin = (user && user.isAdmin) || existingPost.userId === 5 || Boolean(existingPost.isVerified);
       
       const updateData = insertCommunityPostSchema.partial().parse(req.body);
       
