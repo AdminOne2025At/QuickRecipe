@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { Shield, Users, FileText, AlertTriangle, Trash2, Settings, ExternalLink, RefreshCw, BarChart4, Save, Eye, Flag, X } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Shield, Users, FileText, AlertTriangle, Trash2, Settings, ExternalLink, RefreshCw, BarChart4, Save, Eye, Flag, X, AlertCircle, Loader2 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,7 +15,124 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+
+// مكون زر حذف جميع المنشورات
+function DeleteAllPostsButton() {
+  const { toast } = useToast();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isConfirmationChecked, setIsConfirmationChecked] = useState(false);
+  const queryClient = useQueryClient();
+  
+  const deleteAllPostsMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("DELETE", `/api/admin/posts/all?adminKey=admin123&confirmDelete=true`);
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "فشل في حذف جميع المنشورات");
+      }
+      return await res.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "تم حذف جميع المنشورات",
+        description: `تم حذف ${data.deletedCount} منشور بنجاح من منصة كويك ريسب`,
+        variant: "default",
+      });
+      setIsDialogOpen(false);
+      setIsConfirmationChecked(false);
+      
+      // تحديث جميع استعلامات المنشورات
+      queryClient.invalidateQueries({ queryKey: ["/api/community-posts"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/community-posts/recent"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/community-posts/trending"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "فشل في حذف جميع المنشورات",
+        description: error.message,
+        variant: "destructive",
+      });
+      setIsConfirmationChecked(false);
+    }
+  });
+  
+  return (
+    <>
+      <AlertDialog open={isDialogOpen} onOpenChange={(open) => {
+        setIsDialogOpen(open);
+        if (!open) setIsConfirmationChecked(false);
+      }}>
+        <AlertDialogTrigger asChild>
+          <Button 
+            variant="destructive" 
+            className="gap-2 w-full"
+            onClick={() => setIsDialogOpen(true)}
+          >
+            <Trash2 className="h-4 w-4" />
+            حذف جميع المنشورات
+          </Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-red-600 flex items-center">
+              <AlertCircle className="h-5 w-5 mr-2" />
+              تحذير: حذف جميع المنشورات
+            </AlertDialogTitle>
+            <AlertDialogDescription className="space-y-4">
+              <p>هذا الإجراء سيحذف <strong>جميع المنشورات المجتمعية</strong> من منصة كويك ريسب بشكل نهائي.</p>
+              <Alert variant="destructive">
+                <AlertTitle className="flex items-center">
+                  <AlertTriangle className="h-4 w-4 mr-2" />
+                  إجراء لا يمكن التراجع عنه
+                </AlertTitle>
+                <AlertDescription>
+                  لا يمكن استعادة المنشورات بعد حذفها. سيتم حذف جميع المنشورات وتعليقاتها والبلاغات المرتبطة بها.
+                </AlertDescription>
+              </Alert>
+              <div className="flex items-center space-x-2 space-x-reverse mt-4">
+                <Checkbox 
+                  id="confirm-delete-all" 
+                  checked={isConfirmationChecked}
+                  onCheckedChange={(checked) => setIsConfirmationChecked(checked as boolean)}
+                />
+                <Label htmlFor="confirm-delete-all" className="text-red-600 font-medium">
+                  أنا أفهم أن هذا الإجراء نهائي ولا يمكن التراجع عنه
+                </Label>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>إلغاء</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                if (isConfirmationChecked) {
+                  deleteAllPostsMutation.mutate();
+                } else {
+                  toast({
+                    title: "تأكيد مطلوب",
+                    description: "يرجى تأكيد فهمك لعواقب هذا الإجراء",
+                    variant: "destructive",
+                  });
+                }
+              }}
+              className="bg-red-600 hover:bg-red-700"
+              disabled={!isConfirmationChecked || deleteAllPostsMutation.isPending}
+            >
+              {deleteAllPostsMutation.isPending ? (
+                <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> جاري حذف جميع المنشورات...</>
+              ) : (
+                "تأكيد حذف جميع المنشورات"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+}
 
 // مكون زر حذف المنشور
 function DeletePostButton({ postId, postTitle, onSuccess }: { postId: number, postTitle: string, onSuccess: () => void }) {
@@ -507,6 +624,24 @@ export default function AdminDashboard() {
                     </p>
                   </div>
                   <Switch id="email-notifications" defaultChecked={false} />
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium">أدوات إدارة المحتوى</h3>
+                <Separator />
+                
+                <div className="p-4 bg-red-50 border border-red-200 rounded-md space-y-4">
+                  <div>
+                    <h4 className="font-medium text-red-800 mb-2 flex items-center">
+                      <Trash2 className="h-5 w-5 mr-2 text-red-600" />
+                      حذف جميع المنشورات
+                    </h4>
+                    <p className="text-sm text-red-700 mb-4">
+                      تحذير: هذا الإجراء سيحذف <strong>جميع المنشورات</strong> من منصة كويك ريسب بشكل نهائي. لا يمكن التراجع عن هذا الإجراء.
+                    </p>
+                    <DeleteAllPostsButton />
+                  </div>
                 </div>
               </div>
               
