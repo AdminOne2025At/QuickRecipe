@@ -14,7 +14,7 @@ import { onAuthStateChanged, signOut as firebaseSignOut } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { useLanguage } from "@/contexts/LanguageContext";
-import translations from "@/lib/translations";
+import { translations } from "@/lib/translations";
 import { useQuery } from "@tanstack/react-query";
 
 export default function ProfilePage() {

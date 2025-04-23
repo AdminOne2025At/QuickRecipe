@@ -10,7 +10,7 @@ import { Loader2, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import { useLanguage } from "@/contexts/LanguageContext";
-import translations from "@/lib/translations";
+import { translations } from "@/lib/translations";
 
 export default function AuthPage() {
   const [isLoading, setIsLoading] = useState(true);

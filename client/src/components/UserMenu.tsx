@@ -11,7 +11,7 @@ import {
 import { useLocation } from "wouter";
 import { LogIn, LogOut, Settings, User } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import translations from "@/lib/translations";
+import { translations } from "@/lib/translations";
 
 export function UserMenu() {
   const { user, firebaseUser, isLoading } = useAuth();
