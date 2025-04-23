@@ -740,75 +740,30 @@ export const translations: Record<string, Record<Language, string>> = {
     'ar-SA': 'منطقة الخطر',
     'en-US': 'Danger Zone'
   },
-  'deleteAllPostsBtn': {
-    'ar-EG': 'حذف جميع المنشورات',
-    'ar-SA': 'حذف جميع المنشورات',
-    'en-US': 'Delete All Posts'
-  },
-  'warningDeleteAllPosts': {
-    'ar-EG': 'تحذير: هذا الإجراء سيحذف <strong>جميع المنشورات</strong> من منصة كويك ريسب بشكل نهائي. لا يمكن التراجع عن هذا الإجراء.',
-    'ar-SA': 'تحذير: هذا الإجراء سيحذف <strong>جميع المنشورات</strong> من منصة كويك ريسب بشكل نهائي. لا يمكن التراجع عن هذا الإجراء.',
-    'en-US': 'Warning: This action will delete <strong>all posts</strong> from the Quick Recipe platform permanently. This action cannot be undone.'
-  },
-  'permanentAction': {
-    'ar-EG': 'إجراء لا يمكن التراجع عنه',
-    'ar-SA': 'إجراء لا يمكن التراجع عنه',
-    'en-US': 'Irreversible Action'
-  },
-  'deleteAllPostsConfirmationDesc': {
-    'ar-EG': 'هذا الإجراء سيحذف جميع المنشورات المجتمعية من منصة كويك ريسب بشكل نهائي.',
-    'ar-SA': 'هذا الإجراء سيحذف جميع المنشورات المجتمعية من منصة كويك ريسب بشكل نهائي.',
-    'en-US': 'This action will permanently delete all community posts from the Quick Recipe platform.'
-  },
-  'cannotUndoAction': {
-    'ar-EG': 'لا يمكن استعادة المنشورات بعد حذفها. سيتم حذف جميع المنشورات وتعليقاتها والبلاغات المرتبطة بها.',
-    'ar-SA': 'لا يمكن استعادة المنشورات بعد حذفها. سيتم حذف جميع المنشورات وتعليقاتها والبلاغات المرتبطة بها.',
-    'en-US': 'Posts cannot be recovered after deletion. All posts, their comments, and associated reports will be deleted.'
-  },
-  'understandIrreversible': {
-    'ar-EG': 'أنا أفهم أن هذا الإجراء نهائي ولا يمكن التراجع عنه',
-    'ar-SA': 'أنا أفهم أن هذا الإجراء نهائي ولا يمكن التراجع عنه',
-    'en-US': 'I understand that this action is final and cannot be undone'
-  },
-  'cancel': {
-    'ar-EG': 'إلغاء',
-    'ar-SA': 'إلغاء',
-    'en-US': 'Cancel'
-  },
-  'confirmationRequired': {
-    'ar-EG': 'تأكيد مطلوب',
-    'ar-SA': 'تأكيد مطلوب',
-    'en-US': 'Confirmation Required'
-  },
-  'pleaseConfirmAction': {
-    'ar-EG': 'يرجى تأكيد فهمك لعواقب هذا الإجراء',
-    'ar-SA': 'يرجى تأكيد فهمك لعواقب هذا الإجراء',
-    'en-US': 'Please confirm that you understand the consequences of this action'
-  },
-  'deletingAllPosts': {
-    'ar-EG': 'جاري حذف جميع المنشورات...',
-    'ar-SA': 'جاري حذف جميع المنشورات...',
-    'en-US': 'Deleting all posts...'
+  'confirmDeletePostMessage': {
+    'ar-EG': 'هل أنت متأكد من رغبتك في حذف المنشور {postTitle}؟',
+    'ar-SA': 'هل أنت متأكد من رغبتك في حذف المنشور {postTitle}؟',
+    'en-US': 'Are you sure you want to delete the post {postTitle}?'
   },
   'confirmDeletePost': {
     'ar-EG': 'تأكيد حذف المنشور',
     'ar-SA': 'تأكيد حذف المنشور',
     'en-US': 'Confirm Post Deletion'
   },
-  'confirmDeletePostDesc': {
-    'ar-EG': 'هل أنت متأكد من رغبتك في حذف المنشور "{title}"؟ هذا الإجراء نهائي ولا يمكن التراجع عنه.',
-    'ar-SA': 'هل أنت متأكد من رغبتك في حذف المنشور "{title}"؟ هذا الإجراء نهائي ولا يمكن التراجع عنه.',
-    'en-US': 'Are you sure you want to delete the post "{title}"? This action is final and cannot be undone.'
+  'confirmationRequired': {
+    'ar-EG': 'تأكيد مطلوب',
+    'ar-SA': 'تأكيد مطلوب',
+    'en-US': 'Confirmation Required'
   },
-  'usageStatistics': {
-    'ar-EG': 'إحصائيات الاستخدام',
-    'ar-SA': 'إحصائيات الاستخدام',
-    'en-US': 'Usage Statistics'
+  'confirmUnderstanding': {
+    'ar-EG': 'يرجى تأكيد فهمك لعواقب هذا الإجراء',
+    'ar-SA': 'يرجى تأكيد فهمك لعواقب هذا الإجراء',
+    'en-US': 'Please confirm that you understand the consequences of this action'
   },
-  'platformGrowth': {
-    'ar-EG': 'نمو المنصة',
-    'ar-SA': 'نمو المنصة',
-    'en-US': 'Platform Growth'
+  'cancel': {
+    'ar-EG': 'إلغاء',
+    'ar-SA': 'إلغاء',
+    'en-US': 'Cancel'
   },
   'deleting': {
     'ar-EG': 'جاري الحذف...',
@@ -830,16 +785,21 @@ export const translations: Record<string, Record<Language, string>> = {
     'ar-SA': 'تم حذف المنشور بنجاح وإرسال إشعار للمشرفين',
     'en-US': 'Post successfully deleted and notification sent to admins'
   },
-  'postDeletionFailed': {
+  'postDeleteFailed': {
     'ar-EG': 'فشل في حذف المنشور',
     'ar-SA': 'فشل في حذف المنشور',
     'en-US': 'Failed to delete post'
   },
-  'untitledPost': {
-    'ar-EG': 'منشور بدون عنوان',
-    'ar-SA': 'منشور بدون عنوان',
-    'en-US': 'Untitled Post'
-  }
+  'usageStatistics': {
+    'ar-EG': 'إحصائيات الاستخدام',
+    'ar-SA': 'إحصائيات الاستخدام',
+    'en-US': 'Usage Statistics'
+  },
+  'platformGrowth': {
+    'ar-EG': 'نمو المنصة',
+    'ar-SA': 'نمو المنصة',
+    'en-US': 'Platform Growth'
+  },
 };
 
 export default translations;
