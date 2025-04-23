@@ -164,32 +164,32 @@ export default function AdminLoginPage() {
                 <div className="flex items-center justify-center mb-2">
                   <Shield className={`h-5 w-5 ${isArabic ? 'ml-2' : 'mr-2'} text-amber-500`} />
                   <h2 className="text-2xl font-bold">
-                    {translations['adminEntrance'][language]}
+                    {language ? translations['adminEntrance'][language] : 'بوابة دخول المشرفين'}
                   </h2>
                 </div>
                 <p className="text-gray-500 text-sm">
-                  {translations['adminPanelOnly'][language]}
+                  {language && translations['adminPanelOnly'] ? translations['adminPanelOnly'][language] : 'مخصص للمشرفين فقط'}
                 </p>
               </div>
               
               <form onSubmit={handleSubmit}>
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="admin-username">{translations['username'][language]}</Label>
+                    <Label htmlFor="admin-username">{language ? translations['username'][language] : 'اسم المستخدم'}</Label>
                     <Input
                       id="admin-username"
-                      placeholder={translations['enterUsername'][language]}
+                      placeholder={language ? translations['enterUsername'][language] : 'أدخل اسم المستخدم'}
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       dir={isArabic ? 'rtl' : 'ltr'}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="admin-password">{translations['password'][language]}</Label>
+                    <Label htmlFor="admin-password">{language ? translations['password'][language] : 'كلمة المرور'}</Label>
                     <Input
                       id="admin-password"
                       type="password"
-                      placeholder={translations['enterPassword'][language]}
+                      placeholder={language ? translations['enterPassword'][language] : 'أدخل كلمة المرور'}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       dir={isArabic ? 'rtl' : 'ltr'}
@@ -204,10 +204,10 @@ export default function AdminLoginPage() {
                     {adminLoginMutation.isPending ? (
                       <>
                         <Loader2 className={`h-4 w-4 animate-spin ${isArabic ? 'ml-2' : 'mr-2'}`} />
-                        {translations['loggingIn'][language]}
+                        {language ? translations['loggingIn'][language] : 'جاري تسجيل الدخول...'}
                       </>
                     ) : (
-                      translations['loginAsAdmin'][language]
+                      language ? translations['loginAsAdmin'][language] : 'تسجيل الدخول كمشرف'
                     )}
                   </Button>
                 </div>
@@ -222,7 +222,7 @@ export default function AdminLoginPage() {
                     window.location.href = "/";
                   }}
                 >
-                  {translations['returnToHomepage'][language]}
+                  {language ? translations['returnToHomepage'][language] : 'العودة للصفحة الرئيسية'}
                 </a>
               </div>
             </div>
@@ -237,13 +237,13 @@ export default function AdminLoginPage() {
             <Sparkles className="h-16 w-16 text-white" />
           </div>
           <h1 className="text-4xl font-bold mb-6">
-            {translations['adminDashboard'][language]}
+            {language ? translations['adminDashboard'][language] : 'لوحة تحكم المشرفين'}
           </h1>
           <p className="text-xl mb-4">
-            {translations['adminWelcome'][language]}
+            {language ? translations['adminWelcome'][language] : 'مرحباً بك في لوحة تحكم المشرفين'}
           </p>
           <p className="text-lg opacity-90">
-            {translations['adminCapabilities'][language]}
+            {language ? translations['adminCapabilities'][language] : 'يمكنك إدارة المحتوى والبيانات والمستخدمين من هنا'}
           </p>
         </div>
       </div>
