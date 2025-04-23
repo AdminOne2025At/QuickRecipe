@@ -39,8 +39,8 @@ function DeleteAllPostsButton() {
     },
     onSuccess: (data) => {
       toast({
-        title: "تم حذف جميع المنشورات",
-        description: `تم حذف ${data.deletedCount} منشور بنجاح من منصة كويك ريسب`,
+        title: translations['allPostsDeleted'][language],
+        description: translations['allPostsDeletedSuccess'][language].replace('{count}', data.deletedCount),
         variant: "default",
       });
       setIsDialogOpen(false);
@@ -53,7 +53,7 @@ function DeleteAllPostsButton() {
     },
     onError: (error: Error) => {
       toast({
-        title: "فشل في حذف جميع المنشورات",
+        title: translations['allPostsDeleteFailed'][language],
         description: error.message,
         variant: "destructive",
       });
@@ -107,7 +107,7 @@ function DeleteAllPostsButton() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>إلغاء</AlertDialogCancel>
+            <AlertDialogCancel>{translations["cancel"][language]}</AlertDialogCancel>
             <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
@@ -115,8 +115,8 @@ function DeleteAllPostsButton() {
                   deleteAllPostsMutation.mutate();
                 } else {
                   toast({
-                    title: "تأكيد مطلوب",
-                    description: "يرجى تأكيد فهمك لعواقب هذا الإجراء",
+                    title: translations['confirmationRequired'][language],
+                    description: translations['confirmUnderstanding'][language],
                     variant: "destructive",
                   });
                 }
@@ -154,8 +154,8 @@ function DeletePostButton({ postId, postTitle, onSuccess }: { postId: number, po
     },
     onSuccess: () => {
       toast({
-        title: "تم حذف المنشور",
-        description: "تم حذف المنشور بنجاح وإرسال إشعار للمشرفين",
+        title: translations['postDeleted'][language],
+        description: translations['postDeletedSuccess'][language],
         variant: "default",
       });
       setIsDialogOpen(false);
@@ -163,7 +163,7 @@ function DeletePostButton({ postId, postTitle, onSuccess }: { postId: number, po
     },
     onError: (error: Error) => {
       toast({
-        title: "فشل في حذف المنشور",
+        title: translations['postDeleteFailed'][language],
         description: error.message,
         variant: "destructive",
       });
@@ -190,15 +190,15 @@ function DeletePostButton({ postId, postTitle, onSuccess }: { postId: number, po
       <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>تأكيد حذف المنشور</AlertDialogTitle>
+            <AlertDialogTitle>{translations['confirmDeletePost'][language]}</AlertDialogTitle>
             <AlertDialogDescription>
-              هل أنت متأكد من رغبتك في حذف المنشور "<span className="font-bold">{postTitle}</span>"؟
+              {translations['confirmDeletePostMessage'][language].replace('{postTitle}', `"${postTitle}"`)}
               <br />
-              هذا الإجراء نهائي ولا يمكن التراجع عنه.
+              {translations['irreversibleAction'][language]}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>إلغاء</AlertDialogCancel>
+            <AlertDialogCancel>{translations["cancel"][language]}</AlertDialogCancel>
             <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
