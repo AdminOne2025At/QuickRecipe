@@ -14,8 +14,8 @@ export interface SubstitutionResponse {
   }[];
 }
 
-// Common substitution data for fallback
-const commonSubstitutions: Record<string, SubstitutionResponse> = {
+// Arabic substitution data
+const arabicSubstitutions: Record<string, SubstitutionResponse> = {
   "دقيق": {
     originalIngredient: "دقيق أبيض",
     substitutes: [
@@ -248,25 +248,267 @@ const commonSubstitutions: Record<string, SubstitutionResponse> = {
   }
 };
 
+// English substitution data
+const englishSubstitutions: Record<string, SubstitutionResponse> = {
+  "flour": {
+    originalIngredient: "White Flour",
+    substitutes: [
+      { 
+        name: "Whole Wheat Flour", 
+        ratio: "1:1", 
+        notes: "Will make food denser and give a stronger flavor"
+      },
+      { 
+        name: "Almond Flour", 
+        ratio: "1:1", 
+        notes: "Low-carb option, suitable for gluten-free foods"
+      },
+      { 
+        name: "Cornstarch", 
+        ratio: "3/4 cup cornstarch for every cup of flour", 
+        notes: "Good for baking and thickening" 
+      }
+    ]
+  },
+  "sugar": {
+    originalIngredient: "White Sugar",
+    substitutes: [
+      { 
+        name: "Honey", 
+        ratio: "3/4 cup honey for every cup of sugar", 
+        notes: "Reduce other liquids by 1/4 cup for each cup of honey" 
+      },
+      { 
+        name: "Coconut Sugar", 
+        ratio: "1:1" 
+      },
+      { 
+        name: "Maple Syrup", 
+        ratio: "3/4 cup syrup for every cup of sugar", 
+        notes: "Reduce other liquids slightly" 
+      }
+    ]
+  },
+  "butter": {
+    originalIngredient: "Butter",
+    substitutes: [
+      { 
+        name: "Coconut Oil", 
+        ratio: "1:1", 
+        notes: "Good for baking, works best at room temperature" 
+      },
+      { 
+        name: "Olive Oil", 
+        ratio: "3/4 cup oil for every cup of butter", 
+        notes: "Better for savory recipes" 
+      },
+      { 
+        name: "Applesauce", 
+        ratio: "1/2 cup applesauce for every cup of butter", 
+        notes: "To reduce fat in baked goods" 
+      }
+    ]
+  },
+  "eggs": {
+    originalIngredient: "Eggs",
+    substitutes: [
+      { 
+        name: "Ground Flaxseed + Water", 
+        ratio: "1 tbsp ground flaxseed + 3 tbsp water = 1 egg", 
+        notes: "Let sit for 5 minutes until thickened" 
+      },
+      { 
+        name: "Mashed Banana", 
+        ratio: "1/4 cup mashed banana = 1 egg", 
+        notes: "Suitable for sweet baked goods" 
+      },
+      { 
+        name: "Yogurt", 
+        ratio: "1/4 cup yogurt = 1 egg" 
+      }
+    ]
+  },
+  "milk": {
+    originalIngredient: "Milk",
+    substitutes: [
+      { 
+        name: "Almond Milk", 
+        ratio: "1:1" 
+      },
+      { 
+        name: "Coconut Milk", 
+        ratio: "1:1", 
+        notes: "Adds coconut flavor" 
+      },
+      { 
+        name: "Soy Milk", 
+        ratio: "1:1", 
+        notes: "Common plant-based alternative" 
+      }
+    ]
+  },
+  "olive oil": {
+    originalIngredient: "Olive Oil",
+    substitutes: [
+      { 
+        name: "Canola Oil", 
+        ratio: "1:1", 
+        notes: "Lighter flavor" 
+      },
+      { 
+        name: "Avocado Oil", 
+        ratio: "1:1", 
+        notes: "Healthy option with high smoke point" 
+      },
+      { 
+        name: "Coconut Oil", 
+        ratio: "1:1", 
+        notes: "Adds coconut flavor" 
+      }
+    ]
+  },
+  "vinegar": {
+    originalIngredient: "White Vinegar",
+    substitutes: [
+      { 
+        name: "Lemon Juice", 
+        ratio: "1:1", 
+        notes: "Gives similar acidity with citrus flavor" 
+      },
+      { 
+        name: "Apple Cider Vinegar", 
+        ratio: "1:1", 
+        notes: "Slightly stronger flavor" 
+      },
+      { 
+        name: "White Wine Vinegar", 
+        ratio: "1:1", 
+        notes: "More refined flavor" 
+      }
+    ]
+  },
+  "salt": {
+    originalIngredient: "Table Salt",
+    substitutes: [
+      { 
+        name: "Sea Salt", 
+        ratio: "1:1" 
+      },
+      { 
+        name: "Low-sodium Soy Sauce", 
+        ratio: "Use sparingly to taste", 
+        notes: "Adds umami flavor" 
+      },
+      { 
+        name: "Fresh Herbs", 
+        ratio: "Use to taste", 
+        notes: "To add flavor without salt" 
+      }
+    ]
+  },
+  "onion": {
+    originalIngredient: "Onion",
+    substitutes: [
+      { 
+        name: "Leeks", 
+        ratio: "1:1", 
+        notes: "Milder flavor" 
+      },
+      { 
+        name: "Green Onions", 
+        ratio: "1:1", 
+        notes: "More distinctive flavor" 
+      },
+      { 
+        name: "Onion Powder", 
+        ratio: "1 tsp for every 1/2 cup fresh onion" 
+      }
+    ]
+  },
+  "garlic": {
+    originalIngredient: "Garlic",
+    substitutes: [
+      { 
+        name: "Garlic Powder", 
+        ratio: "1/8 tsp for each clove of garlic" 
+      },
+      { 
+        name: "Chives", 
+        ratio: "1 tbsp for each clove of garlic", 
+        notes: "Milder flavor" 
+      },
+      { 
+        name: "Leeks", 
+        ratio: "1/2 cup leeks for each clove of garlic", 
+        notes: "Different but acceptable flavor" 
+      }
+    ]
+  },
+  "tomato": {
+    originalIngredient: "Fresh Tomatoes",
+    substitutes: [
+      { 
+        name: "Tomato Paste + Water", 
+        ratio: "2-3 tbsp paste + 1/4 cup water = 1 cup tomatoes" 
+      },
+      { 
+        name: "Canned Tomatoes", 
+        ratio: "1:1" 
+      },
+      { 
+        name: "Tomato Sauce", 
+        ratio: "1/2 cup sauce for every cup of tomatoes", 
+        notes: "May need to adjust seasonings" 
+      }
+    ]
+  },
+  "lemon": {
+    originalIngredient: "Lemon Juice",
+    substitutes: [
+      { 
+        name: "White Vinegar", 
+        ratio: "1/2 the amount of vinegar for the amount of lemon" 
+      },
+      { 
+        name: "Bottled Lemon Juice", 
+        ratio: "1:1", 
+        notes: "But the flavor may be less bright" 
+      },
+      { 
+        name: "Apple Cider Vinegar", 
+        ratio: "1/2 the amount of vinegar for the amount of lemon" 
+      }
+    ]
+  }
+};
+
 /**
  * Get substitution suggestions for a given ingredient
+ * @param ingredient The ingredient to find substitutes for
+ * @param language The language to return results in ('ar-EG' or 'en-US')
  */
-export async function getIngredientSubstitutes(ingredient: string): Promise<SubstitutionResponse> {
+export async function getIngredientSubstitutes(ingredient: string, language = 'ar-EG'): Promise<SubstitutionResponse> {
   const normalizedIngredient = ingredient.trim().toLowerCase();
+  const substitutionsMap = language === 'en-US' ? englishSubstitutions : arabicSubstitutions;
   
-  // Check if we have a common substitution for this ingredient
-  for (const [key, value] of Object.entries(commonSubstitutions)) {
+  // Check if we have a substitution for this ingredient in the requested language
+  for (const [key, value] of Object.entries(substitutionsMap)) {
     if (key.toLowerCase().includes(normalizedIngredient) || 
         normalizedIngredient.includes(key.toLowerCase())) {
       return value;
     }
   }
   
-  // If no match was found in our common substitutes, return a generic message
+  // If no match was found, return a generic message in the appropriate language
   return {
     originalIngredient: ingredient,
     substitutes: [
-      { name: "لم نتمكن من إيجاد بدائل محددة لهذا المكون", ratio: "غير متوفر" }
+      { 
+        name: language === 'en-US' 
+          ? "We couldn't find specific substitutes for this ingredient" 
+          : "لم نتمكن من إيجاد بدائل محددة لهذا المكون", 
+        ratio: language === 'en-US' ? "Not available" : "غير متوفر" 
+      }
     ]
   };
 }
