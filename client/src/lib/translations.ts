@@ -78,6 +78,108 @@ export const translations: Record<string, Record<Language, string>> = {
     'ar-SA': 'مكونات مقترحة',
     'en-US': 'Suggested Ingredients'
   },
+  
+  // Auth Page Translations
+  'welcomeToQuickRecipe': {
+    'ar-EG': 'مرحباً بك في Quick Recipe',
+    'ar-SA': 'مرحباً بك في Quick Recipe',
+    'en-US': 'Welcome to Quick Recipe'
+  },
+  'loginForSpecialFeatures': {
+    'ar-EG': 'سجل دخولك للوصول إلى مميزات خاصة',
+    'ar-SA': 'سجل دخولك للوصول إلى مميزات خاصة',
+    'en-US': 'Sign in to access special features'
+  },
+  'loginWithGoogle': {
+    'ar-EG': 'تسجيل الدخول باستخدام Google',
+    'ar-SA': 'تسجيل الدخول باستخدام Google',
+    'en-US': 'Sign in with Google'
+  },
+  'noteGoogleDisabled': {
+    'ar-EG': 'ملاحظة: تسجيل الدخول بجوجل معطل حالياً',
+    'ar-SA': 'ملاحظة: تسجيل الدخول بجوجل معطل حالياً',
+    'en-US': 'Note: Google login is currently disabled'
+  },
+  'googleLoginInstructions': {
+    'ar-EG': 'يجب إضافة نطاق الموقع إلى قائمة النطاقات المسموح بها في إعدادات Firebase. يرجى استخدام خيار "تخطي تسجيل الدخول" أدناه.',
+    'ar-SA': 'يجب إضافة نطاق الموقع إلى قائمة النطاقات المسموح بها في إعدادات Firebase. يرجى استخدام خيار "تخطي تسجيل الدخول" أدناه.',
+    'en-US': 'The site domain must be added to the allowed domains in Firebase settings. Please use the "Quick Login" option below.'
+  },
+  'quickLogin': {
+    'ar-EG': 'دخول سريع (الخيار الموصى به)',
+    'ar-SA': 'دخول سريع (الخيار الموصى به)',
+    'en-US': 'Quick Login (Recommended)'
+  },
+  'adminLogin': {
+    'ar-EG': 'دخول المشرفين',
+    'ar-SA': 'دخول المشرفين',
+    'en-US': 'Admin Login'
+  },
+  'loginInfoTitle': {
+    'ar-EG': 'معلومات عن تسجيل الدخول:',
+    'ar-SA': 'معلومات عن تسجيل الدخول:',
+    'en-US': 'Login Information:'
+  },
+  'quickLoginDescription': {
+    'ar-EG': 'يعمل خيار "دخول سريع" على تمكينك من استخدام جميع وظائف التطبيق بسرعة دون الحاجة إلى حساب جوجل أو بريد إلكتروني. نوصي باستخدام هذا الخيار للتجربة الأفضل.',
+    'ar-SA': 'يعمل خيار "دخول سريع" على تمكينك من استخدام جميع وظائف التطبيق بسرعة دون الحاجة إلى حساب جوجل أو بريد إلكتروني. نوصي باستخدام هذا الخيار للتجربة الأفضل.',
+    'en-US': 'The "Quick Login" option lets you use all app functions quickly without needing a Google account or email. We recommend this option for the best experience.'
+  },
+  'termsAgreement': {
+    'ar-EG': 'بالتسجيل، أنت توافق على شروط الاستخدام وسياسة الخصوصية',
+    'ar-SA': 'بالتسجيل، أنت توافق على شروط الاستخدام وسياسة الخصوصية',
+    'en-US': 'By signing in, you agree to the Terms of Use and Privacy Policy'
+  },
+  'discoverTitle': {
+    'ar-EG': 'اكتشف وصفات جديدة وشهية',
+    'ar-SA': 'اكتشف وصفات جديدة وشهية',
+    'en-US': 'Discover New & Delicious Recipes'
+  },
+  'appDescription': {
+    'ar-EG': 'مع Quick Recipe، يمكنك إيجاد وصفات لذيذة باستخدام المكونات المتاحة لديك. سجّل دخولك للحصول على إمكانية حفظ وصفاتك المفضلة، وتخصيص تفضيلاتك، والمزيد!',
+    'ar-SA': 'مع Quick Recipe، يمكنك إيجاد وصفات لذيذة باستخدام المكونات المتاحة لديك. سجّل دخولك للحصول على إمكانية حفظ وصفاتك المفضلة، وتخصيص تفضيلاتك، والمزيد!',
+    'en-US': 'With Quick Recipe, you can find delicious recipes using your available ingredients. Sign in to save your favorite recipes, customize preferences, and more!'
+  },
+  'saveFavorites': {
+    'ar-EG': 'حفظ المفضلة',
+    'ar-SA': 'حفظ المفضلة',
+    'en-US': 'Save Favorites'
+  },
+  'saveFavoritesDesc': {
+    'ar-EG': 'احفظ وصفاتك المفضلة للرجوع إليها لاحقاً',
+    'ar-SA': 'احفظ وصفاتك المفضلة للرجوع إليها لاحقاً',
+    'en-US': 'Save your favorite recipes for later access'
+  },
+  'customizePreferences': {
+    'ar-EG': 'تخصيص التفضيلات',
+    'ar-SA': 'تخصيص التفضيلات',
+    'en-US': 'Customize Preferences'
+  },
+  'customizePreferencesDesc': {
+    'ar-EG': 'خصص تفضيلاتك الغذائية للحصول على اقتراحات مناسبة',
+    'ar-SA': 'خصص تفضيلاتك الغذائية للحصول على اقتراحات مناسبة',
+    'en-US': 'Customize your dietary preferences for suitable suggestions'
+  },
+  'ingredientSubstitutionsTitle': {
+    'ar-EG': 'بدائل المكونات',
+    'ar-SA': 'بدائل المكونات',
+    'en-US': 'Ingredient Substitutions'
+  },
+  'ingredientSubstitutionsDesc': {
+    'ar-EG': 'احصل على اقتراحات لبدائل المكونات غير المتوفرة',
+    'ar-SA': 'احصل على اقتراحات لبدائل المكونات غير المتوفرة',
+    'en-US': 'Get suggestions for unavailable ingredient substitutes'
+  },
+  'crossDeviceSync': {
+    'ar-EG': 'مزامنة عبر الأجهزة',
+    'ar-SA': 'مزامنة عبر الأجهزة',
+    'en-US': 'Cross-Device Sync'
+  },
+  'crossDeviceSyncDesc': {
+    'ar-EG': 'استمتع بتجربة سلسة عبر جميع أجهزتك',
+    'ar-SA': 'استمتع بتجربة سلسة عبر جميع أجهزتك',
+    'en-US': 'Enjoy a seamless experience across all your devices'
+  },
   // Admin Dashboard Welcome Messages
   'adminGreeting': {
     'ar-EG': 'مرحباً بالمشرف',

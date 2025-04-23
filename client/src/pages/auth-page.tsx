@@ -9,11 +9,14 @@ import { onAuthStateChanged } from "firebase/auth";
 import { Loader2, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
+import { useLanguage } from "@/contexts/LanguageContext";
+import translations from "@/lib/translations";
 
 export default function AuthPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { language, isArabic } = useLanguage();
   
   // تحقق من حالة تسجيل الدخول ومعالجة نتيجة إعادة التوجيه
   useEffect(() => {
@@ -25,31 +28,39 @@ export default function AuthPage() {
         if (user) {
           // تم تسجيل الدخول بنجاح من خلال إعادة التوجيه
           toast({
-            title: "تم تسجيل الدخول",
-            description: `مرحبًا ${user.displayName || 'بك'}!`,
+            title: isArabic ? "تم تسجيل الدخول" : "Logged In",
+            description: isArabic ? `مرحبًا ${user.displayName || 'بك'}!` : `Welcome ${user.displayName || 'back'}!`,
           });
           setLocation("/");
         }
       } catch (error: any) {
         console.error("Error handling auth redirect:", error);
         
-        let errorMessage = "حدث خطأ أثناء محاولة تسجيل الدخول بحساب Google";
+        let errorMessage = isArabic 
+          ? "حدث خطأ أثناء محاولة تسجيل الدخول بحساب Google" 
+          : "An error occurred while trying to sign in with Google";
         
         // تحسين رسالة الخطأ بناءً على نوع الخطأ
         if (error.code === 'auth/unauthorized-domain') {
-          errorMessage = `النطاق غير مصرح به. يجب على مدير التطبيق إضافة "${window.location.origin}" إلى قائمة النطاقات المصرح بها في إعدادات Firebase.`;
+          errorMessage = isArabic
+            ? `النطاق غير مصرح به. يجب على مدير التطبيق إضافة "${window.location.origin}" إلى قائمة النطاقات المصرح بها في إعدادات Firebase.`
+            : `Unauthorized domain. The app admin must add "${window.location.origin}" to the list of authorized domains in Firebase settings.`;
         } else if (error.code === 'auth/popup-closed-by-user') {
-          errorMessage = "تم إغلاق نافذة تسجيل الدخول قبل إكمال العملية.";
+          errorMessage = isArabic
+            ? "تم إغلاق نافذة تسجيل الدخول قبل إكمال العملية."
+            : "The sign-in window was closed before completing the process.";
         } else if (error.code === 'auth/cancelled-popup-request') {
           // هذا ليس خطأ فعلياً وغالباً ما يحدث عند فتح نافذة منبثقة جديدة
           errorMessage = ""; // استخدام سلسلة فارغة بدلاً من null
         } else if (error.code === 'auth/popup-blocked') {
-          errorMessage = "تم حظر النافذة المنبثقة. يرجى السماح بالنوافذ المنبثقة لهذا الموقع.";
+          errorMessage = isArabic
+            ? "تم حظر النافذة المنبثقة. يرجى السماح بالنوافذ المنبثقة لهذا الموقع."
+            : "The popup was blocked. Please allow popups for this website.";
         }
         
         if (errorMessage) {
           toast({
-            title: "خطأ في تسجيل الدخول",
+            title: isArabic ? "خطأ في تسجيل الدخول" : "Login Error",
             description: errorMessage,
             variant: "destructive",
           });
@@ -82,23 +93,31 @@ export default function AuthPage() {
       console.error('Login error:', error);
       
       // تعزيز معالجة الأخطاء الشائعة
-      let errorMessage = "حدث خطأ أثناء محاولة تسجيل الدخول بحساب Google";
+      let errorMessage = isArabic
+        ? "حدث خطأ أثناء محاولة تسجيل الدخول بحساب Google"
+        : "An error occurred while trying to sign in with Google";
       
       if (error.code === 'auth/unauthorized-domain') {
-        errorMessage = "النطاق غير مصرح به في Firebase. سيتم تسجيلك كزائر تلقائيًا.";
+        errorMessage = isArabic
+          ? "النطاق غير مصرح به في Firebase. سيتم تسجيلك كزائر تلقائيًا."
+          : "Unauthorized domain in Firebase. You will be logged in as a guest automatically.";
         
         // التحول لتسجيل دخول الزائر
         handleGuestLogin();
         return;
       } else if (error.code === 'auth/popup-blocked') {
-        errorMessage = "تم حظر نافذة تسجيل الدخول. الرجاء السماح بالنوافذ المنبثقة أو استخدام خيار 'تخطي'.";
+        errorMessage = isArabic
+          ? "تم حظر نافذة تسجيل الدخول. الرجاء السماح بالنوافذ المنبثقة أو استخدام خيار 'تخطي'."
+          : "Sign-in popup was blocked. Please allow popups or use the 'Quick Login' option.";
       } else if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
         // هذه ليست أخطاء حقيقية، فقط تنبيه المستخدم
-        errorMessage = "تم إغلاق نافذة تسجيل الدخول قبل إكمال العملية.";
+        errorMessage = isArabic
+          ? "تم إغلاق نافذة تسجيل الدخول قبل إكمال العملية."
+          : "The sign-in window was closed before completing the process.";
       }
       
       toast({
-        title: "معلومات تسجيل الدخول",
+        title: isArabic ? "معلومات تسجيل الدخول" : "Login Information",
         description: errorMessage,
         variant: error.code === 'auth/popup-closed-by-user' ? "default" : "destructive",
       });
@@ -113,7 +132,7 @@ export default function AuthPage() {
       // إنشاء بيانات مستخدم زائر
       const guestUser = {
         id: 1, // استخدام معرف المستخدم الافتراضي
-        username: "زائر",
+        username: isArabic ? "زائر" : "Guest",
         isGuest: true
       };
       
@@ -136,14 +155,16 @@ export default function AuthPage() {
             userAgent: navigator.userAgent,
             isGuest: true
           }),
-        }).catch(err => console.error("فشل إرسال إشعار تسجيل الدخول:", err));
+        }).catch(err => console.error(isArabic ? "فشل إرسال إشعار تسجيل الدخول:" : "Failed to send login notification:", err));
       } catch (notifyError) {
-        console.error("خطأ عند إعداد إشعار تسجيل الدخول:", notifyError);
+        console.error(isArabic ? "خطأ عند إعداد إشعار تسجيل الدخول:" : "Error setting up login notification:", notifyError);
       }
       
       toast({
-        title: "تم تسجيل الدخول كزائر",
-        description: "يمكنك الآن استخدام الموقع. بعض الميزات قد تكون محدودة.",
+        title: isArabic ? "تم تسجيل الدخول كزائر" : "Logged in as Guest",
+        description: isArabic 
+          ? "يمكنك الآن استخدام الموقع. بعض الميزات قد تكون محدودة." 
+          : "You can now use the site. Some features may be limited.",
         variant: "default"
       });
       
@@ -153,21 +174,23 @@ export default function AuthPage() {
       console.error("Error logging in as guest:", error);
       
       toast({
-        title: "حدث خطأ",
-        description: "حدث خطأ أثناء محاولة تسجيل الدخول كزائر.",
+        title: isArabic ? "حدث خطأ" : "Error",
+        description: isArabic 
+          ? "حدث خطأ أثناء محاولة تسجيل الدخول كزائر." 
+          : "An error occurred while trying to log in as a guest.",
         variant: "destructive"
       });
     }
   };
 
   return (
-    <div className="flex min-h-[80vh] w-full flex-col md:flex-row">
+    <div className="flex min-h-[80vh] w-full flex-col md:flex-row" dir={isArabic ? 'rtl' : 'ltr'}>
       {/* قسم النموذج */}
       <div className="flex w-full flex-1 items-center justify-center p-4 md:w-1/2">
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-1 text-center">
-            <CardTitle className="text-3xl font-bold">مرحباً بك في Quick Recipe</CardTitle>
-            <CardDescription>سجل دخولك للوصول إلى مميزات خاصة</CardDescription>
+            <CardTitle className="text-3xl font-bold">{translations['welcomeToQuickRecipe'][language]}</CardTitle>
+            <CardDescription>{translations['loginForSpecialFeatures'][language]}</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
             <div className="space-y-4">
@@ -178,14 +201,13 @@ export default function AuthPage() {
                 disabled={isLoading}
               >
                 <FcGoogle className="h-5 w-5" /> 
-                <span className="flex-1">تسجيل الدخول باستخدام Google</span>
+                <span className="flex-1">{translations['loginWithGoogle'][language]}</span>
               </Button>
               
               <div className="bg-amber-50 p-3 rounded-md border border-amber-200 text-xs">
-                <p className="font-medium text-amber-800 mb-1">ملاحظة: تسجيل الدخول بجوجل معطل حاليًا</p>
+                <p className="font-medium text-amber-800 mb-1">{translations['noteGoogleDisabled'][language]}</p>
                 <p className="text-amber-700">
-                  يجب إضافة نطاق الموقع إلى قائمة النطاقات المسموح بها في إعدادات Firebase.
-                  يرجى استخدام خيار "تخطي تسجيل الدخول" أدناه.
+                  {translations['googleLoginInstructions'][language]}
                 </p>
               </div>
             </div>
@@ -195,7 +217,7 @@ export default function AuthPage() {
               variant="default" 
               className="w-full mb-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600"
             >
-              دخول سريع (الخيار الموصى به)
+              {translations['quickLogin'][language]}
             </Button>
             
             <Button
@@ -204,17 +226,17 @@ export default function AuthPage() {
               className="w-full border border-gray-200 hover:bg-amber-50 flex items-center gap-2"
             >
               <Shield className="h-4 w-4 text-amber-500" />
-              <span className="flex-1">دخول المشرفين</span>
+              <span className="flex-1">{translations['adminLogin'][language]}</span>
             </Button>
           </CardContent>
           <CardContent>
             <div className="mt-4 p-3 bg-blue-50 text-blue-800 rounded-md border border-blue-200 text-sm">
-              <p className="font-semibold mb-1">معلومات عن تسجيل الدخول:</p>
-              <p>يعمل خيار "دخول سريع" على تمكينك من استخدام جميع وظائف التطبيق بسرعة دون الحاجة إلى حساب جوجل أو بريد إلكتروني. نوصي باستخدام هذا الخيار للتجربة الأفضل.</p>
+              <p className="font-semibold mb-1">{translations['loginInfoTitle'][language]}</p>
+              <p>{translations['quickLoginDescription'][language]}</p>
             </div>
           </CardContent>
           <CardFooter className="text-center text-sm text-muted-foreground">
-            بالتسجيل، أنت توافق على شروط الاستخدام وسياسة الخصوصية
+            {translations['termsAgreement'][language]}
           </CardFooter>
         </Card>
       </div>
@@ -223,28 +245,27 @@ export default function AuthPage() {
       <div className="hidden w-full bg-gradient-to-r from-orange-100 to-amber-100 p-8 md:flex md:w-1/2 md:flex-col md:items-center md:justify-center">
         <div className="mx-auto max-w-md text-center">
           <h1 className="mb-4 text-4xl font-extrabold tracking-tight text-orange-600">
-            اكتشف وصفات جديدة وشهية
+            {translations['discoverTitle'][language]}
           </h1>
           <p className="mb-6 text-lg text-gray-700">
-            مع Quick Recipe، يمكنك إيجاد وصفات لذيذة باستخدام المكونات المتاحة لديك.
-            سجّل دخولك للحصول على إمكانية حفظ وصفاتك المفضلة، وتخصيص تفضيلاتك، والمزيد!
+            {translations['appDescription'][language]}
           </p>
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-lg bg-white p-4 shadow-md">
-              <h3 className="mb-1 font-semibold text-orange-500">حفظ المفضلة</h3>
-              <p className="text-sm text-gray-600">احفظ وصفاتك المفضلة للرجوع إليها لاحقًا</p>
+              <h3 className="mb-1 font-semibold text-orange-500">{translations['saveFavorites'][language]}</h3>
+              <p className="text-sm text-gray-600">{translations['saveFavoritesDesc'][language]}</p>
             </div>
             <div className="rounded-lg bg-white p-4 shadow-md">
-              <h3 className="mb-1 font-semibold text-orange-500">تخصيص التفضيلات</h3>
-              <p className="text-sm text-gray-600">خصص تفضيلاتك الغذائية للحصول على اقتراحات مناسبة</p>
+              <h3 className="mb-1 font-semibold text-orange-500">{translations['customizePreferences'][language]}</h3>
+              <p className="text-sm text-gray-600">{translations['customizePreferencesDesc'][language]}</p>
             </div>
             <div className="rounded-lg bg-white p-4 shadow-md">
-              <h3 className="mb-1 font-semibold text-orange-500">بدائل المكونات</h3>
-              <p className="text-sm text-gray-600">احصل على اقتراحات لبدائل المكونات غير المتوفرة</p>
+              <h3 className="mb-1 font-semibold text-orange-500">{translations['ingredientSubstitutionsTitle'][language]}</h3>
+              <p className="text-sm text-gray-600">{translations['ingredientSubstitutionsDesc'][language]}</p>
             </div>
             <div className="rounded-lg bg-white p-4 shadow-md">
-              <h3 className="mb-1 font-semibold text-orange-500">مزامنة عبر الأجهزة</h3>
-              <p className="text-sm text-gray-600">استمتع بتجربة سلسة عبر جميع أجهزتك</p>
+              <h3 className="mb-1 font-semibold text-orange-500">{translations['crossDeviceSync'][language]}</h3>
+              <p className="text-sm text-gray-600">{translations['crossDeviceSyncDesc'][language]}</p>
             </div>
           </div>
         </div>
