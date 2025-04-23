@@ -813,6 +813,16 @@ export const translations: Record<string, Record<Language, string>> = {
     'ar-SA': 'إعدادات مراقبة المحتوى',
     'en-US': 'Content Moderation Settings'
   },
+  'discordAlerts': {
+    'ar-EG': 'تنبيهات Discord',
+    'ar-SA': 'تنبيهات Discord',
+    'en-US': 'Discord Alerts'
+  },
+  'sendDiscordNotifications': {
+    'ar-EG': 'إرسال إشعارات Discord',
+    'ar-SA': 'إرسال إشعارات Discord',
+    'en-US': 'Send Discord Notifications'
+  },
   'aiContentModeration': {
     'ar-EG': 'مراقبة المحتوى بالذكاء الاصطناعي',
     'ar-SA': 'مراقبة المحتوى بالذكاء الاصطناعي',
@@ -822,6 +832,11 @@ export const translations: Record<string, Record<Language, string>> = {
     'ar-EG': 'استخدام الذكاء الاصطناعي لاكتشاف المحتوى غير اللائق وتصفيته تلقائياً',
     'ar-SA': 'استخدام الذكاء الاصطناعي لاكتشاف المحتوى غير اللائق وتصفيته تلقائياً',
     'en-US': 'Use AI to detect and filter inappropriate content automatically'
+  },
+  'sendDiscordAlertsDesc': {
+    'ar-EG': 'إرسال تنبيهات عن البلاغات الجديدة إلى قناة Discord',
+    'ar-SA': 'إرسال تنبيهات عن البلاغات الجديدة إلى قناة Discord',
+    'en-US': 'Send alerts about new reports to Discord channel'
   },
   'autoDeletePosts': {
     'ar-EG': 'الحذف التلقائي للمنشورات',
