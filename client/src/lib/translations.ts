@@ -1,4 +1,4 @@
-import { Language } from '@/components/LanguageSelector';
+export type Language = 'ar-EG' | 'ar-SA' | 'en-US';
 
 export const translations: Record<string, Record<Language, string>> = {
   // Ingredients Component

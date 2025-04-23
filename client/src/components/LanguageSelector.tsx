@@ -7,8 +7,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
-
-export type Language = 'ar-EG' | 'ar-SA' | 'en-US';
+import { Language } from '@/lib/translations';
 
 interface LanguageSelectorProps {
   onLanguageChange: (language: Language) => void;
