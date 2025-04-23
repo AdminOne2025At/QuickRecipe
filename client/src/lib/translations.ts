@@ -560,6 +560,11 @@ export const translations: Record<string, Record<Language, string>> = {
     'ar-SA': 'نسبة المستخدمين النشطين',
     'en-US': 'Active Users Rate'
   },
+  'activeUsersPercentage': {
+    'ar-EG': 'نسبة المستخدمين النشطين',
+    'ar-SA': 'نسبة المستخدمين النشطين',
+    'en-US': 'Active Users Percentage'
+  },
   'resolvedReportsRate': {
     'ar-EG': 'نسبة البلاغات المعالجة',
     'ar-SA': 'نسبة البلاغات المعالجة',
