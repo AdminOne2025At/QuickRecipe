@@ -77,7 +77,8 @@ export default function CommunityPosts() {
   const { toast } = useToast();
   const [likedPosts, setLikedPosts] = useState<number[]>([]);
   const [lastRefreshTime, setLastRefreshTime] = useState(new Date());
-  const currentUserId = user?.uid ? parseInt(user.uid.substring(0, 8), 16) % 1000 : 1;
+  // تحويل معرف المستخدم إلى رقم - استخدام البيانات المتاحة من نوع المستخدم
+  const currentUserId = user?.id ? user.id : 1;
 
   // جلب المنشورات الرائجة
   const { data: trendingPostsData, isLoading: trendingLoading } = useQuery({

@@ -309,7 +309,7 @@ export default function AdminDashboard() {
           variant="outline"
           className="gap-2"
         >
-          العودة إلى الصفحة الرئيسية
+          {translations['returnToHomepage'][language]}
         </Button>
       </div>
       

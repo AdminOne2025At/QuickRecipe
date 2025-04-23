@@ -380,6 +380,23 @@ export const translations: Record<string, Record<Language, string>> = {
     'ar-EG': 'عملناه عشانك',
     'ar-SA': 'صنعناه من أجلك',
     'en-US': 'Made for you'
+  },
+  
+  // Admin Post Management
+  'deleteAllPosts': {
+    'ar-EG': 'تم حذف جميع المنشورات',
+    'ar-SA': 'تم حذف جميع المنشورات',
+    'en-US': 'All Posts Deleted'
+  },
+  'postsDeletedSuccess': {
+    'ar-EG': 'تم حذف {count} منشور بنجاح من منصة كويك ريسب',
+    'ar-SA': 'تم حذف {count} منشور بنجاح من منصة كويك ريسب',
+    'en-US': 'Successfully deleted {count} posts from the Quick Recipe platform'
+  },
+  'deletionFailed': {
+    'ar-EG': 'فشل في حذف جميع المنشورات',
+    'ar-SA': 'فشل في حذف جميع المنشورات',
+    'en-US': 'Failed to delete all posts'
   }
 };
 
