@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { useLanguage } from "@/contexts/LanguageContext";
 import translations from "@/lib/translations";
+import { useQuery } from "@tanstack/react-query";
 
 export default function ProfilePage() {
   const [location, setLocation] = useLocation();
@@ -41,6 +42,22 @@ export default function ProfilePage() {
   };
   
   const [preferences, setPreferences] = useState(defaultUserPreferences);
+  
+  // استعلامات الإحصائيات للمشرف
+  const { data: postsCount = 0, isLoading: postsCountLoading } = useQuery({
+    queryKey: ['/api/community-posts/count'],
+    enabled: isAdmin
+  });
+  
+  const { data: usersCount = 0, isLoading: usersCountLoading } = useQuery({
+    queryKey: ['/api/users/count'],
+    enabled: isAdmin
+  });
+  
+  const { data: reportsCount = 0, isLoading: reportsCountLoading } = useQuery({
+    queryKey: ['/api/reports/count'],
+    enabled: isAdmin
+  });
   
   // استخراج علامة التبويب من عنوان URL
   const urlParams = new URLSearchParams(location.split('?')[1] || '');
@@ -473,15 +490,27 @@ export default function ProfilePage() {
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     <div className="p-3 bg-blue-50 rounded-md border border-blue-100">
                       <p className="text-sm text-blue-600">{translations['posts'][language]}</p>
-                      <p className="text-2xl font-bold">120</p>
+                      <p className="text-2xl font-bold">
+                        {postsCountLoading ? (
+                          <Loader2 className="h-5 w-5 inline-block animate-spin" />
+                        ) : postsCount}
+                      </p>
                     </div>
                     <div className="p-3 bg-green-50 rounded-md border border-green-100">
                       <p className="text-sm text-green-600">{translations['users'][language]}</p>
-                      <p className="text-2xl font-bold">48</p>
+                      <p className="text-2xl font-bold">
+                        {usersCountLoading ? (
+                          <Loader2 className="h-5 w-5 inline-block animate-spin" />
+                        ) : usersCount}
+                      </p>
                     </div>
                     <div className="p-3 bg-red-50 rounded-md border border-red-100">
                       <p className="text-sm text-red-600">{translations['reportsHeader'][language]}</p>
-                      <p className="text-2xl font-bold">15</p>
+                      <p className="text-2xl font-bold">
+                        {reportsCountLoading ? (
+                          <Loader2 className="h-5 w-5 inline-block animate-spin" />
+                        ) : reportsCount}
+                      </p>
                     </div>
                   </div>
                 </div>
