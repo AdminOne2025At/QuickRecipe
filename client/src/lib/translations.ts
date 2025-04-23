@@ -587,6 +587,13 @@ export const translations: Record<string, Record<Language, string>> = {
     'ar-EG': 'هنا يمكنك إدارة المحتوى ومراقبة المنشورات والإشراف على المنصة',
     'ar-SA': 'هنا يمكنك إدارة المحتوى ومراقبة المنشورات والإشراف على المنصة',
     'en-US': 'Here you can manage content, monitor posts, and supervise the platform'
+  },
+  
+  // Admin Dashboard - Moderation Settings
+  'aiContentModeration': {
+    'ar-EG': 'مراقبة المحتوى بالذكاء الاصطناعي',
+    'ar-SA': 'مراقبة المحتوى بالذكاء الاصطناعي',
+    'en-US': 'AI Content Moderation'
   }
 };
 
