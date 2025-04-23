@@ -126,7 +126,6 @@ export default function Home() {
           <h1 className="text-3xl md:text-4xl flex items-center gap-3">
             <img src="/quick-recipe-new-logo.png" alt="Quick Recipe Logo" className="h-10 md:h-12" />
             <span className="font-extrabold text-white tracking-wide" style={{ fontFamily: 'Comic Sans MS, cursive, sans-serif', textShadow: '1px 1px 2px rgba(0,0,0,0.2)' }}>
-           Recipes
             </span>
           </h1>
           <div className="flex items-center gap-3">
