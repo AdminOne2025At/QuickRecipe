@@ -136,18 +136,7 @@ export default function Home() {
                 : "Find recipes using ingredients at home"}
             </span>
             <div className="flex items-center gap-2">
-              <Button 
-                onClick={searchRecipes}
-                className="bg-white text-primary hover:bg-gray-100 rounded-full" 
-                disabled={ingredients.length === 0}
-                size="sm"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className={`h-5 w-5 ${isArabic ? 'ml-1' : 'mr-1'}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="11" cy="11" r="8" />
-                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                </svg>
-                {isArabic ? "دوّر" : "Search"}
-              </Button>
+              {/* Search button removed */}
             </div>
           </div>
         </div>
@@ -172,7 +161,7 @@ export default function Home() {
                       }
                     }
                   }}
-                  placeholder={isArabic ? "اكتب المكون اللي عندك في البيت..." : "Enter ingredients you have at home..."}
+                  placeholder={isArabic ? "ابحث عن مكونات اكلة من اسمها..." : "Search for recipe ingredients by name..."}
                   className={`flex-grow py-2 px-3 bg-white ${isArabic ? 'text-right' : 'text-left'} focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50`}
                 />
                 <Button
