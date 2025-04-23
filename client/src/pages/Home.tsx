@@ -9,7 +9,7 @@ import IngredientSubstitution from "@/components/IngredientSubstitution";
 import ContactModal from "@/components/ContactModal";
 import { useCallback, useEffect, useState } from "react";
 import { Ingredient, Recipe } from "@/lib/types";
-import { fetchRecipes, searchRecipesByName as apiSearchRecipesByName } from "@/lib/api";
+import { fetchRecipes } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -20,7 +20,6 @@ export default function Home() {
   const [suggestedIngredients, setSuggestedIngredients] = useState<string[]>([]);
   const [recipesCache, setRecipesCache] = useState<Record<string, any>>({});
   const [ingredientInput, setIngredientInput] = useState<string>("");
-  const [recipeNameInput, setRecipeNameInput] = useState<string>("");
   const { toast } = useToast();
   const { language, isArabic } = useLanguage();
   
@@ -101,35 +100,6 @@ export default function Home() {
     addIngredient(ingredient);
   };
 
-  // Search recipes by name
-  const searchRecipesByName = useCallback(async () => {
-    if (!recipeNameInput.trim()) {
-      toast({
-        title: "لا يوجد اسم وصفة",
-        description: "الرجاء إدخال اسم الوصفة للبحث",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      // Use the API function instead of direct fetch
-      const data = await apiSearchRecipesByName(recipeNameInput);
-      setRecipes(data.recipes || []);
-      setSuggestedIngredients(data.suggestedIngredients || []);
-    } catch (error) {
-      console.error('Error searching recipes by name:', error);
-      toast({
-        title: "حدث خطأ",
-        description: "فشل في البحث عن الوصفات. يرجى المحاولة مرة أخرى.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  }, [recipeNameInput, toast]);
-
   // Effect to clear recipes if ingredients are emptied
   useEffect(() => {
     if (ingredients.length === 0) {
@@ -186,38 +156,6 @@ export default function Home() {
       {/* Quick Search Bar */}
       <div className="bg-white shadow-md py-3 sticky top-0 z-20 border-b border-gray-200">
         <div className="container mx-auto px-4 flex flex-col gap-2 max-w-3xl">
-          {/* Recipe name search */}
-          <div className="flex items-center gap-2">
-            <div className="flex-grow">
-              <div className="flex rounded-lg border border-gray-300 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
-                <input
-                  type="text"
-                  value={recipeNameInput}
-                  onChange={(e) => setRecipeNameInput(e.target.value)}
-                  onKeyPress={(e) => {
-                    if (e.key === "Enter") {
-                      searchRecipesByName();
-                    }
-                  }}
-                  placeholder={isArabic ? "ابحث عن وصفة بالاسم..." : "Search recipes by name..."}
-                  className={`flex-grow py-2 px-3 bg-white ${isArabic ? 'text-right' : 'text-left'} focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50`}
-                />
-                <Button
-                  onClick={searchRecipesByName}
-                  disabled={!recipeNameInput.trim() || isLoading}
-                  className="px-3 py-2 bg-primary text-white hover:bg-primary-dark transition-all duration-300"
-                >
-                  <span>🔍</span> {isArabic ? "بحث" : "Search"}
-                </Button>
-              </div>
-              <div className="text-center my-2">
-                <span className="text-gray-500 font-medium bg-gray-100 px-4 py-1 rounded-full text-xs">
-                  {isArabic ? "أو" : "OR"}
-                </span>
-              </div>
-            </div>
-          </div>
-          
           {/* Ingredient search */}
           <div className="flex flex-col md:flex-row items-center gap-2">
             <div className="flex-grow w-full">
