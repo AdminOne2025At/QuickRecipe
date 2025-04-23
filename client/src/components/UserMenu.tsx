@@ -10,10 +10,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useLocation } from "wouter";
 import { LogIn, LogOut, Settings, User } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import translations from "@/lib/translations";
 
 export function UserMenu() {
   const { user, firebaseUser, isLoading } = useAuth();
   const [, setLocation] = useLocation();
+  const { language, isArabic } = useLanguage();
 
   if (isLoading) {
     return (
@@ -32,7 +35,7 @@ export function UserMenu() {
         className="gap-2"
       >
         <LogIn className="h-4 w-4" />
-        <span>تسجيل الدخول</span>
+        <span>{translations.signIn[language]}</span>
       </Button>
     );
   }
@@ -65,11 +68,11 @@ export function UserMenu() {
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => setLocation("/profile")} className="gap-2 cursor-pointer">
           <User className="h-4 w-4" />
-          <span>الملف الشخصي</span>
+          <span>{translations.profile[language]}</span>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setLocation("/profile?tab=preferences")} className="gap-2 cursor-pointer">
           <Settings className="h-4 w-4" />
-          <span>الإعدادات</span>
+          <span>{translations.settingsUserMenu[language]}</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem 

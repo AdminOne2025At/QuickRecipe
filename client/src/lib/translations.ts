@@ -180,6 +180,28 @@ export const translations: Record<string, Record<Language, string>> = {
     'ar-SA': 'استمتع بتجربة سلسة عبر جميع أجهزتك',
     'en-US': 'Enjoy a seamless experience across all your devices'
   },
+  
+  // UserMenu Translations
+  'profile': {
+    'ar-EG': 'الملف الشخصي',
+    'ar-SA': 'الملف الشخصي',
+    'en-US': 'Profile'
+  },
+  'settingsUserMenu': {
+    'ar-EG': 'الإعدادات',
+    'ar-SA': 'الإعدادات',
+    'en-US': 'Settings'
+  },
+  'logOut': {
+    'ar-EG': 'تسجيل الخروج',
+    'ar-SA': 'تسجيل الخروج',
+    'en-US': 'Log Out'
+  },
+  'signIn': {
+    'ar-EG': 'تسجيل الدخول',
+    'ar-SA': 'تسجيل الدخول',
+    'en-US': 'Sign In'
+  },
   // Admin Dashboard Welcome Messages
   'adminGreeting': {
     'ar-EG': 'مرحباً بالمشرف',
