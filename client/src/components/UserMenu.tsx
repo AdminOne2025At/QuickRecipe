@@ -66,11 +66,11 @@ export function UserMenu() {
           </div>
         </div>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => setLocation("/profile")} className="gap-2 cursor-pointer">
+        <DropdownMenuItem onClick={() => window.location.href = "/profile"} className="gap-2 cursor-pointer">
           <User className="h-4 w-4" />
           <span>{translations.profile[language]}</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setLocation("/profile?tab=preferences")} className="gap-2 cursor-pointer">
+        <DropdownMenuItem onClick={() => window.location.href = "/profile?tab=preferences"} className="gap-2 cursor-pointer">
           <Settings className="h-4 w-4" />
           <span>{translations.settingsUserMenu[language]}</span>
         </DropdownMenuItem>
@@ -105,7 +105,7 @@ export function UserMenu() {
           className="text-red-600 gap-2 cursor-pointer"
         >
           <LogOut className="h-4 w-4" />
-          <span>تسجيل الخروج</span>
+          <span>{translations.logOut[language]}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
