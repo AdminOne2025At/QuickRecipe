@@ -35,8 +35,8 @@ export function IngredientSubstitution() {
     setError(null);
     
     try {
-      // Use the API function instead of direct fetch
-      const data = await getIngredientSubstitutes(ingredient);
+      // Use the API function instead of direct fetch and pass current language
+      const data = await getIngredientSubstitutes(ingredient, language);
       setResults(data);
       
       // Add to recent searches

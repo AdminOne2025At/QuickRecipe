@@ -537,7 +537,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get ingredient substitutes
   app.get("/api/substitutes", async (req, res) => {
     try {
-      const { ingredient } = req.query;
+      const { ingredient, lang } = req.query;
       
       if (!ingredient || typeof ingredient !== 'string') {
         return res.status(400).json({ 
@@ -545,8 +545,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      // Get ingredient substitutes
-      const substitutes = await getIngredientSubstitutes(ingredient);
+      // Get ingredient substitutes with language preference
+      const language = typeof lang === 'string' ? lang : 'ar-EG';
+      const substitutes = await getIngredientSubstitutes(ingredient, language);
       return res.json(substitutes);
     } catch (error) {
       console.error("Error getting ingredient substitutes:", error);

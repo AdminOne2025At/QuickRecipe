@@ -35,13 +35,15 @@ export async function searchRecipesByName(query: string): Promise<RecipeResponse
 /**
  * Get substitution suggestions for an ingredient
  */
-export async function getIngredientSubstitutes(ingredient: string): Promise<SubstitutionResponse> {
+export async function getIngredientSubstitutes(ingredient: string, language: string = 'ar-EG'): Promise<SubstitutionResponse> {
   try {
-    const url = `/api/substitutes?ingredient=${encodeURIComponent(ingredient)}`;
+    const url = `/api/substitutes?ingredient=${encodeURIComponent(ingredient)}&lang=${encodeURIComponent(language)}`;
     const response = await apiRequest("GET", url);
     return await response.json();
   } catch (error) {
     console.error("Error fetching ingredient substitutes:", error);
-    throw new Error("فشل في العثور على بدائل للمكون");
+    throw new Error(language === 'en-US' 
+      ? "Failed to find substitutes for the ingredient" 
+      : "فشل في العثور على بدائل للمكون");
   }
 }
