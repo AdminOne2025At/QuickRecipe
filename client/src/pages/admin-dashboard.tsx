@@ -524,7 +524,7 @@ export default function AdminDashboard() {
                         </div>
                         
                         <div className="mt-2 text-sm text-muted-foreground">
-                          <p>{translations['postDate'][language]}: {new Date(report.createdAt).toLocaleDateString(language === "ar" ? 'ar-EG' : 'en-US')}</p>
+                          <p>{translations['postDate'][language]}: {new Date(report.createdAt).toLocaleDateString(language.includes('ar') ? 'ar-EG' : 'en-US')}</p>
                           {report.reportCount >= 50 && (
                             <Alert className="mt-2 bg-amber-50 text-amber-700 border-amber-200">
                               <AlertTitle className="flex items-center">
@@ -551,7 +551,7 @@ export default function AdminDashboard() {
                             className="gap-1"
                           >
                             <Eye className="h-4 w-4" />
-                            عرض المنشور
+                            {translations['viewPost'][language]}
                           </Button>
                         </div>
                       </div>
@@ -573,15 +573,15 @@ export default function AdminDashboard() {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Settings className="h-5 w-5 mr-2" />
-                إعدادات الإشراف
+                {translations['moderationSettings'][language]}
               </CardTitle>
               <CardDescription>
-                تخصيص إعدادات الإشراف والمراقبة على المنصة
+                {translations['moderationSettingsDesc'][language]}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4">
-                <h3 className="text-lg font-medium">إعدادات مراقبة المحتوى</h3>
+                <h3 className="text-lg font-medium">{translations['contentModerationSettings'][language]}</h3>
                 <Separator />
                 
                 <div className="flex items-center justify-between">
@@ -606,7 +606,7 @@ export default function AdminDashboard() {
               </div>
               
               <div className="space-y-4">
-                <h3 className="text-lg font-medium">إعدادات الإشعارات</h3>
+                <h3 className="text-lg font-medium">{translations['notificationSettings'][language]}</h3>
                 <Separator />
                 
                 <div className="flex items-center justify-between">
@@ -631,7 +631,7 @@ export default function AdminDashboard() {
               </div>
               
               <div className="space-y-4">
-                <h3 className="text-lg font-medium">أدوات إدارة المحتوى</h3>
+                <h3 className="text-lg font-medium">{translations['contentManagementTools'][language]}</h3>
                 <Separator />
                 
                 <div className="p-4 bg-red-50 border border-red-200 rounded-md space-y-4">
