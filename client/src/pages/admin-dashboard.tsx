@@ -23,6 +23,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 // مكون زر حذف جميع المنشورات
 function DeleteAllPostsButton() {
   const { toast } = useToast();
+  const { language } = useLanguage();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isConfirmationChecked, setIsConfirmationChecked] = useState(false);
   const queryClient = useQueryClient();
@@ -73,24 +74,24 @@ function DeleteAllPostsButton() {
             onClick={() => setIsDialogOpen(true)}
           >
             <Trash2 className="h-4 w-4" />
-            حذف جميع المنشورات
+            {translations['deleteAllPostsBtn'][language]}
           </Button>
         </AlertDialogTrigger>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="text-red-600 flex items-center">
               <AlertCircle className="h-5 w-5 mr-2" />
-              تحذير: حذف جميع المنشورات
+              {translations['confirmDeleteAllPosts'][language]}
             </AlertDialogTitle>
             <AlertDialogDescription className="space-y-4">
-              <p>هذا الإجراء سيحذف <strong>جميع المنشورات المجتمعية</strong> من منصة كويك ريسب بشكل نهائي.</p>
+              <p>{translations['deleteAllPostsWarningText'][language]}</p>
               <Alert variant="destructive">
                 <AlertTitle className="flex items-center">
                   <AlertTriangle className="h-4 w-4 mr-2" />
-                  إجراء لا يمكن التراجع عنه
+                  {translations['irreversibleAction'][language]}
                 </AlertTitle>
                 <AlertDescription>
-                  لا يمكن استعادة المنشورات بعد حذفها. سيتم حذف جميع المنشورات وتعليقاتها والبلاغات المرتبطة بها.
+                  {translations['deleteAllPostsDetails'][language]}
                 </AlertDescription>
               </Alert>
               <div className="flex items-center space-x-2 space-x-reverse mt-4">
@@ -100,7 +101,7 @@ function DeleteAllPostsButton() {
                   onCheckedChange={(checked) => setIsConfirmationChecked(checked as boolean)}
                 />
                 <Label htmlFor="confirm-delete-all" className="text-red-600 font-medium">
-                  أنا أفهم أن هذا الإجراء نهائي ولا يمكن التراجع عنه
+                  {translations['confirmIrreversibleAction'][language]}
                 </Label>
               </div>
             </AlertDialogDescription>
@@ -124,9 +125,9 @@ function DeleteAllPostsButton() {
               disabled={!isConfirmationChecked || deleteAllPostsMutation.isPending}
             >
               {deleteAllPostsMutation.isPending ? (
-                <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> جاري حذف جميع المنشورات...</>
+                <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> {translations['deletingAllPosts'][language]}</>
               ) : (
-                "تأكيد حذف جميع المنشورات"
+                translations['confirmDeleteAllPosts'][language]
               )}
             </AlertDialogAction>
           </AlertDialogFooter>
