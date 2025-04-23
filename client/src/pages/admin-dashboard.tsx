@@ -221,6 +221,7 @@ export default function AdminDashboard() {
   const [location, setLocation] = useLocation();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { language } = useLanguage();
   const [activeTab, setActiveTab] = useState("overview");
   
   // التحقق من صلاحيات المشرف
@@ -231,24 +232,24 @@ export default function AdminDashboard() {
       console.log("No user found, redirecting...");
       setLocation("/");
       toast({
-        title: "وصول مرفوض",
-        description: "يجب تسجيل الدخول للوصول إلى هذه الصفحة",
+        title: translations['accessDenied'][language],
+        description: translations['loginRequired'][language],
         variant: "destructive",
       });
     } else if (!user.isAdmin) {
       console.log("User is not admin, redirecting...");
       setLocation("/");
       toast({
-        title: "وصول مرفوض",
-        description: "هذه الصفحة مخصصة للمشرفين فقط",
+        title: translations['accessDenied'][language],
+        description: translations['adminOnlyPage'][language],
         variant: "destructive",
       });
     } else {
       console.log("Admin access verified!");
       // إظهار رسالة ترحيب للمشرف
       toast({
-        title: "مرحباً بالمشرف",
-        description: "تم تسجيل دخولك كمشرف بنجاح. يمكنك الآن إدارة المحتوى.",
+        title: translations['adminGreeting'][language],
+        description: translations['adminLoginSuccessMessage'][language],
         variant: "default",
       });
     }
@@ -666,13 +667,13 @@ export default function AdminDashboard() {
                       onClick={() => {
                         // فتح نافذة مساعدة
                         toast({
-                          title: "معلومات المشرف",
-                          description: `حالة المشرف: ${user?.isAdmin ? "نشط" : "غير نشط"}`,
+                          title: translations['adminInfo'][language],
+                          description: `${translations['adminStatus'][language]}: ${user?.isAdmin ? translations['active'][language] : translations['inactive'][language]}`,
                           variant: "default"
                         });
                       }}
                     >
-                      عرض حالة المشرف
+                      {translations['showAdminStatus'][language]}
                     </Button>
                     <Button 
                       variant="outline" 
@@ -704,8 +705,8 @@ export default function AdminDashboard() {
                         localStorage.removeItem("user");
                         window.location.href = "/";
                         toast({
-                          title: "تم تسجيل الخروج",
-                          description: "تم تسجيل خروجك من النظام بنجاح",
+                          title: translations['loggedOut'][language],
+                          description: translations['logoutSuccessMessage'][language],
                           variant: "default"
                         });
                       }}

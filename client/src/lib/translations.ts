@@ -52,6 +52,26 @@ export const translations: Record<string, Record<Language, string>> = {
     'ar-SA': 'غير نشط',
     'en-US': 'inactive'
   },
+  'loggedOut': {
+    'ar-EG': 'تم تسجيل الخروج',
+    'ar-SA': 'تم تسجيل الخروج',
+    'en-US': 'Logged Out'
+  },
+  'logoutSuccessMessage': {
+    'ar-EG': 'تم تسجيل خروجك من النظام بنجاح',
+    'ar-SA': 'تم تسجيل خروجك من النظام بنجاح',
+    'en-US': 'You have been successfully logged out of the system'
+  },
+  'showAdminStatus': {
+    'ar-EG': 'عرض حالة المشرف',
+    'ar-SA': 'عرض حالة المشرف',
+    'en-US': 'Show Admin Status'
+  },
+  'logout': {
+    'ar-EG': 'تسجيل الخروج',
+    'ar-SA': 'تسجيل الخروج',
+    'en-US': 'Logout'
+  },
   
   // Admin Login Page
   'adminEntrance': {
