@@ -387,6 +387,84 @@ export const translations: Record<string, Record<Language, string>> = {
     'ar-EG': 'فشل في استرجاع البلاغات',
     'ar-SA': 'فشل في استرجاع البلاغات',
     'en-US': 'Failed to fetch reports'
+  },
+  
+  // Ingredients Component
+  'yourIngredients': {
+    'ar-EG': 'المكونات المتاحة لديك',
+    'ar-SA': 'المكونات المتاحة لديك',
+    'en-US': 'Your Available Ingredients'
+  },
+  'addIngredient': {
+    'ar-EG': 'إضافة مكون',
+    'ar-SA': 'إضافة مكون',
+    'en-US': 'Add Ingredient'
+  },
+  'clearAll': {
+    'ar-EG': 'مسح الكل',
+    'ar-SA': 'مسح الكل',
+    'en-US': 'Clear All'
+  },
+  
+  // Ingredient Substitution Component
+  'ingredientSubstitutes': {
+    'ar-EG': 'بدائل المكونات',
+    'ar-SA': 'بدائل المكونات',
+    'en-US': 'Ingredient Substitutes'
+  },
+  'enterIngredient': {
+    'ar-EG': 'أدخل اسم المكون...',
+    'ar-SA': 'أدخل اسم المكون...',
+    'en-US': 'Enter ingredient name...'
+  },
+  'search': {
+    'ar-EG': 'بحث',
+    'ar-SA': 'بحث',
+    'en-US': 'Search'
+  },
+  'commonIngredients': {
+    'ar-EG': 'مكونات شائعة',
+    'ar-SA': 'مكونات شائعة',
+    'en-US': 'Common Ingredients'
+  },
+  'recentSearches': {
+    'ar-EG': 'عمليات البحث الأخيرة',
+    'ar-SA': 'عمليات البحث الأخيرة',
+    'en-US': 'Recent Searches'
+  },
+  'noRecentSearches': {
+    'ar-EG': 'لا توجد عمليات بحث سابقة',
+    'ar-SA': 'لا توجد عمليات بحث سابقة',
+    'en-US': 'No recent searches'
+  },
+  'substitutesFor': {
+    'ar-EG': 'بدائل لـ',
+    'ar-SA': 'بدائل لـ',
+    'en-US': 'Substitutes for'
+  },
+  'noSubstitutesFound': {
+    'ar-EG': 'لم يتم العثور على بدائل لهذا المكون',
+    'ar-SA': 'لم يتم العثور على بدائل لهذا المكون',
+    'en-US': 'No substitutes found for this ingredient'
+  },
+  
+  // Recipe Results Component
+  'instructions': {
+    'ar-EG': 'طريقة الشغل',
+    'ar-SA': 'طريقة الشغل',
+    'en-US': 'Instructions'
+  },
+  'watchVideo': {
+    'ar-EG': 'كمان ممكن تتفرج على الفيديو',
+    'ar-SA': 'كمان ممكن تتفرج على الفيديو',
+    'en-US': 'You can also watch the video'
+  },
+  
+  // Suggested Ingredients Component
+  'suggestedIngredients': {
+    'ar-EG': 'مكونات مقترحة',
+    'ar-SA': 'مكونات مقترحة',
+    'en-US': 'Suggested Ingredients'
   }
 };
 
