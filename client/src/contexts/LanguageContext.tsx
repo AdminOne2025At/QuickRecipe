@@ -19,7 +19,21 @@ const LanguageContext = createContext<LanguageContextType>({
   toggleLanguage: () => {},
 });
 
-export const useLanguage = () => useContext(LanguageContext);
+export const useLanguage = () => {
+  const context = useContext(LanguageContext);
+  // إذا كان السياق غير متاح (محتوى LanguageContext غير موجود)، أعد القيم الافتراضية
+  if (!context) {
+    console.warn('useLanguage must be used within a LanguageProvider');
+    return {
+      language: 'ar-EG' as Language,
+      isArabic: true,
+      setLanguage: () => {},
+      getLocalizedText: () => '',
+      toggleLanguage: () => {},
+    };
+  }
+  return context;
+};
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [language, setLanguage] = useState<Language>(() => {
@@ -67,7 +81,31 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, [language, isArabic]);
 
   const getLocalizedText = (key: string, texts: Record<Language, string>) => {
-    return texts[language] || texts[defaultLanguage] || key;
+    // تحقق من وجود النصوص وأن المفتاح موجود
+    if (!texts) return key;
+    
+    try {
+      // محاولة الحصول على النص باللغة الحالية
+      if (language && texts[language]) {
+        return texts[language];
+      }
+      
+      // الرجوع إلى اللغة الافتراضية إذا لم تكن اللغة الحالية متاحة
+      if (texts[defaultLanguage]) {
+        return texts[defaultLanguage];
+      }
+      
+      // الرجوع إلى أي لغة متاحة في حالة عدم وجود اللغة الافتراضية
+      const anyAvailableLanguage = Object.keys(texts)[0] as Language;
+      if (anyAvailableLanguage && texts[anyAvailableLanguage]) {
+        return texts[anyAvailableLanguage];
+      }
+    } catch (error) {
+      console.error('Error in getLocalizedText:', error);
+    }
+    
+    // إذا لم يتم العثور على أي نص، أعد المفتاح نفسه
+    return key;
   };
 
   return (
