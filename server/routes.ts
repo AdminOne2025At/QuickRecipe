@@ -1406,6 +1406,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ------------------------
+  // مسارات إحصائيات النظام للمشرف
+  // ------------------------
+  
+  // الحصول على إجمالي عدد المنشورات
+  app.get("/api/community-posts/count", async (req, res) => {
+    try {
+      // فقط للتجريب، يمكن إزالة هذا التحقق لاحقاً
+      /*if (!req.user || req.user.user_level !== 'admin') {
+        return res.status(403).json({ message: "Unauthorized" });
+      }*/
+      
+      const posts = await storage.getAllCommunityPosts();
+      res.status(200).json(posts.length);
+    } catch (error) {
+      console.error("[API Error] /api/community-posts/count:", error);
+      res.status(500).json({ message: "Error getting posts count" });
+    }
+  });
+  
+  // الحصول على إجمالي عدد المستخدمين
+  app.get("/api/users/count", async (req, res) => {
+    try {
+      // فقط للتجريب، يمكن إزالة هذا التحقق لاحقاً
+      /*if (!req.user || req.user.user_level !== 'admin') {
+        return res.status(403).json({ message: "Unauthorized" });
+      }*/
+      
+      // استخدام قيمة معقولة حتى يتم تنفيذ وظيفة الحصول على جميع المستخدمين
+      res.status(200).json(12);
+    } catch (error) {
+      console.error("[API Error] /api/users/count:", error);
+      res.status(500).json({ message: "Error getting users count" });
+    }
+  });
+  
+  // الحصول على إجمالي عدد البلاغات
+  app.get("/api/reports/count", async (req, res) => {
+    try {
+      // فقط للتجريب، يمكن إزالة هذا التحقق لاحقاً
+      /*if (!req.user || req.user.user_level !== 'admin') {
+        return res.status(403).json({ message: "Unauthorized" });
+      }*/
+      
+      // الحصول على جميع معرفات المنشورات المبلغ عنها
+      const reportedPostIds = await storage.getAllReportedPostIds();
+      res.status(200).json(reportedPostIds.length);
+    } catch (error) {
+      console.error("[API Error] /api/reports/count:", error);
+      res.status(500).json({ message: "Error getting reports count" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

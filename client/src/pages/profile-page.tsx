@@ -44,17 +44,17 @@ export default function ProfilePage() {
   const [preferences, setPreferences] = useState(defaultUserPreferences);
   
   // استعلامات الإحصائيات للمشرف
-  const { data: postsCount = 0, isLoading: postsCountLoading } = useQuery({
+  const { data: postsCount = 0, isLoading: postsCountLoading } = useQuery<number>({
     queryKey: ['/api/community-posts/count'],
     enabled: isAdmin
   });
   
-  const { data: usersCount = 0, isLoading: usersCountLoading } = useQuery({
+  const { data: usersCount = 0, isLoading: usersCountLoading } = useQuery<number>({
     queryKey: ['/api/users/count'],
     enabled: isAdmin
   });
   
-  const { data: reportsCount = 0, isLoading: reportsCountLoading } = useQuery({
+  const { data: reportsCount = 0, isLoading: reportsCountLoading } = useQuery<number>({
     queryKey: ['/api/reports/count'],
     enabled: isAdmin
   });
@@ -493,7 +493,7 @@ export default function ProfilePage() {
                       <p className="text-2xl font-bold">
                         {postsCountLoading ? (
                           <Loader2 className="h-5 w-5 inline-block animate-spin" />
-                        ) : postsCount}
+                        ) : String(postsCount)}
                       </p>
                     </div>
                     <div className="p-3 bg-green-50 rounded-md border border-green-100">
@@ -501,7 +501,7 @@ export default function ProfilePage() {
                       <p className="text-2xl font-bold">
                         {usersCountLoading ? (
                           <Loader2 className="h-5 w-5 inline-block animate-spin" />
-                        ) : usersCount}
+                        ) : String(usersCount)}
                       </p>
                     </div>
                     <div className="p-3 bg-red-50 rounded-md border border-red-100">
@@ -509,7 +509,7 @@ export default function ProfilePage() {
                       <p className="text-2xl font-bold">
                         {reportsCountLoading ? (
                           <Loader2 className="h-5 w-5 inline-block animate-spin" />
-                        ) : reportsCount}
+                        ) : String(reportsCount)}
                       </p>
                     </div>
                   </div>
