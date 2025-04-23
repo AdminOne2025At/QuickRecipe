@@ -457,7 +457,7 @@ export default function AdminDashboard() {
                   {translations['usageStatistics'][language]}
                 </h4>
                 <p className="text-amber-700 text-sm mt-2">
-                  شهدت المنصة زيادة بنسبة 25% في عدد المنشورات الجديدة خلال الأسبوع الماضي.
+                  {translations['platformGrowth'][language]}
                 </p>
               </div>
             </CardContent>
@@ -469,9 +469,9 @@ export default function AdminDashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
-                <CardTitle>البلاغات والمنشورات المبلغ عنها</CardTitle>
+                <CardTitle>{translations['reportsAndReportedPosts'][language]}</CardTitle>
                 <CardDescription>
-                  المنشورات التي قام المستخدمون بالإبلاغ عنها
+                  {translations['postsReportedByUsers'][language]}
                 </CardDescription>
               </div>
               <Button 
@@ -481,14 +481,14 @@ export default function AdminDashboard() {
                 className="gap-1"
               >
                 <RefreshCw className="h-4 w-4" />
-                تحديث
+                {translations['refresh'][language]}
               </Button>
             </CardHeader>
             <CardContent>
               {isLoadingReports ? (
                 <div className="py-8 text-center">
                   <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2 text-muted-foreground" />
-                  <p className="text-muted-foreground">جاري تحميل البلاغات...</p>
+                  <p className="text-muted-foreground">{translations['loadingReports'][language]}</p>
                 </div>
               ) : reportedPosts.length > 0 ? (
                 <div className="space-y-4">
@@ -513,26 +513,26 @@ export default function AdminDashboard() {
                               className="mb-2"
                             >
                               <Flag className="h-3 w-3 mr-1" />
-                              {report.reportCount} بلاغ
+                              {report.reportCount} {translations['report'][language]}
                             </Badge>
                           </div>
                           <span className={`text-xs px-2 py-1 rounded-full ${
                             isPending ? "bg-red-200 text-red-800" : "bg-amber-200 text-amber-800"
                           }`}>
-                            {isPending ? "بانتظار المراجعة" : "بلغ الحد الأقصى"}
+                            {isPending ? translations['pendingReview'][language] : translations['reachedMaximum'][language]}
                           </span>
                         </div>
                         
                         <div className="mt-2 text-sm text-muted-foreground">
-                          <p>تاريخ المنشور: {new Date(report.createdAt).toLocaleDateString('ar-EG')}</p>
+                          <p>{translations['postDate'][language]}: {new Date(report.createdAt).toLocaleDateString(language === "ar" ? 'ar-EG' : 'en-US')}</p>
                           {report.reportCount >= 50 && (
                             <Alert className="mt-2 bg-amber-50 text-amber-700 border-amber-200">
                               <AlertTitle className="flex items-center">
                                 <AlertTriangle className="h-4 w-4 mr-2" />
-                                تنبيه
+                                {translations['alert'][language]}
                               </AlertTitle>
                               <AlertDescription>
-                                هذا المنشور بلغ حد البلاغات (50 بلاغ) ويجب مراجعته أو إزالته على الفور.
+                                {translations['postReachedMaximumReports'][language]}
                               </AlertDescription>
                             </Alert>
                           )}
@@ -560,7 +560,7 @@ export default function AdminDashboard() {
                 </div>
               ) : (
                 <div className="py-8 text-center">
-                  <p className="text-muted-foreground">لا توجد بلاغات حتى الآن</p>
+                  <p className="text-muted-foreground">{translations['noReportsYet'][language]}</p>
                 </div>
               )}
             </CardContent>
