@@ -120,6 +120,11 @@ export const translations: Record<string, Record<Language, string>> = {
     'ar-SA': 'بوابة دخول المشرفين',
     'en-US': 'Admin Entrance'
   },
+  'adminPanelOnly': {
+    'ar-EG': 'مخصص للمشرفين فقط',
+    'ar-SA': 'مخصص للمشرفين فقط',
+    'en-US': 'Admin Panel Only'
+  },
   'loginInfoTitle': {
     'ar-EG': 'معلومات عن تسجيل الدخول:',
     'ar-SA': 'معلومات عن تسجيل الدخول:',
