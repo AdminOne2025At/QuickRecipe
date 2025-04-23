@@ -397,6 +397,298 @@ export const translations: Record<string, Record<Language, string>> = {
     'ar-EG': 'فشل في حذف جميع المنشورات',
     'ar-SA': 'فشل في حذف جميع المنشورات',
     'en-US': 'Failed to delete all posts'
+  },
+  
+  // Admin Dashboard UI Elements
+  'posts': {
+    'ar-EG': 'المنشورات',
+    'ar-SA': 'المنشورات',
+    'en-US': 'Posts'
+  },
+  'communityPosts': {
+    'ar-EG': 'منشور في المجتمع',
+    'ar-SA': 'منشور في المجتمع',
+    'en-US': 'Community Posts'
+  },
+  'users': {
+    'ar-EG': 'المستخدمين',
+    'ar-SA': 'المستخدمين',
+    'en-US': 'Users'
+  },
+  'newUsersThisWeek': {
+    'ar-EG': 'مستخدم جديد هذا الأسبوع',
+    'ar-SA': 'مستخدم جديد هذا الأسبوع',
+    'en-US': 'new users this week'
+  },
+  'reportsHeader': {
+    'ar-EG': 'البلاغات',
+    'ar-SA': 'البلاغات',
+    'en-US': 'Reports'
+  },
+  'pendingReports': {
+    'ar-EG': 'بلاغ في انتظار المراجعة',
+    'ar-SA': 'بلاغ في انتظار المراجعة',
+    'en-US': 'reports pending review'
+  },
+  'overview': {
+    'ar-EG': 'نظرة عامة',
+    'ar-SA': 'نظرة عامة',
+    'en-US': 'Overview'
+  },
+  'reportsTab': {
+    'ar-EG': 'البلاغات',
+    'ar-SA': 'البلاغات',
+    'en-US': 'Reports'
+  },
+  'settings': {
+    'ar-EG': 'الإعدادات',
+    'ar-SA': 'الإعدادات',
+    'en-US': 'Settings'
+  },
+  'latestPosts': {
+    'ar-EG': 'آخر المنشورات',
+    'ar-SA': 'آخر المنشورات',
+    'en-US': 'Latest Posts'
+  },
+  'latestPostsDesc': {
+    'ar-EG': 'آخر المنشورات المضافة إلى منصة كويك ريسب',
+    'ar-SA': 'آخر المنشورات المضافة إلى منصة كويك ريسب',
+    'en-US': 'Latest posts added to the Quick Recipe platform'
+  },
+  'loadingPosts': {
+    'ar-EG': 'جاري تحميل المنشورات...',
+    'ar-SA': 'جاري تحميل المنشورات...',
+    'en-US': 'Loading posts...'
+  },
+  'noPosts': {
+    'ar-EG': 'لا توجد منشورات حتى الآن',
+    'ar-SA': 'لا توجد منشورات حتى الآن',
+    'en-US': 'No posts yet'
+  },
+  'by': {
+    'ar-EG': 'بواسطة',
+    'ar-SA': 'بواسطة',
+    'en-US': 'by'
+  },
+  'user': {
+    'ar-EG': 'مستخدم',
+    'ar-SA': 'مستخدم',
+    'en-US': 'User'
+  },
+  'viewAllPosts': {
+    'ar-EG': 'عرض جميع المنشورات',
+    'ar-SA': 'عرض جميع المنشورات',
+    'en-US': 'View All Posts'
+  },
+  'activityStats': {
+    'ar-EG': 'إحصائيات النشاط',
+    'ar-SA': 'إحصائيات النشاط',
+    'en-US': 'Activity Statistics'
+  },
+  'activityStatsDesc': {
+    'ar-EG': 'نشاط المستخدمين والمنشورات خلال الأسبوع الماضي',
+    'ar-SA': 'نشاط المستخدمين والمنشورات خلال الأسبوع الماضي',
+    'en-US': 'User and post activity during the past week'
+  },
+  'activeUsersRate': {
+    'ar-EG': 'نسبة المستخدمين النشطين',
+    'ar-SA': 'نسبة المستخدمين النشطين',
+    'en-US': 'Active Users Rate'
+  },
+  'resolvedReportsRate': {
+    'ar-EG': 'نسبة البلاغات المعالجة',
+    'ar-SA': 'نسبة البلاغات المعالجة',
+    'en-US': 'Resolved Reports Rate'
+  },
+  'usageTrends': {
+    'ar-EG': 'اتجاهات الاستخدام',
+    'ar-SA': 'اتجاهات الاستخدام',
+    'en-US': 'Usage Trends'
+  },
+  'usageTrendsDesc': {
+    'ar-EG': 'شهدت المنصة زيادة بنسبة 25% في عدد المنشورات الجديدة خلال الأسبوع الماضي.',
+    'ar-SA': 'شهدت المنصة زيادة بنسبة 25% في عدد المنشورات الجديدة خلال الأسبوع الماضي.',
+    'en-US': 'The platform saw a 25% increase in new posts during the past week.'
+  },
+  'reportedPosts': {
+    'ar-EG': 'البلاغات والمنشورات المبلغ عنها',
+    'ar-SA': 'البلاغات والمنشورات المبلغ عنها',
+    'en-US': 'Reports and Reported Posts'
+  },
+  'reportedPostsDesc': {
+    'ar-EG': 'المنشورات التي قام المستخدمون بالإبلاغ عنها',
+    'ar-SA': 'المنشورات التي قام المستخدمون بالإبلاغ عنها',
+    'en-US': 'Posts that users have reported'
+  },
+  'refresh': {
+    'ar-EG': 'تحديث',
+    'ar-SA': 'تحديث',
+    'en-US': 'Refresh'
+  },
+  'loadingReports': {
+    'ar-EG': 'جاري تحميل البلاغات...',
+    'ar-SA': 'جاري تحميل البلاغات...',
+    'en-US': 'Loading reports...'
+  },
+  'noReports': {
+    'ar-EG': 'لا توجد بلاغات حتى الآن',
+    'ar-SA': 'لا توجد بلاغات حتى الآن',
+    'en-US': 'No reports yet'
+  },
+  'report': {
+    'ar-EG': 'بلاغ',
+    'ar-SA': 'بلاغ',
+    'en-US': 'report'
+  },
+  'reports': {
+    'ar-EG': 'بلاغات',
+    'ar-SA': 'بلاغات',
+    'en-US': 'reports'
+  },
+  'pendingReview': {
+    'ar-EG': 'بانتظار المراجعة',
+    'ar-SA': 'بانتظار المراجعة',
+    'en-US': 'Pending Review'
+  },
+  'maxReportsReached': {
+    'ar-EG': 'بلغ الحد الأقصى',
+    'ar-SA': 'بلغ الحد الأقصى',
+    'en-US': 'Maximum Reports Reached'
+  },
+  'postDate': {
+    'ar-EG': 'تاريخ المنشور',
+    'ar-SA': 'تاريخ المنشور',
+    'en-US': 'Post Date'
+  },
+  'alert': {
+    'ar-EG': 'تنبيه',
+    'ar-SA': 'تنبيه',
+    'en-US': 'Alert'
+  },
+  'postReportsWarning': {
+    'ar-EG': 'هذا المنشور بلغ حد البلاغات (50 بلاغ) ويجب مراجعته أو إزالته على الفور.',
+    'ar-SA': 'هذا المنشور بلغ حد البلاغات (50 بلاغ) ويجب مراجعته أو إزالته على الفور.',
+    'en-US': 'This post has reached the report threshold (50 reports) and should be reviewed or removed immediately.'
+  },
+  'deletePost': {
+    'ar-EG': 'حذف المنشور',
+    'ar-SA': 'حذف المنشور',
+    'en-US': 'Delete Post'
+  },
+  'viewPost': {
+    'ar-EG': 'عرض المنشور',
+    'ar-SA': 'عرض المنشور',
+    'en-US': 'View Post'
+  },
+  'aiModeration': {
+    'ar-EG': 'مراقبة المحتوى بالذكاء الاصطناعي',
+    'ar-SA': 'مراقبة المحتوى بالذكاء الاصطناعي',
+    'en-US': 'AI Content Moderation'
+  },
+  'enableAiModeration': {
+    'ar-EG': 'تفعيل الفحص التلقائي للمنشورات الجديدة',
+    'ar-SA': 'تفعيل الفحص التلقائي للمنشورات الجديدة',
+    'en-US': 'Enable automatic scanning of new posts'
+  },
+  'dangerZone': {
+    'ar-EG': 'منطقة الخطر',
+    'ar-SA': 'منطقة الخطر',
+    'en-US': 'Danger Zone'
+  },
+  'deleteAllPostsBtn': {
+    'ar-EG': 'حذف جميع المنشورات',
+    'ar-SA': 'حذف جميع المنشورات',
+    'en-US': 'Delete All Posts'
+  },
+  'warningDeleteAllPosts': {
+    'ar-EG': 'تحذير: حذف جميع المنشورات',
+    'ar-SA': 'تحذير: حذف جميع المنشورات',
+    'en-US': 'Warning: Delete All Posts'
+  },
+  'permanentAction': {
+    'ar-EG': 'إجراء لا يمكن التراجع عنه',
+    'ar-SA': 'إجراء لا يمكن التراجع عنه',
+    'en-US': 'Irreversible Action'
+  },
+  'deleteAllPostsConfirmationDesc': {
+    'ar-EG': 'هذا الإجراء سيحذف جميع المنشورات المجتمعية من منصة كويك ريسب بشكل نهائي.',
+    'ar-SA': 'هذا الإجراء سيحذف جميع المنشورات المجتمعية من منصة كويك ريسب بشكل نهائي.',
+    'en-US': 'This action will permanently delete all community posts from the Quick Recipe platform.'
+  },
+  'cannotUndoAction': {
+    'ar-EG': 'لا يمكن استعادة المنشورات بعد حذفها. سيتم حذف جميع المنشورات وتعليقاتها والبلاغات المرتبطة بها.',
+    'ar-SA': 'لا يمكن استعادة المنشورات بعد حذفها. سيتم حذف جميع المنشورات وتعليقاتها والبلاغات المرتبطة بها.',
+    'en-US': 'Posts cannot be recovered after deletion. All posts, their comments, and associated reports will be deleted.'
+  },
+  'understandIrreversible': {
+    'ar-EG': 'أنا أفهم أن هذا الإجراء نهائي ولا يمكن التراجع عنه',
+    'ar-SA': 'أنا أفهم أن هذا الإجراء نهائي ولا يمكن التراجع عنه',
+    'en-US': 'I understand that this action is final and cannot be undone'
+  },
+  'cancel': {
+    'ar-EG': 'إلغاء',
+    'ar-SA': 'إلغاء',
+    'en-US': 'Cancel'
+  },
+  'confirmationRequired': {
+    'ar-EG': 'تأكيد مطلوب',
+    'ar-SA': 'تأكيد مطلوب',
+    'en-US': 'Confirmation Required'
+  },
+  'pleaseConfirmAction': {
+    'ar-EG': 'يرجى تأكيد فهمك لعواقب هذا الإجراء',
+    'ar-SA': 'يرجى تأكيد فهمك لعواقب هذا الإجراء',
+    'en-US': 'Please confirm that you understand the consequences of this action'
+  },
+  'deletingAllPosts': {
+    'ar-EG': 'جاري حذف جميع المنشورات...',
+    'ar-SA': 'جاري حذف جميع المنشورات...',
+    'en-US': 'Deleting all posts...'
+  },
+  'confirmDeleteAllPosts': {
+    'ar-EG': 'تأكيد حذف جميع المنشورات',
+    'ar-SA': 'تأكيد حذف جميع المنشورات',
+    'en-US': 'Confirm Delete All Posts'
+  },
+  'confirmDeletePost': {
+    'ar-EG': 'تأكيد حذف المنشور',
+    'ar-SA': 'تأكيد حذف المنشور',
+    'en-US': 'Confirm Post Deletion'
+  },
+  'confirmDeletePostDesc': {
+    'ar-EG': 'هل أنت متأكد من رغبتك في حذف المنشور "{title}"؟ هذا الإجراء نهائي ولا يمكن التراجع عنه.',
+    'ar-SA': 'هل أنت متأكد من رغبتك في حذف المنشور "{title}"؟ هذا الإجراء نهائي ولا يمكن التراجع عنه.',
+    'en-US': 'Are you sure you want to delete the post "{title}"? This action is final and cannot be undone.'
+  },
+  'deleting': {
+    'ar-EG': 'جاري الحذف...',
+    'ar-SA': 'جاري الحذف...',
+    'en-US': 'Deleting...'
+  },
+  'confirmDelete': {
+    'ar-EG': 'تأكيد الحذف',
+    'ar-SA': 'تأكيد الحذف',
+    'en-US': 'Confirm Delete'
+  },
+  'postDeleted': {
+    'ar-EG': 'تم حذف المنشور',
+    'ar-SA': 'تم حذف المنشور',
+    'en-US': 'Post Deleted'
+  },
+  'postDeletedSuccess': {
+    'ar-EG': 'تم حذف المنشور بنجاح وإرسال إشعار للمشرفين',
+    'ar-SA': 'تم حذف المنشور بنجاح وإرسال إشعار للمشرفين',
+    'en-US': 'Post successfully deleted and notification sent to admins'
+  },
+  'postDeletionFailed': {
+    'ar-EG': 'فشل في حذف المنشور',
+    'ar-SA': 'فشل في حذف المنشور',
+    'en-US': 'Failed to delete post'
+  },
+  'untitledPost': {
+    'ar-EG': 'منشور بدون عنوان',
+    'ar-SA': 'منشور بدون عنوان',
+    'en-US': 'Untitled Post'
   }
 };
 

@@ -302,7 +302,7 @@ export default function AdminDashboard() {
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center">
           <Shield className="h-8 w-8 text-amber-500 mr-3" />
-          <h1 className="text-3xl font-bold">لوحة تحكم المشرفين</h1>
+          <h1 className="text-3xl font-bold">{translations['adminDashboard'][language]}</h1>
         </div>
         <Button 
           onClick={() => setLocation("/")}
@@ -319,7 +319,7 @@ export default function AdminDashboard() {
           <CardHeader className="pb-2">
             <CardTitle className="text-blue-700 flex items-center text-lg">
               <FileText className="h-5 w-5 mr-2" />
-              المنشورات
+              {translations['posts'][language]}
             </CardTitle>
           </CardHeader>
           <CardContent>
