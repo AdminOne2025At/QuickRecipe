@@ -586,9 +586,9 @@ export default function AdminDashboard() {
                 
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label htmlFor="moderation-ai" className="font-medium">مراقبة المحتوى بالذكاء الاصطناعي</Label>
+                    <Label htmlFor="moderation-ai" className="font-medium">{translations['aiContentModeration'][language]}</Label>
                     <p className="text-sm text-muted-foreground mt-1">
-                      فحص المنشورات والتعليقات تلقائيًا باستخدام Gemini AI
+                      {translations['aiContentModerationDesc'][language]}
                     </p>
                   </div>
                   <Switch id="moderation-ai" defaultChecked />
@@ -596,9 +596,9 @@ export default function AdminDashboard() {
                 
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label htmlFor="auto-delete" className="font-medium">الحذف التلقائي للمنشورات</Label>
+                    <Label htmlFor="auto-delete" className="font-medium">{translations['autoDeletePosts'][language]}</Label>
                     <p className="text-sm text-muted-foreground mt-1">
-                      حذف المنشورات تلقائيًا بعد وصول عدد البلاغات إلى 50
+                      {translations['autoDeletePostsDesc'][language]}
                     </p>
                   </div>
                   <Switch id="auto-delete" defaultChecked />
@@ -611,9 +611,9 @@ export default function AdminDashboard() {
                 
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label htmlFor="discord-notifications" className="font-medium">إشعارات Discord</Label>
+                    <Label htmlFor="discord-notifications" className="font-medium">{translations['discordNotifications'][language]}</Label>
                     <p className="text-sm text-muted-foreground mt-1">
-                      إرسال إشعارات عن البلاغات الجديدة إلى قناة Discord
+                      {translations['discordNotificationsDesc'][language]}
                     </p>
                   </div>
                   <Switch id="discord-notifications" defaultChecked />
@@ -621,9 +621,9 @@ export default function AdminDashboard() {
                 
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label htmlFor="email-notifications" className="font-medium">إشعارات البريد الإلكتروني</Label>
+                    <Label htmlFor="email-notifications" className="font-medium">{translations['emailNotifications'][language]}</Label>
                     <p className="text-sm text-muted-foreground mt-1">
-                      إرسال ملخص يومي بالنشاط إلى البريد الإلكتروني للمشرفين
+                      {translations['emailNotificationsDesc'][language]}
                     </p>
                   </div>
                   <Switch id="email-notifications" defaultChecked={false} />
@@ -638,10 +638,10 @@ export default function AdminDashboard() {
                   <div>
                     <h4 className="font-medium text-red-800 mb-2 flex items-center">
                       <Trash2 className="h-5 w-5 mr-2 text-red-600" />
-                      حذف جميع المنشورات
+                      {translations['deleteAllPosts'][language]}
                     </h4>
                     <p className="text-sm text-red-700 mb-4">
-                      تحذير: هذا الإجراء سيحذف <strong>جميع المنشورات</strong> من منصة كويك ريسب بشكل نهائي. لا يمكن التراجع عن هذا الإجراء.
+                      {translations['warningDeleteAllPosts'][language]}
                     </p>
                     <DeleteAllPostsButton />
                   </div>

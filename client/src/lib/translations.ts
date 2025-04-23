@@ -383,10 +383,75 @@ export const translations: Record<string, Record<Language, string>> = {
   },
   
   // Admin Post Management
+  'moderationSettings': {
+    'ar-EG': 'إعدادات المراقبة',
+    'ar-SA': 'إعدادات المراقبة',
+    'en-US': 'Moderation Settings'
+  },
+  'moderationSettingsDesc': {
+    'ar-EG': 'تخصيص إعدادات الإشراف والمراقبة على المنصة',
+    'ar-SA': 'تخصيص إعدادات الإشراف والمراقبة على المنصة',
+    'en-US': 'Customize moderation and monitoring settings for the platform'
+  },
+  'contentModerationSettings': {
+    'ar-EG': 'إعدادات مراقبة المحتوى',
+    'ar-SA': 'إعدادات مراقبة المحتوى',
+    'en-US': 'Content Moderation Settings'
+  },
+  'aiContentModeration': {
+    'ar-EG': 'مراقبة المحتوى بالذكاء الاصطناعي',
+    'ar-SA': 'مراقبة المحتوى بالذكاء الاصطناعي',
+    'en-US': 'AI Content Moderation'
+  },
+  'aiContentModerationDesc': {
+    'ar-EG': 'فحص المنشورات والتعليقات تلقائيًا باستخدام Gemini AI',
+    'ar-SA': 'فحص المنشورات والتعليقات تلقائيًا باستخدام Gemini AI',
+    'en-US': 'Automatically scan posts and comments using Gemini AI'
+  },
+  'autoDeletePosts': {
+    'ar-EG': 'الحذف التلقائي للمنشورات',
+    'ar-SA': 'الحذف التلقائي للمنشورات',
+    'en-US': 'Auto-Delete Posts'
+  },
+  'autoDeletePostsDesc': {
+    'ar-EG': 'حذف المنشورات تلقائيًا بعد وصول عدد البلاغات إلى 50',
+    'ar-SA': 'حذف المنشورات تلقائيًا بعد وصول عدد البلاغات إلى 50',
+    'en-US': 'Automatically delete posts after reaching 50 reports'
+  },
+  'notificationSettings': {
+    'ar-EG': 'إعدادات الإشعارات',
+    'ar-SA': 'إعدادات الإشعارات',
+    'en-US': 'Notification Settings'
+  },
+  'discordNotifications': {
+    'ar-EG': 'إشعارات Discord',
+    'ar-SA': 'إشعارات Discord',
+    'en-US': 'Discord Notifications'
+  },
+  'discordNotificationsDesc': {
+    'ar-EG': 'إرسال إشعارات عن البلاغات الجديدة إلى قناة Discord',
+    'ar-SA': 'إرسال إشعارات عن البلاغات الجديدة إلى قناة Discord',
+    'en-US': 'Send notifications about new reports to Discord channel'
+  },
+  'emailNotifications': {
+    'ar-EG': 'إشعارات البريد الإلكتروني',
+    'ar-SA': 'إشعارات البريد الإلكتروني',
+    'en-US': 'Email Notifications'
+  },
+  'emailNotificationsDesc': {
+    'ar-EG': 'إرسال ملخص يومي بالنشاط إلى البريد الإلكتروني للمشرفين',
+    'ar-SA': 'إرسال ملخص يومي بالنشاط إلى البريد الإلكتروني للمشرفين',
+    'en-US': 'Send daily activity summary to admins\' email'
+  },
+  'contentManagementTools': {
+    'ar-EG': 'أدوات إدارة المحتوى',
+    'ar-SA': 'أدوات إدارة المحتوى',
+    'en-US': 'Content Management Tools'
+  },
   'deleteAllPosts': {
-    'ar-EG': 'تم حذف جميع المنشورات',
-    'ar-SA': 'تم حذف جميع المنشورات',
-    'en-US': 'All Posts Deleted'
+    'ar-EG': 'حذف جميع المنشورات',
+    'ar-SA': 'حذف جميع المنشورات',
+    'en-US': 'Delete All Posts'
   },
   'postsDeletedSuccess': {
     'ar-EG': 'تم حذف {count} منشور بنجاح من منصة كويك ريسب',
@@ -601,9 +666,9 @@ export const translations: Record<string, Record<Language, string>> = {
     'en-US': 'Delete All Posts'
   },
   'warningDeleteAllPosts': {
-    'ar-EG': 'تحذير: حذف جميع المنشورات',
-    'ar-SA': 'تحذير: حذف جميع المنشورات',
-    'en-US': 'Warning: Delete All Posts'
+    'ar-EG': 'تحذير: هذا الإجراء سيحذف <strong>جميع المنشورات</strong> من منصة كويك ريسب بشكل نهائي. لا يمكن التراجع عن هذا الإجراء.',
+    'ar-SA': 'تحذير: هذا الإجراء سيحذف <strong>جميع المنشورات</strong> من منصة كويك ريسب بشكل نهائي. لا يمكن التراجع عن هذا الإجراء.',
+    'en-US': 'Warning: This action will delete <strong>all posts</strong> from the Quick Recipe platform permanently. This action cannot be undone.'
   },
   'permanentAction': {
     'ar-EG': 'إجراء لا يمكن التراجع عنه',
