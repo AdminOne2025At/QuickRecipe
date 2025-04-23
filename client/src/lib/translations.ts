@@ -595,6 +595,11 @@ export const translations: Record<string, Record<Language, string>> = {
     'ar-SA': 'مراقبة المحتوى بالذكاء الاصطناعي',
     'en-US': 'AI Content Moderation'
   },
+  'aiContentModerationDesc': {
+    'ar-EG': 'استخدام الذكاء الاصطناعي لاكتشاف المحتوى غير اللائق وتصفيته تلقائياً',
+    'ar-SA': 'استخدام الذكاء الاصطناعي لاكتشاف المحتوى غير اللائق وتصفيته تلقائياً',
+    'en-US': 'Use AI to detect and filter inappropriate content automatically'
+  },
   'autoDeletePosts': {
     'ar-EG': 'الحذف التلقائي للمنشورات',
     'ar-SA': 'الحذف التلقائي للمنشورات',
@@ -604,6 +609,31 @@ export const translations: Record<string, Record<Language, string>> = {
     'ar-EG': 'حذف المنشورات التي تتجاوز حد البلاغات تلقائياً',
     'ar-SA': 'حذف المنشورات التي تتجاوز حد البلاغات تلقائياً',
     'en-US': 'Automatically delete posts that exceed the report threshold'
+  },
+  'activityStats': {
+    'ar-EG': 'إحصائيات النشاط',
+    'ar-SA': 'إحصائيات النشاط',
+    'en-US': 'Activity Statistics'
+  },
+  'activityStatsDesc': {
+    'ar-EG': 'نظرة عامة على نشاط المستخدمين والمنصة',
+    'ar-SA': 'نظرة عامة على نشاط المستخدمين والمنصة',
+    'en-US': 'Overview of user and platform activity'
+  },
+  'moderationSettings': {
+    'ar-EG': 'إعدادات الإشراف',
+    'ar-SA': 'إعدادات الإشراف',
+    'en-US': 'Moderation Settings'
+  },
+  'moderationSettingsDesc': {
+    'ar-EG': 'إدارة كيفية مراقبة المحتوى والمنشورات',
+    'ar-SA': 'إدارة كيفية مراقبة المحتوى والمنشورات',
+    'en-US': 'Manage how content and posts are moderated'
+  },
+  'showAdminStatus': {
+    'ar-EG': 'إظهار حالة المشرف',
+    'ar-SA': 'إظهار حالة المشرف',
+    'en-US': 'Show Admin Status'
   }
 };
 
