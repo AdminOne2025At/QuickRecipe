@@ -28,7 +28,7 @@ export function SimpleHeader() {
       <div className="container flex h-16 items-center justify-between py-4 px-4 md:px-6">
         <Link href="/">
           <span className="text-xl md:text-2xl font-bold bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent cursor-pointer">
-            {isArabic ? "كويك ريسب" : "Kuik Recipe"}
+            {isArabic ? "كويك ريسب" : "Quick Recipe"}
           </span>
         </Link>
         
