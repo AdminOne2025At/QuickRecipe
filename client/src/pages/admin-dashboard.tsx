@@ -139,6 +139,7 @@ function DeleteAllPostsButton() {
 // مكون زر حذف المنشور
 function DeletePostButton({ postId, postTitle, onSuccess }: { postId: number, postTitle: string, onSuccess: () => void }) {
   const { toast } = useToast();
+  const { language } = useLanguage();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   
   const deletePostMutation = useMutation({
@@ -182,7 +183,7 @@ function DeletePostButton({ postId, postTitle, onSuccess }: { postId: number, po
         ) : (
           <Trash2 className="h-4 w-4" />
         )}
-        حذف المنشور
+        {translations['deletePost'][language]}
       </Button>
       
       <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -205,9 +206,9 @@ function DeletePostButton({ postId, postTitle, onSuccess }: { postId: number, po
               className="bg-red-600 hover:bg-red-700"
             >
               {deletePostMutation.isPending ? (
-                <><RefreshCw className="h-4 w-4 mr-2 animate-spin" /> جاري الحذف...</>
+                <><RefreshCw className="h-4 w-4 mr-2 animate-spin" /> {translations['deleting'][language]}</>
               ) : (
-                "تأكيد الحذف"
+                translations['confirmDelete'][language]
               )}
             </AlertDialogAction>
           </AlertDialogFooter>
