@@ -3,7 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
-import translations from "@/lib/translations";
+import { translations } from "@/lib/translations";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

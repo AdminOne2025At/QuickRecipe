@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
-import translations from "@/lib/translations";
+import { translations } from "@/lib/translations";
 
 interface SuggestedIngredientsProps {
   suggestedIngredients: string[];

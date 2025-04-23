@@ -8,7 +8,7 @@ import { Loader2, Search, AlertCircle } from "lucide-react";
 import { getIngredientSubstitutes } from "@/lib/api";
 import { SubstitutionResponse } from "@/lib/types";
 import { useLanguage } from "@/contexts/LanguageContext";
-import translations from "@/lib/translations";
+import { translations } from "@/lib/translations";
 
 export function IngredientSubstitution() {
   const [ingredientQuery, setIngredientQuery] = useState("");

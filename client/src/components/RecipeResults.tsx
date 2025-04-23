@@ -13,7 +13,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useLanguage } from "@/contexts/LanguageContext";
-import translations from "@/lib/translations";
+import { translations } from "@/lib/translations";
 
 interface RecipeResultsProps {
   recipes: Recipe[];

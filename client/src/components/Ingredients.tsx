@@ -5,7 +5,7 @@ import { useState } from "react";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useLanguage } from "@/contexts/LanguageContext";
-import translations from "@/lib/translations";
+import { translations } from "@/lib/translations";
 
 interface IngredientsProps {
   ingredients: Ingredient[];
