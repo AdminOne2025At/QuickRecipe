@@ -570,6 +570,11 @@ export const translations: Record<string, Record<Language, string>> = {
     'ar-SA': 'نسبة البلاغات المعالجة',
     'en-US': 'Resolved Reports Rate'
   },
+  'resolvedReportsPercentage': {
+    'ar-EG': 'نسبة البلاغات المعالجة',
+    'ar-SA': 'نسبة البلاغات المعالجة',
+    'en-US': 'Resolved Reports Percentage'
+  },
   'usageTrends': {
     'ar-EG': 'اتجاهات الاستخدام',
     'ar-SA': 'اتجاهات الاستخدام',
@@ -584,6 +589,16 @@ export const translations: Record<string, Record<Language, string>> = {
     'ar-EG': 'البلاغات والمنشورات المبلغ عنها',
     'ar-SA': 'البلاغات والمنشورات المبلغ عنها',
     'en-US': 'Reports and Reported Posts'
+  },
+  'reportsAndReportedPosts': {
+    'ar-EG': 'البلاغات والمنشورات المبلغ عنها',
+    'ar-SA': 'البلاغات والمنشورات المبلغ عنها',
+    'en-US': 'Reports and Reported Posts'
+  },
+  'postsReportedByUsers': {
+    'ar-EG': 'المنشورات المبلغ عنها من قبل المستخدمين',
+    'ar-SA': 'المنشورات المبلغ عنها من قبل المستخدمين',
+    'en-US': 'Posts reported by users'
   },
   'reportedPostsDesc': {
     'ar-EG': 'المنشورات التي قام المستخدمون بالإبلاغ عنها',
@@ -601,6 +616,11 @@ export const translations: Record<string, Record<Language, string>> = {
     'en-US': 'Loading reports...'
   },
   'noReports': {
+    'ar-EG': 'لا توجد بلاغات حتى الآن',
+    'ar-SA': 'لا توجد بلاغات حتى الآن',
+    'en-US': 'No reports yet'
+  },
+  'noReportsYet': {
     'ar-EG': 'لا توجد بلاغات حتى الآن',
     'ar-SA': 'لا توجد بلاغات حتى الآن',
     'en-US': 'No reports yet'
@@ -624,6 +644,16 @@ export const translations: Record<string, Record<Language, string>> = {
     'ar-EG': 'بلغ الحد الأقصى',
     'ar-SA': 'بلغ الحد الأقصى',
     'en-US': 'Maximum Reports Reached'
+  },
+  'reachedMaximum': {
+    'ar-EG': 'بلغ الحد الأقصى',
+    'ar-SA': 'بلغ الحد الأقصى',
+    'en-US': 'Reached Maximum'
+  },
+  'postReachedMaximumReports': {
+    'ar-EG': 'هذا المنشور بلغ الحد الأقصى من البلاغات',
+    'ar-SA': 'هذا المنشور بلغ الحد الأقصى من البلاغات',
+    'en-US': 'This post has reached maximum number of reports'
   },
   'postDate': {
     'ar-EG': 'تاريخ المنشور',
@@ -729,6 +759,16 @@ export const translations: Record<string, Record<Language, string>> = {
     'ar-EG': 'هل أنت متأكد من رغبتك في حذف المنشور "{title}"؟ هذا الإجراء نهائي ولا يمكن التراجع عنه.',
     'ar-SA': 'هل أنت متأكد من رغبتك في حذف المنشور "{title}"؟ هذا الإجراء نهائي ولا يمكن التراجع عنه.',
     'en-US': 'Are you sure you want to delete the post "{title}"? This action is final and cannot be undone.'
+  },
+  'usageStatistics': {
+    'ar-EG': 'إحصائيات الاستخدام',
+    'ar-SA': 'إحصائيات الاستخدام',
+    'en-US': 'Usage Statistics'
+  },
+  'platformGrowth': {
+    'ar-EG': 'نمو المنصة',
+    'ar-SA': 'نمو المنصة',
+    'en-US': 'Platform Growth'
   },
   'deleting': {
     'ar-EG': 'جاري الحذف...',
