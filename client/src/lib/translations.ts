@@ -594,6 +594,16 @@ export const translations: Record<string, Record<Language, string>> = {
     'ar-EG': 'مراقبة المحتوى بالذكاء الاصطناعي',
     'ar-SA': 'مراقبة المحتوى بالذكاء الاصطناعي',
     'en-US': 'AI Content Moderation'
+  },
+  'autoDeletePosts': {
+    'ar-EG': 'الحذف التلقائي للمنشورات',
+    'ar-SA': 'الحذف التلقائي للمنشورات',
+    'en-US': 'Auto-delete Posts'
+  },
+  'autoDeletePostsDesc': {
+    'ar-EG': 'حذف المنشورات التي تتجاوز حد البلاغات تلقائياً',
+    'ar-SA': 'حذف المنشورات التي تتجاوز حد البلاغات تلقائياً',
+    'en-US': 'Automatically delete posts that exceed the report threshold'
   }
 };
 
