@@ -326,7 +326,7 @@ export default function AdminDashboard() {
             <div className="text-3xl font-bold text-blue-700">
               {isLoadingPosts ? "..." : recentPosts?.length || 0}
             </div>
-            <p className="text-sm text-blue-600 mt-1">منشور في المجتمع</p>
+            <p className="text-sm text-blue-600 mt-1">{translations['communityPosts'][language]}</p>
           </CardContent>
         </Card>
         
@@ -334,7 +334,7 @@ export default function AdminDashboard() {
           <CardHeader className="pb-2">
             <CardTitle className="text-green-700 flex items-center text-lg">
               <Users className="h-5 w-5 mr-2" />
-              المستخدمين
+              {translations['users'][language]}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -351,7 +351,7 @@ export default function AdminDashboard() {
           <CardHeader className="pb-2">
             <CardTitle className="text-red-700 flex items-center text-lg">
               <AlertTriangle className="h-5 w-5 mr-2" />
-              البلاغات
+              {translations['reportsHeader'][language]}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -359,7 +359,7 @@ export default function AdminDashboard() {
               {reportsStats.total}
             </div>
             <p className="text-sm text-red-600 mt-1">
-              {reportsStats.pending} بلاغ في انتظار المراجعة
+              {reportsStats.pending} {translations['pendingReports'][language]}
             </p>
           </CardContent>
         </Card>
@@ -368,18 +368,18 @@ export default function AdminDashboard() {
       {/* علامات التبويب */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList className="grid grid-cols-3 md:w-[400px]">
-          <TabsTrigger value="overview">نظرة عامة</TabsTrigger>
-          <TabsTrigger value="reports">البلاغات</TabsTrigger>
-          <TabsTrigger value="settings">الإعدادات</TabsTrigger>
+          <TabsTrigger value="overview">{translations['overview'][language]}</TabsTrigger>
+          <TabsTrigger value="reports">{translations['reportsTab'][language]}</TabsTrigger>
+          <TabsTrigger value="settings">{translations['settings'][language]}</TabsTrigger>
         </TabsList>
         
         {/* نظرة عامة */}
         <TabsContent value="overview" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>آخر المنشورات</CardTitle>
+              <CardTitle>{translations['latestPosts'][language]}</CardTitle>
               <CardDescription>
-                آخر المنشورات المضافة إلى منصة كويك ريسيبي
+                {translations['latestPostsDesc'][language]}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -427,16 +427,16 @@ export default function AdminDashboard() {
           
           <Card>
             <CardHeader>
-              <CardTitle>إحصائيات النشاط</CardTitle>
+              <CardTitle>{translations['activityStats'][language]}</CardTitle>
               <CardDescription>
-                نشاط المستخدمين والمنشورات خلال الأسبوع الماضي
+                {translations['activityStatsDesc'][language]}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label>نسبة المستخدمين النشطين</Label>
+                    <Label>{translations['activeUsersPercentage'][language]}</Label>
                     <span className="text-sm">{Math.round((usersStats.active / usersStats.total) * 100)}%</span>
                   </div>
                   <Progress value={(usersStats.active / usersStats.total) * 100} className="h-2" />
@@ -444,7 +444,7 @@ export default function AdminDashboard() {
                 
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label>نسبة البلاغات المعالجة</Label>
+                    <Label>{translations['resolvedReportsPercentage'][language]}</Label>
                     <span className="text-sm">{Math.round((reportsStats.resolved / reportsStats.total) * 100)}%</span>
                   </div>
                   <Progress value={(reportsStats.resolved / reportsStats.total) * 100} className="h-2" />
@@ -454,7 +454,7 @@ export default function AdminDashboard() {
               <div className="mt-6 p-4 border rounded-lg bg-amber-50 border-amber-200">
                 <h4 className="text-amber-800 font-medium flex items-center">
                   <BarChart4 className="h-5 w-5 mr-2 text-amber-600" />
-                  اتجاهات الاستخدام
+                  {translations['usageStatistics'][language]}
                 </h4>
                 <p className="text-amber-700 text-sm mt-2">
                   شهدت المنصة زيادة بنسبة 25% في عدد المنشورات الجديدة خلال الأسبوع الماضي.
