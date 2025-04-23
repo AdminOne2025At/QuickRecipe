@@ -1,6 +1,58 @@
 import { Language } from '@/components/LanguageSelector';
 
 export const translations: Record<string, Record<Language, string>> = {
+  // Admin Dashboard Welcome Messages
+  'adminGreeting': {
+    'ar-EG': 'مرحباً بالمشرف',
+    'ar-SA': 'مرحباً بالمشرف',
+    'en-US': 'Welcome, Admin'
+  },
+  'adminPrivilegesMessage': {
+    'ar-EG': 'لديك صلاحيات الإشراف على منصة كويك ريسب',
+    'ar-SA': 'لديك صلاحيات الإشراف على منصة كويك ريسب',
+    'en-US': 'You have administrative privileges on the Quick Recipe platform'
+  },
+  'adminLoginSuccessMessage': {
+    'ar-EG': 'تم تسجيل دخولك كمشرف بنجاح. يمكنك الآن إدارة المحتوى.',
+    'ar-SA': 'تم تسجيل دخولك كمشرف بنجاح. يمكنك الآن إدارة المحتوى.',
+    'en-US': 'You have successfully logged in as an administrator. You can now manage content.'
+  },
+  'accessDenied': {
+    'ar-EG': 'وصول مرفوض',
+    'ar-SA': 'وصول مرفوض',
+    'en-US': 'Access Denied'
+  },
+  'loginRequired': {
+    'ar-EG': 'يجب تسجيل الدخول للوصول إلى هذه الصفحة',
+    'ar-SA': 'يجب تسجيل الدخول للوصول إلى هذه الصفحة',
+    'en-US': 'You must be logged in to access this page'
+  },
+  'adminOnlyPage': {
+    'ar-EG': 'هذه الصفحة مخصصة للمشرفين فقط',
+    'ar-SA': 'هذه الصفحة مخصصة للمشرفين فقط',
+    'en-US': 'This page is for administrators only'
+  },
+  'adminInfo': {
+    'ar-EG': 'معلومات المشرف',
+    'ar-SA': 'معلومات المشرف',
+    'en-US': 'Admin Information'
+  },
+  'adminStatus': {
+    'ar-EG': 'حالة المشرف',
+    'ar-SA': 'حالة المشرف',
+    'en-US': 'Admin Status'
+  },
+  'active': {
+    'ar-EG': 'نشط',
+    'ar-SA': 'نشط',
+    'en-US': 'active'
+  },
+  'inactive': {
+    'ar-EG': 'غير نشط',
+    'ar-SA': 'غير نشط',
+    'en-US': 'inactive'
+  },
+  
   // Admin Login Page
   'adminEntrance': {
     'ar-EG': 'مدخل المشرفين',

@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Shield, Users, FileText, AlertTriangle, Trash2, Settings, ExternalLink, RefreshCw, BarChart4, Save, Eye, Flag, X, AlertCircle, Loader2 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import translations from "@/lib/translations";
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
