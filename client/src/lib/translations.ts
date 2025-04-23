@@ -465,6 +465,128 @@ export const translations: Record<string, Record<Language, string>> = {
     'ar-EG': 'مكونات مقترحة',
     'ar-SA': 'مكونات مقترحة',
     'en-US': 'Suggested Ingredients'
+  },
+  
+  // Admin Login Page
+  'loginSuccess': {
+    'ar-EG': 'تم تسجيل الدخول بنجاح',
+    'ar-SA': 'تم تسجيل الدخول بنجاح',
+    'en-US': 'Login Successful'
+  },
+  'welcomeAdmin': {
+    'ar-EG': 'مرحبًا بك في لوحة تحكم المشرف',
+    'ar-SA': 'مرحبًا بك في لوحة تحكم المشرف',
+    'en-US': 'Welcome to the admin dashboard'
+  },
+  'verifying': {
+    'ar-EG': 'جاري التحقق',
+    'ar-SA': 'جاري التحقق',
+    'en-US': 'Verifying'
+  },
+  'pleaseWait': {
+    'ar-EG': 'الرجاء الانتظار...',
+    'ar-SA': 'الرجاء الانتظار...',
+    'en-US': 'Please wait...'
+  },
+  'processingContinues': {
+    'ar-EG': 'المعالجة مستمرة',
+    'ar-SA': 'المعالجة مستمرة',
+    'en-US': 'Processing Continues'
+  },
+  'synchronizingSession': {
+    'ar-EG': 'مزامنة جلسة المشرف...',
+    'ar-SA': 'مزامنة جلسة المشرف...',
+    'en-US': 'Synchronizing admin session...'
+  },
+  'verificationSuccess': {
+    'ar-EG': 'تم التحقق بنجاح',
+    'ar-SA': 'تم التحقق بنجاح',
+    'en-US': 'Verification Successful'
+  },
+  'redirectingToDashboard': {
+    'ar-EG': 'جارٍ التوجيه إلى لوحة المشرف...',
+    'ar-SA': 'جارٍ التوجيه إلى لوحة المشرف...',
+    'en-US': 'Redirecting to admin dashboard...'
+  },
+  'verificationFailed': {
+    'ar-EG': 'فشل التحقق',
+    'ar-SA': 'فشل التحقق',
+    'en-US': 'Verification Failed'
+  },
+  'verificationError': {
+    'ar-EG': 'حدث خطأ أثناء التحقق من صلاحيات المشرف',
+    'ar-SA': 'حدث خطأ أثناء التحقق من صلاحيات المشرف',
+    'en-US': 'An error occurred while verifying admin credentials'
+  },
+  'loginError': {
+    'ar-EG': 'خطأ في تسجيل الدخول',
+    'ar-SA': 'خطأ في تسجيل الدخول',
+    'en-US': 'Login Error'
+  },
+  'checkCredentials': {
+    'ar-EG': 'تحقق من اسم المستخدم وكلمة المرور وحاول مرة أخرى',
+    'ar-SA': 'تحقق من اسم المستخدم وكلمة المرور وحاول مرة أخرى',
+    'en-US': 'Check your username and password and try again'
+  },
+  'dataError': {
+    'ar-EG': 'خطأ في البيانات',
+    'ar-SA': 'خطأ في البيانات',
+    'en-US': 'Data Error'
+  },
+  'pleaseEnterCredentials': {
+    'ar-EG': 'الرجاء إدخال اسم المستخدم وكلمة المرور',
+    'ar-SA': 'الرجاء إدخال اسم المستخدم وكلمة المرور',
+    'en-US': 'Please enter your username and password'
+  },
+  'adminEntrance': {
+    'ar-EG': 'مدخل المشرفين',
+    'ar-SA': 'مدخل المشرفين',
+    'en-US': 'Admin Entrance'
+  },
+  'adminPanelOnly': {
+    'ar-EG': 'هذه اللوحة مخصصة للمشرفين فقط',
+    'ar-SA': 'هذه اللوحة مخصصة للمشرفين فقط',
+    'en-US': 'This panel is for administrators only'
+  },
+  'username': {
+    'ar-EG': 'اسم المستخدم',
+    'ar-SA': 'اسم المستخدم',
+    'en-US': 'Username'
+  },
+  'enterUsername': {
+    'ar-EG': 'أدخل اسم المستخدم',
+    'ar-SA': 'أدخل اسم المستخدم',
+    'en-US': 'Enter username'
+  },
+  'password': {
+    'ar-EG': 'كلمة المرور',
+    'ar-SA': 'كلمة المرور',
+    'en-US': 'Password'
+  },
+  'enterPassword': {
+    'ar-EG': 'أدخل كلمة المرور',
+    'ar-SA': 'أدخل كلمة المرور',
+    'en-US': 'Enter password'
+  },
+  'loggingIn': {
+    'ar-EG': 'جاري تسجيل الدخول...',
+    'ar-SA': 'جاري تسجيل الدخول...',
+    'en-US': 'Logging in...'
+  },
+  'loginAsAdmin': {
+    'ar-EG': 'تسجيل الدخول كمشرف',
+    'ar-SA': 'تسجيل الدخول كمشرف',
+    'en-US': 'Login as Admin'
+  },
+  'adminWelcome': {
+    'ar-EG': 'مرحبًا بك في نظام إدارة كويك ريسب',
+    'ar-SA': 'مرحبًا بك في نظام إدارة كويك ريسب',
+    'en-US': 'Welcome to Quick Recipe management system'
+  },
+  'adminCapabilities': {
+    'ar-EG': 'هنا يمكنك إدارة المحتوى ومراقبة المنشورات والإشراف على المنصة',
+    'ar-SA': 'هنا يمكنك إدارة المحتوى ومراقبة المنشورات والإشراف على المنصة',
+    'en-US': 'Here you can manage content, monitor posts, and supervise the platform'
   }
 };
 
