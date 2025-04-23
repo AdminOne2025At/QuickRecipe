@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
+import translations from "@/lib/translations";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +14,7 @@ export default function AdminLoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const { toast } = useToast();
+  const { language, isArabic } = useLanguage();
   
   const adminLoginMutation = useMutation({
     mutationFn: async () => {
@@ -40,7 +43,6 @@ export default function AdminLoginPage() {
     },
     onSuccess: (data) => {
       // تأكد من تخزين البيانات مع حقل isAdmin=true بشكل صريح
-      // وتصحيح المعرّف ليتطابق مع قاعدة البيانات (معرّف 5 وليس 9999)
       const adminData = {
         ...data,
         id: 5, // إجبار المعرّف ليكون 5 (مطابق للمستخدم في قاعدة البيانات)
@@ -55,7 +57,7 @@ export default function AdminLoginPage() {
       // تحديث حالة المستخدم في React Query
       queryClient.setQueryData(["/api/user"], adminData);
       
-      // إرسال إشعار تسجيل دخول للديسكورد (بدون انتظار النتيجة لتسريع العملية)
+      // إرسال إشعار تسجيل دخول للديسكورد
       try {
         fetch('/api/login/notify', {
           method: 'POST',
@@ -68,34 +70,34 @@ export default function AdminLoginPage() {
             userAgent: navigator.userAgent,
             isAdmin: true
           }),
-        }).catch(err => console.error("فشل إرسال إشعار تسجيل الدخول:", err));
+        }).catch(err => console.error("Failed to send login notification:", err));
       } catch (notifyError) {
-        console.error("خطأ عند إعداد إشعار تسجيل الدخول:", notifyError);
+        console.error("Error setting up login notification:", notifyError);
       }
       
       toast({
-        title: "تم تسجيل الدخول بنجاح",
-        description: "مرحباً بك في لوحة تحكم المشرفين",
+        title: translations['loginSuccess'][language],
+        description: translations['welcomeAdmin'][language],
         variant: "default"
       });
       
-      // تأخير أطول (5 ثوان) للتحقق من نجاح تسجيل الدخول وتحديث حالة المستخدم
+      // تأخير أطول للتحقق من نجاح تسجيل الدخول وتحديث حالة المستخدم
       toast({
-        title: "جاري التحقق...",
-        description: "يرجى الانتظار... جاري التحقق من صلاحيات المشرف",
+        title: translations['verifying'][language],
+        description: translations['pleaseWait'][language],
         variant: "default"
       });
       
       // عرض رسالة إضافية بعد ثانيتين
       setTimeout(() => {
         toast({
-          title: "...لا تزال المعالجة جارية",
-          description: "تتم الآن مزامنة جلسة المستخدم. يرجى الانتظار...",
+          title: translations['processingContinues'][language],
+          description: translations['synchronizingSession'][language],
           variant: "default"
         });
       }, 2000);
       
-      // التحقق واتخاذ الإجراء بعد 5 ثوان (وقت كافٍ للتأكد من تحديث الحالة)
+      // التحقق واتخاذ الإجراء بعد 5 ثوان
       setTimeout(() => {
         // التحقق من صلاحيات المشرف مرة أخرى قبل التوجيه
         const userCheck = JSON.parse(localStorage.getItem("user") || "{}");
@@ -108,8 +110,8 @@ export default function AdminLoginPage() {
           queryClient.invalidateQueries({ queryKey: ["/api/user"] });
           
           toast({
-            title: "تم التحقق بنجاح!",
-            description: "تم التحقق من صلاحيات المشرف. جاري التوجيه إلى لوحة التحكم...",
+            title: translations['verificationSuccess'][language],
+            description: translations['redirectingToDashboard'][language],
             variant: "default"
           });
           
@@ -120,8 +122,8 @@ export default function AdminLoginPage() {
         } else {
           console.error("Admin verification failed after login!");
           toast({
-            title: "فشل التحقق من صلاحيات المشرف",
-            description: "حدث خطأ أثناء التحقق من صلاحيات المشرف. يرجى المحاولة مرة أخرى.",
+            title: translations['verificationFailed'][language],
+            description: translations['verificationError'][language],
             variant: "destructive"
           });
         }
@@ -129,8 +131,8 @@ export default function AdminLoginPage() {
     },
     onError: (error: Error) => {
       toast({
-        title: "فشل تسجيل الدخول",
-        description: error.message || "يرجى التحقق من اسم المستخدم وكلمة المرور",
+        title: translations['loginError'][language],
+        description: error.message || translations['checkCredentials'][language],
         variant: "destructive"
       });
     }
@@ -141,8 +143,8 @@ export default function AdminLoginPage() {
     
     if (!username.trim() || !password.trim()) {
       toast({
-        title: "خطأ في البيانات",
-        description: "يرجى إدخال اسم المستخدم وكلمة المرور",
+        title: translations['dataError'][language],
+        description: translations['pleaseEnterCredentials'][language],
         variant: "destructive"
       });
       return;
@@ -152,43 +154,45 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col-reverse md:flex-row">
-      {/* نموذج تسجيل الدخول */}
+    <div className="min-h-screen flex flex-col-reverse md:flex-row" dir={isArabic ? 'rtl' : 'ltr'}>
+      {/* Login Form */}
       <div className="w-full md:w-1/2 p-6 flex items-center justify-center bg-white">
         <div className="w-full max-w-md">
           <div className="w-full max-w-md mx-auto bg-white rounded-lg shadow-md overflow-hidden">
             <div className="p-6">
               <div className="text-center mb-6">
                 <div className="flex items-center justify-center mb-2">
-                  <Shield className="h-5 w-5 mr-2 text-amber-500" />
-                  <h2 className="text-2xl font-bold">مدخل المشرفين</h2>
+                  <Shield className={`h-5 w-5 ${isArabic ? 'ml-2' : 'mr-2'} text-amber-500`} />
+                  <h2 className="text-2xl font-bold">
+                    {translations['adminEntrance'][language]}
+                  </h2>
                 </div>
                 <p className="text-gray-500 text-sm">
-                  لوحة التحكم الخاصة بالمشرفين فقط
+                  {translations['adminPanelOnly'][language]}
                 </p>
               </div>
               
               <form onSubmit={handleSubmit}>
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="admin-username">اسم المستخدم</Label>
+                    <Label htmlFor="admin-username">{translations['username'][language]}</Label>
                     <Input
                       id="admin-username"
-                      placeholder="أدخل اسم المستخدم"
+                      placeholder={translations['enterUsername'][language]}
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
-                      dir="rtl"
+                      dir={isArabic ? 'rtl' : 'ltr'}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="admin-password">كلمة المرور</Label>
+                    <Label htmlFor="admin-password">{translations['password'][language]}</Label>
                     <Input
                       id="admin-password"
                       type="password"
-                      placeholder="أدخل كلمة المرور"
+                      placeholder={translations['enterPassword'][language]}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      dir="rtl"
+                      dir={isArabic ? 'rtl' : 'ltr'}
                     />
                   </div>
                 
@@ -199,11 +203,11 @@ export default function AdminLoginPage() {
                   >
                     {adminLoginMutation.isPending ? (
                       <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        جاري تسجيل الدخول...
+                        <Loader2 className={`h-4 w-4 animate-spin ${isArabic ? 'ml-2' : 'mr-2'}`} />
+                        {translations['loggingIn'][language]}
                       </>
                     ) : (
-                      "تسجيل الدخول كمشرف"
+                      translations['loginAsAdmin'][language]
                     )}
                   </Button>
                 </div>
@@ -218,7 +222,7 @@ export default function AdminLoginPage() {
                     window.location.href = "/";
                   }}
                 >
-                  العودة إلى الصفحة الرئيسية
+                  {translations['returnToHomepage'][language]}
                 </a>
               </div>
             </div>
@@ -226,18 +230,20 @@ export default function AdminLoginPage() {
         </div>
       </div>
 
-      {/* قسم الترحيب */}
+      {/* Welcome Section */}
       <div className="w-full md:w-1/2 bg-gradient-to-br from-amber-400 to-orange-600 p-8 flex flex-col justify-center text-white">
         <div className="max-w-lg mx-auto text-center">
           <div className="flex justify-center mb-6">
             <Sparkles className="h-16 w-16 text-white" />
           </div>
-          <h1 className="text-4xl font-bold mb-6">لوحة تحكم المشرفين</h1>
+          <h1 className="text-4xl font-bold mb-6">
+            {translations['adminDashboard'][language]}
+          </h1>
           <p className="text-xl mb-4">
-            مرحبًا بك في لوحة تحكم المشرفين لتطبيق كويك ريسب. هذه المنطقة مخصصة للمشرفين فقط.
+            {translations['adminWelcome'][language]}
           </p>
           <p className="text-lg opacity-90">
-            يمكنك من خلال هذه اللوحة إدارة المحتوى ومراقبة المنشورات وإدارة المستخدمين والإشراف على جميع أنشطة المنصة.
+            {translations['adminCapabilities'][language]}
           </p>
         </div>
       </div>

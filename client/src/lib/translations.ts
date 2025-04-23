@@ -1,6 +1,137 @@
 import { Language } from '@/components/LanguageSelector';
 
 export const translations: Record<string, Record<Language, string>> = {
+  // Admin Login Page
+  'adminEntrance': {
+    'ar-EG': 'مدخل المشرفين',
+    'ar-SA': 'مدخل المشرفين',
+    'en-US': 'Admin Portal'
+  },
+  'adminPanelOnly': {
+    'ar-EG': 'لوحة التحكم الخاصة بالمشرفين فقط',
+    'ar-SA': 'لوحة التحكم الخاصة بالمشرفين فقط',
+    'en-US': 'Control panel for admins only'
+  },
+  'username': {
+    'ar-EG': 'اسم المستخدم',
+    'ar-SA': 'اسم المستخدم',
+    'en-US': 'Username'
+  },
+  'password': {
+    'ar-EG': 'كلمة المرور',
+    'ar-SA': 'كلمة المرور',
+    'en-US': 'Password'
+  },
+  'enterUsername': {
+    'ar-EG': 'أدخل اسم المستخدم',
+    'ar-SA': 'أدخل اسم المستخدم',
+    'en-US': 'Enter username'
+  },
+  'enterPassword': {
+    'ar-EG': 'أدخل كلمة المرور',
+    'ar-SA': 'أدخل كلمة المرور',
+    'en-US': 'Enter password'
+  },
+  'loginAsAdmin': {
+    'ar-EG': 'تسجيل الدخول كمشرف',
+    'ar-SA': 'تسجيل الدخول كمشرف',
+    'en-US': 'Login as Admin'
+  },
+  'loggingIn': {
+    'ar-EG': 'جاري تسجيل الدخول...',
+    'ar-SA': 'جاري تسجيل الدخول...',
+    'en-US': 'Logging in...'
+  },
+  'returnToHomepage': {
+    'ar-EG': 'العودة إلى الصفحة الرئيسية',
+    'ar-SA': 'العودة إلى الصفحة الرئيسية',
+    'en-US': 'Return to Homepage'
+  },
+  'adminDashboard': {
+    'ar-EG': 'لوحة تحكم المشرفين',
+    'ar-SA': 'لوحة تحكم المشرفين',
+    'en-US': 'Admin Dashboard'
+  },
+  'adminWelcome': {
+    'ar-EG': 'مرحبًا بك في لوحة تحكم المشرفين لتطبيق كويك ريسب. هذه المنطقة مخصصة للمشرفين فقط.',
+    'ar-SA': 'مرحبًا بك في لوحة تحكم المشرفين لتطبيق كويك ريسب. هذه المنطقة مخصصة للمشرفين فقط.',
+    'en-US': 'Welcome to the Admin Dashboard for the Quick Recipe application. This area is reserved for administrators only.'
+  },
+  'adminCapabilities': {
+    'ar-EG': 'يمكنك من خلال هذه اللوحة إدارة المحتوى ومراقبة المنشورات وإدارة المستخدمين والإشراف على جميع أنشطة المنصة.',
+    'ar-SA': 'يمكنك من خلال هذه اللوحة إدارة المحتوى ومراقبة المنشورات وإدارة المستخدمين والإشراف على جميع أنشطة المنصة.',
+    'en-US': 'Through this dashboard, you can manage content, monitor posts, manage users, and oversee all platform activities.'
+  },
+  'loginError': {
+    'ar-EG': 'فشل تسجيل الدخول',
+    'ar-SA': 'فشل تسجيل الدخول',
+    'en-US': 'Login Failed'
+  },
+  'checkCredentials': {
+    'ar-EG': 'يرجى التحقق من اسم المستخدم وكلمة المرور',
+    'ar-SA': 'يرجى التحقق من اسم المستخدم وكلمة المرور',
+    'en-US': 'Please check your username and password'
+  },
+  'dataError': {
+    'ar-EG': 'خطأ في البيانات',
+    'ar-SA': 'خطأ في البيانات',
+    'en-US': 'Data Error'
+  },
+  'pleaseEnterCredentials': {
+    'ar-EG': 'يرجى إدخال اسم المستخدم وكلمة المرور',
+    'ar-SA': 'يرجى إدخال اسم المستخدم وكلمة المرور',
+    'en-US': 'Please enter username and password'
+  },
+  'loginSuccess': {
+    'ar-EG': 'تم تسجيل الدخول بنجاح',
+    'ar-SA': 'تم تسجيل الدخول بنجاح',
+    'en-US': 'Login Successful'
+  },
+  'welcomeAdmin': {
+    'ar-EG': 'مرحباً بك في لوحة تحكم المشرفين',
+    'ar-SA': 'مرحباً بك في لوحة تحكم المشرفين',
+    'en-US': 'Welcome to the Admin Dashboard'
+  },
+  'verifying': {
+    'ar-EG': 'جاري التحقق...',
+    'ar-SA': 'جاري التحقق...',
+    'en-US': 'Verifying...'
+  },
+  'pleaseWait': {
+    'ar-EG': 'يرجى الانتظار... جاري التحقق من صلاحيات المشرف',
+    'ar-SA': 'يرجى الانتظار... جاري التحقق من صلاحيات المشرف',
+    'en-US': 'Please wait... Verifying admin permissions'
+  },
+  'processingContinues': {
+    'ar-EG': '...لا تزال المعالجة جارية',
+    'ar-SA': '...لا تزال المعالجة جارية',
+    'en-US': '...Processing continues'
+  },
+  'synchronizingSession': {
+    'ar-EG': 'تتم الآن مزامنة جلسة المستخدم. يرجى الانتظار...',
+    'ar-SA': 'تتم الآن مزامنة جلسة المستخدم. يرجى الانتظار...',
+    'en-US': 'Synchronizing user session. Please wait...'
+  },
+  'verificationSuccess': {
+    'ar-EG': 'تم التحقق بنجاح!',
+    'ar-SA': 'تم التحقق بنجاح!',
+    'en-US': 'Verification Successful!'
+  },
+  'redirectingToDashboard': {
+    'ar-EG': 'تم التحقق من صلاحيات المشرف. جاري التوجيه إلى لوحة التحكم...',
+    'ar-SA': 'تم التحقق من صلاحيات المشرف. جاري التوجيه إلى لوحة التحكم...',
+    'en-US': 'Admin permissions verified. Redirecting to dashboard...'
+  },
+  'verificationFailed': {
+    'ar-EG': 'فشل التحقق من صلاحيات المشرف',
+    'ar-SA': 'فشل التحقق من صلاحيات المشرف',
+    'en-US': 'Admin Verification Failed'
+  },
+  'verificationError': {
+    'ar-EG': 'حدث خطأ أثناء التحقق من صلاحيات المشرف. يرجى المحاولة مرة أخرى.',
+    'ar-SA': 'حدث خطأ أثناء التحقق من صلاحيات المشرف. يرجى المحاولة مرة أخرى.',
+    'en-US': 'An error occurred while verifying admin permissions. Please try again.'
+  },
   // Header
   'appName': {
     'ar-EG': 'وصفات سريعة',
