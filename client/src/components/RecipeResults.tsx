@@ -12,6 +12,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useLanguage } from "@/contexts/LanguageContext";
+import translations from "@/lib/translations";
 
 interface RecipeResultsProps {
   recipes: Recipe[];
@@ -25,14 +27,17 @@ export default function RecipeResults({
   ingredients,
 }: RecipeResultsProps) {
   const { user } = useAuth();
+  const { language, isArabic } = useLanguage();
   const [savingRecipes, setSavingRecipes] = useState<{ [key: number]: boolean }>({});
   const [savedRecipes, setSavedRecipes] = useState<{ [key: number]: boolean }>({});
   
   const saveRecipe = async (recipe: Recipe, index: number) => {
     if (!user) {
       toast({
-        title: "عذراً! لازم تعمل حساب الأول",
-        description: "علشان تقدر تحفظ الوصفات، لازم تسجل دخول أو تعمل حساب جديد",
+        title: isArabic ? "عذراً! لازم تعمل حساب الأول" : "Sorry! You need an account first",
+        description: isArabic 
+          ? "علشان تقدر تحفظ الوصفات، لازم تسجل دخول أو تعمل حساب جديد" 
+          : "To save recipes, you need to sign in or create a new account",
         variant: "destructive",
       });
       return;
@@ -41,7 +46,7 @@ export default function RecipeResults({
     try {
       setSavingRecipes(prev => ({ ...prev, [index]: true }));
       
-      // تحقق ما إذا كانت الوصفة محفوظة بالفعل
+      // Check if recipe is already saved
       const checkResponse = await apiRequest("POST", `/api/users/${user.id}/saved-recipes/check`, {
         recipeData: recipe
       });
@@ -50,15 +55,17 @@ export default function RecipeResults({
       
       if (isSaved) {
         toast({
-          title: "الوصفة محفوظة بالفعل!",
-          description: "لقد قمت بحفظ هذه الوصفة من قبل",
+          title: isArabic ? "الوصفة محفوظة بالفعل!" : "Recipe already saved!",
+          description: isArabic 
+            ? "لقد قمت بحفظ هذه الوصفة من قبل" 
+            : "You've already saved this recipe before",
         });
         setSavedRecipes(prev => ({ ...prev, [index]: true }));
         setSavingRecipes(prev => ({ ...prev, [index]: false }));
         return;
       }
       
-      // حفظ الوصفة
+      // Save the recipe
       const recipeToSave = {
         recipeData: {
           title: recipe.title,
@@ -74,22 +81,28 @@ export default function RecipeResults({
       
       if (response.ok) {
         toast({
-          title: "تم حفظ الوصفة بنجاح!",
-          description: "يمكنك العثور عليها في صفحة الوصفات المحفوظة",
+          title: isArabic ? "تم حفظ الوصفة بنجاح!" : "Recipe saved successfully!",
+          description: isArabic 
+            ? "يمكنك العثور عليها في صفحة الوصفات المحفوظة" 
+            : "You can find it in your saved recipes page",
         });
         setSavedRecipes(prev => ({ ...prev, [index]: true }));
       } else {
         toast({
-          title: "حدث خطأ",
-          description: "لم نتمكن من حفظ الوصفة، يرجى المحاولة مرة أخرى",
+          title: isArabic ? "حدث خطأ" : "An error occurred",
+          description: isArabic 
+            ? "لم نتمكن من حفظ الوصفة، يرجى المحاولة مرة أخرى" 
+            : "We couldn't save the recipe, please try again",
           variant: "destructive",
         });
       }
     } catch (error) {
       console.error("Error saving recipe:", error);
       toast({
-        title: "حدث خطأ",
-        description: "لم نتمكن من حفظ الوصفة، يرجى المحاولة مرة أخرى",
+        title: isArabic ? "حدث خطأ" : "An error occurred",
+        description: isArabic 
+          ? "لم نتمكن من حفظ الوصفة، يرجى المحاولة مرة أخرى" 
+          : "We couldn't save the recipe, please try again",
         variant: "destructive",
       });
     } finally {
@@ -103,8 +116,16 @@ export default function RecipeResults({
         <Card className="inline-block p-8 border-2 border-dashed border-primary/50">
           <CardContent className="flex flex-col items-center animate-pulse p-0">
             <Loader2 className="h-12 w-12 text-primary mb-4 animate-spin" />
-            <p className="text-lg font-medium">استنى شوية بندور في المطبخ...</p>
-            <p className="text-sm text-gray-500">بنطبخلك أحلى وصفات من مكوناتك، شوية وهيجهزوا 😋</p>
+            <p className="text-lg font-medium">
+              {isArabic 
+                ? "استنى شوية بندور في المطبخ..." 
+                : "Please wait, we're searching our kitchen..."}
+            </p>
+            <p className="text-sm text-gray-500">
+              {isArabic 
+                ? "بنطبخلك أحلى وصفات من مكوناتك، شوية وهيجهزوا 😋" 
+                : "We're cooking up the best recipes with your ingredients, they'll be ready soon 😋"}
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -122,7 +143,7 @@ export default function RecipeResults({
           key={index} 
           className="recipe-card card-shadow bg-white rounded-lg overflow-hidden transition-all duration-500 border border-primary/20 relative"
         >
-          <CardContent className="p-0">
+          <CardContent className="p-0" dir={isArabic ? 'rtl' : 'ltr'}>
             <div className="relative">
               <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary via-secondary to-primary"></div>
               <div className="absolute top-2 left-5 transform -rotate-45 w-6 h-6 rounded-full bg-gradient-to-br from-yellow-300 to-orange-500 opacity-50 floating-icon" style={{ animationDelay: `${index * 0.2}s` }}></div>
@@ -144,19 +165,21 @@ export default function RecipeResults({
                         className={`flex items-center gap-1 transition-all duration-300 ${savedRecipes[index] ? 'bg-green-100 text-green-800 hover:bg-green-200' : ''}`}
                       >
                         {savingRecipes[index] ? (
-                          <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                          <Loader2 className={`w-4 h-4 ${isArabic ? 'ml-1' : 'mr-1'} animate-spin`} />
                         ) : savedRecipes[index] ? (
-                          <Save className="w-4 h-4 mr-1" />
+                          <Save className={`w-4 h-4 ${isArabic ? 'ml-1' : 'mr-1'}`} />
                         ) : (
-                          <BookmarkPlus className="w-4 h-4 mr-1" />
+                          <BookmarkPlus className={`w-4 h-4 ${isArabic ? 'ml-1' : 'mr-1'}`} />
                         )}
-                        {savedRecipes[index] ? "تم الحفظ" : "احفظ الوصفة"}
+                        {savedRecipes[index] 
+                          ? (isArabic ? "تم الحفظ" : "Saved") 
+                          : (isArabic ? "احفظ الوصفة" : "Save Recipe")}
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
                       {savedRecipes[index] 
-                        ? "الوصفة محفوظة بالفعل!" 
-                        : "احفظ هذه الوصفة في حسابك لتتمكن من العودة إليها لاحقًا"
+                        ? (isArabic ? "الوصفة محفوظة بالفعل!" : "Recipe already saved!")
+                        : (isArabic ? "احفظ هذه الوصفة في حسابك لتتمكن من العودة إليها لاحقًا" : "Save this recipe to your account for later")
                       }
                     </TooltipContent>
                   </Tooltip>
@@ -165,9 +188,10 @@ export default function RecipeResults({
               <div className="mb-4 text-gray-600 bg-primary/5 p-3 rounded-md italic">
                 <p className="mb-2">{recipe.description}</p>
               </div>
-              <div className="mb-6 bg-gray-50 p-4 rounded-md border-l-4 border-primary shadow-sm">
+              <div className={`mb-6 bg-gray-50 p-4 rounded-md ${isArabic ? 'border-r-4' : 'border-l-4'} border-primary shadow-sm`}>
                 <h4 className="font-bold mb-3 text-gray-700 flex items-center gap-2">
-                  <span className="text-lg">🧾</span> الحاجات اللي هنحتاجها:
+                  <span className="text-lg">🧾</span> 
+                  {isArabic ? "الحاجات اللي هنحتاجها:" : "Ingredients:"}
                 </h4>
                 <ul className="space-y-2 text-gray-600">
                   {recipe.ingredients.map((ingredient, i) => (
@@ -182,7 +206,10 @@ export default function RecipeResults({
               </div>
               <div className="bg-gradient-to-r from-primary/10 to-secondary/10 p-4 rounded-md">
                 <h4 className="font-bold mb-3 text-gray-700 flex items-center gap-2">
-                  <span className="text-lg">👩‍🍳</span> طريقة الشغل:
+                  <span className="text-lg">👩‍🍳</span> 
+                  {isArabic 
+                    ? "طريقة الشغل:" 
+                    : translations['instructions']['en-US'] + ":"}
                 </h4>
                 <ol className="space-y-3 text-gray-600">
                   {recipe.instructions.map((step, i) => (
@@ -203,7 +230,10 @@ export default function RecipeResults({
             {recipe.videoId && (
               <div className="px-6 pb-6 mt-4">
                 <h4 className="font-bold mb-3 text-gray-700 flex items-center gap-2">
-                  <span className="text-red-500">▶️</span> كمان ممكن تتفرج على الفيديو:
+                  <span className="text-red-500">▶️</span> 
+                  {isArabic 
+                    ? "كمان ممكن تتفرج على الفيديو:" 
+                    : translations['watchVideo']['en-US'] + ":"}
                 </h4>
                 <div className="rounded-lg overflow-hidden relative shadow-md" style={{ paddingBottom: '56.25%', height: 0 }}>
                   <iframe 
