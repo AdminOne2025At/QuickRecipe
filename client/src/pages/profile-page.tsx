@@ -13,6 +13,8 @@ import { auth, updateUserProfile, uploadProfilePicture } from "@/lib/firebase";
 import { onAuthStateChanged, signOut as firebaseSignOut } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
+import { useLanguage } from "@/contexts/LanguageContext";
+import translations from "@/lib/translations";
 
 export default function ProfilePage() {
   const [location, setLocation] = useLocation();
@@ -45,15 +47,43 @@ export default function ProfilePage() {
 
   // التحقق من حالة تسجيل الدخول
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setCurrentUser(user);
+    // التحقق أولاً من وجود مستخدم في سياق المصادقة
+    if (user) {
+      console.log("User found in auth context:", user);
       setIsLoading(false);
       
-      if (!user) {
-        setLocation("/auth");
-      } else {
+      // في حالة المشرف، استخدام بيانات المستخدم من سياق المصادقة مباشرة
+      if (user.isAdmin) {
+        console.log("Admin user detected, using auth context user");
+        setCurrentUser({
+          uid: user.id.toString(), 
+          displayName: user.displayName || "مشرف النظام",
+          email: user.email,
+          photoURL: user.photoURL
+        });
+        
+        // تحميل التفضيلات للمشرف
+        const adminPrefKey = `preferences_admin_${user.id}`;
+        const savedPreferences = localStorage.getItem(adminPrefKey);
+        if (savedPreferences) {
+          try {
+            setPreferences(JSON.parse(savedPreferences));
+          } catch (error) {
+            console.error("Error parsing admin saved preferences:", error);
+          }
+        }
+        return; // الخروج من useEffect لأننا وجدنا المستخدم
+      }
+    }
+    
+    // في حالة عدم وجود مستخدم مشرف، نتحقق من Firebase
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        console.log("Firebase user found:", firebaseUser.displayName);
+        setCurrentUser(firebaseUser);
+        
         // تحميل التفضيلات من localStorage
-        const savedPreferences = localStorage.getItem(`preferences_${user.uid}`);
+        const savedPreferences = localStorage.getItem(`preferences_${firebaseUser.uid}`);
         if (savedPreferences) {
           try {
             setPreferences(JSON.parse(savedPreferences));
@@ -61,11 +91,19 @@ export default function ProfilePage() {
             console.error("Error parsing saved preferences:", error);
           }
         }
+      } else {
+        console.log("No user found in Firebase, redirecting to auth page");
+        // إذا لم يوجد مستخدم في Firebase ولا في سياق المصادقة، نوجه للصفحة تسجيل الدخول
+        if (!user) {
+          window.location.href = "/auth";
+        }
       }
+      
+      setIsLoading(false);
     });
     
     return () => unsubscribe();
-  }, [setLocation]);
+  }, [user, setLocation]);
 
   // تحديث بيانات النموذج عندما يتم تحميل بيانات المستخدم
   useEffect(() => {
@@ -101,8 +139,18 @@ export default function ProfilePage() {
 
   const handleSignOut = async () => {
     try {
+      // إذا كان المستخدم مشرفًا، قم بإزالة بيانات المستخدم من localStorage فقط
+      if (isAdmin) {
+        console.log("Admin user logging out");
+        localStorage.removeItem("user");
+        window.location.href = "/auth";
+        return;
+      }
+      
+      // لبقية المستخدمين، استخدم تسجيل الخروج من Firebase
       await firebaseSignOut(auth);
-      setLocation("/auth");
+      localStorage.removeItem("user");
+      window.location.href = "/auth";
     } catch (error) {
       console.error("Error signing out:", error);
       toast({

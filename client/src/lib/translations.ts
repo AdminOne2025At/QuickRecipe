@@ -202,6 +202,128 @@ export const translations: Record<string, Record<Language, string>> = {
     'ar-SA': 'تسجيل الدخول',
     'en-US': 'Sign In'
   },
+  
+  // Profile Page Translations
+  'profilePage': {
+    'ar-EG': 'الملف الشخصي',
+    'ar-SA': 'الملف الشخصي',
+    'en-US': 'Profile'
+  },
+  'personalInfo': {
+    'ar-EG': 'المعلومات الشخصية',
+    'ar-SA': 'المعلومات الشخصية',
+    'en-US': 'Personal Information'
+  },
+  'personalInfoDesc': {
+    'ar-EG': 'قم بتعديل معلومات حسابك هنا. بعد الانتهاء، انقر على حفظ التغييرات.',
+    'ar-SA': 'قم بتعديل معلومات حسابك هنا. بعد الانتهاء، انقر على حفظ التغييرات.',
+    'en-US': 'Edit your account information here. When finished, click Save Changes.'
+  },
+  'displayName': {
+    'ar-EG': 'الاسم',
+    'ar-SA': 'الاسم',
+    'en-US': 'Name'
+  },
+  'enterName': {
+    'ar-EG': 'أدخل اسمك',
+    'ar-SA': 'أدخل اسمك',
+    'en-US': 'Enter your name'
+  },
+  'email': {
+    'ar-EG': 'البريد الإلكتروني',
+    'ar-SA': 'البريد الإلكتروني',
+    'en-US': 'Email'
+  },
+  'emailGoogleDesc': {
+    'ar-EG': 'لا يمكن تغيير البريد الإلكتروني المرتبط بحساب Google.',
+    'ar-SA': 'لا يمكن تغيير البريد الإلكتروني المرتبط بحساب Google.',
+    'en-US': 'You cannot change the email associated with your Google account.'
+  },
+  'signOutAccount': {
+    'ar-EG': 'تسجيل الخروج من الحساب',
+    'ar-SA': 'تسجيل الخروج من الحساب',
+    'en-US': 'Sign Out of Account'
+  },
+  'saveChanges': {
+    'ar-EG': 'حفظ التغييرات',
+    'ar-SA': 'حفظ التغييرات',
+    'en-US': 'Save Changes'
+  },
+  'preferencesTab': {
+    'ar-EG': 'الإعدادات',
+    'ar-SA': 'الإعدادات',
+    'en-US': 'Preferences'
+  },
+  'adminPanelTab': {
+    'ar-EG': 'لوحة المشرف',
+    'ar-SA': 'لوحة المشرف',
+    'en-US': 'Admin Panel'
+  },
+  'preferencesTitle': {
+    'ar-EG': 'الإعدادات والتفضيلات',
+    'ar-SA': 'الإعدادات والتفضيلات',
+    'en-US': 'Settings & Preferences'
+  },
+  'preferencesDesc': {
+    'ar-EG': 'خصص تجربتك في تطبيق Quick Recipe حسب اختياراتك.',
+    'ar-SA': 'خصص تجربتك في تطبيق Quick Recipe حسب اختياراتك.',
+    'en-US': 'Customize your Quick Recipe experience according to your preferences.'
+  },
+  'appearance': {
+    'ar-EG': 'المظهر',
+    'ar-SA': 'المظهر',
+    'en-US': 'Appearance'
+  },
+  'displayMode': {
+    'ar-EG': 'وضع العرض',
+    'ar-SA': 'وضع العرض',
+    'en-US': 'Display Mode'
+  },
+  'lightMode': {
+    'ar-EG': 'فاتح',
+    'ar-SA': 'فاتح',
+    'en-US': 'Light'
+  },
+  'darkMode': {
+    'ar-EG': 'داكن',
+    'ar-SA': 'داكن',
+    'en-US': 'Dark'
+  },
+  'systemMode': {
+    'ar-EG': 'تلقائي (حسب النظام)',
+    'ar-SA': 'تلقائي (حسب النظام)',
+    'en-US': 'Automatic (System)'
+  },
+  'notifications': {
+    'ar-EG': 'الإشعارات',
+    'ar-SA': 'الإشعارات',
+    'en-US': 'Notifications'
+  },
+  'enableNotifications': {
+    'ar-EG': 'تفعيل الإشعارات',
+    'ar-SA': 'تفعيل الإشعارات',
+    'en-US': 'Enable Notifications'
+  },
+  'foodPreferences': {
+    'ar-EG': 'تفضيلات الطعام',
+    'ar-SA': 'تفضيلات الطعام',
+    'en-US': 'Food Preferences'
+  },
+  'favoriteCuisine': {
+    'ar-EG': 'المطبخ المفضل',
+    'ar-SA': 'المطبخ المفضل',
+    'en-US': 'Favorite Cuisine'
+  },
+  'saveSettings': {
+    'ar-EG': 'حفظ الإعدادات',
+    'ar-SA': 'حفظ الإعدادات',
+    'en-US': 'Save Settings'
+  },
+  'uploadingImage': {
+    'ar-EG': 'جاري رفع الصورة...',
+    'ar-SA': 'جاري رفع الصورة...',
+    'en-US': 'Uploading image...'
+  },
   // Admin Dashboard Welcome Messages
   'adminGreeting': {
     'ar-EG': 'مرحباً بالمشرف',
