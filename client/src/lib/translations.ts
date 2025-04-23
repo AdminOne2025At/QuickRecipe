@@ -355,6 +355,31 @@ export const translations: Record<string, Record<Language, string>> = {
     'ar-SA': 'هذه الصفحة متاحة للمشرفين فقط',
     'en-US': 'This page is for administrators only'
   },
+  'adminFullPrivilegesMessage': {
+    'ar-EG': 'أنت تتصفح المنصة حاليًا بصلاحيات مشرف كاملة',
+    'ar-SA': 'أنت تتصفح المنصة حاليًا بصلاحيات مشرف كاملة',
+    'en-US': 'You are currently browsing the platform with full admin privileges'
+  },
+  'platformStats': {
+    'ar-EG': 'إحصائيات المنصة',
+    'ar-SA': 'إحصائيات المنصة',
+    'en-US': 'Platform Statistics'
+  },
+  'quickLinks': {
+    'ar-EG': 'روابط سريعة',
+    'ar-SA': 'روابط سريعة',
+    'en-US': 'Quick Links'
+  },
+  'manageCommunityPosts': {
+    'ar-EG': 'إدارة منشورات المجتمع',
+    'ar-SA': 'إدارة منشورات المجتمع',
+    'en-US': 'Manage Community Posts'
+  },
+  'openDiscordChannel': {
+    'ar-EG': 'فتح قناة Discord',
+    'ar-SA': 'فتح قناة Discord',
+    'en-US': 'Open Discord Channel'
+  },
   'loggedOut': {
     'ar-EG': 'تم تسجيل الخروج',
     'ar-SA': 'تم تسجيل الخروج',
@@ -766,7 +791,7 @@ export const translations: Record<string, Record<Language, string>> = {
     'ar-SA': 'إرسال التنبيهات وتحديثات النظام إلى قناة ديسكورد',
     'en-US': 'Send alerts and system updates to Discord channel'
   },
-  'saveSettings': {
+  'adminSaveSettings': {
     'ar-EG': 'حفظ الإعدادات',
     'ar-SA': 'حفظ الإعدادات',
     'en-US': 'Save Settings'

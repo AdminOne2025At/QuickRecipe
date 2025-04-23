@@ -20,6 +20,7 @@ export default function ProfilePage() {
   const [location, setLocation] = useLocation();
   const { toast } = useToast();
   const { user } = useAuth();
+  const { language } = useLanguage();
   
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -215,18 +216,18 @@ export default function ProfilePage() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="flex items-center justify-center md:justify-between mb-8">
-        <h1 className="text-3xl font-bold text-center md:text-right">الملف الشخصي</h1>
+        <h1 className="text-3xl font-bold text-center md:text-right">{translations['profilePage'][language]}</h1>
       </div>
       
       <Tabs defaultValue={defaultTab} className="w-full">
         <div className="flex justify-center w-full mb-6">
           <TabsList className={`grid w-full max-w-md ${isAdmin ? 'grid-cols-3' : 'grid-cols-2'} mb-6`}>
-            <TabsTrigger value="profile">المعلومات الشخصية</TabsTrigger>
-            <TabsTrigger value="preferences">الإعدادات</TabsTrigger>
+            <TabsTrigger value="profile">{translations['personalInfo'][language]}</TabsTrigger>
+            <TabsTrigger value="preferences">{translations['preferencesTab'][language]}</TabsTrigger>
             {isAdmin && (
               <TabsTrigger value="admin" className="bg-amber-100 hover:bg-amber-200 text-amber-900">
                 <Shield className="h-4 w-4 mr-2" />
-                لوحة المشرف
+                {translations['adminPanelTab'][language]}
               </TabsTrigger>
             )}
           </TabsList>
@@ -236,9 +237,9 @@ export default function ProfilePage() {
         <TabsContent value="profile">
           <Card>
             <CardHeader>
-              <CardTitle>المعلومات الشخصية</CardTitle>
+              <CardTitle>{translations['personalInfo'][language]}</CardTitle>
               <CardDescription>
-                قم بتعديل معلومات حسابك هنا. بعد الانتهاء، انقر على حفظ التغييرات.
+                {translations['personalInfoDesc'][language]}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -262,28 +263,28 @@ export default function ProfilePage() {
                     />
                   </label>
                 </div>
-                {uploading && <p className="text-sm text-muted-foreground">جاري رفع الصورة...</p>}
+                {uploading && <p className="text-sm text-muted-foreground">{translations['uploadingImage'][language]}</p>}
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="displayName">الاسم</Label>
+                <Label htmlFor="displayName">{translations['displayName'][language]}</Label>
                 <Input
                   id="displayName"
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
-                  placeholder="أدخل اسمك"
+                  placeholder={translations['enterName'][language]}
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="email">البريد الإلكتروني</Label>
+                <Label htmlFor="email">{translations['email'][language]}</Label>
                 <Input
                   id="email"
                   value={currentUser.email || ""}
                   disabled
                 />
                 <p className="text-sm text-muted-foreground">
-                  لا يمكن تغيير البريد الإلكتروني المرتبط بحساب Google.
+                  {translations['emailGoogleDesc'][language]}
                 </p>
               </div>
               
@@ -294,7 +295,7 @@ export default function ProfilePage() {
                   className="gap-2 text-red-500 hover:text-red-600 hover:bg-red-50 w-full justify-start"
                 >
                   <LogOut className="h-4 w-4" />
-                  تسجيل الخروج من الحساب
+                  {translations['signOutAccount'][language]}
                 </Button>
               </div>
             </CardContent>
@@ -309,7 +310,7 @@ export default function ProfilePage() {
                 ) : (
                   <Save className="h-4 w-4" />
                 )}
-                حفظ التغييرات
+                {translations['saveChanges'][language]}
               </Button>
             </CardFooter>
           </Card>
@@ -319,36 +320,36 @@ export default function ProfilePage() {
         <TabsContent value="preferences">
           <Card>
             <CardHeader>
-              <CardTitle>الإعدادات والتفضيلات</CardTitle>
+              <CardTitle>{translations['preferencesTitle'][language]}</CardTitle>
               <CardDescription>
-                خصص تجربتك في تطبيق Quick Recipe حسب اختياراتك.
+                {translations['preferencesDesc'][language]}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4">
-                <h3 className="text-lg font-medium">المظهر</h3>
+                <h3 className="text-lg font-medium">{translations['appearance'][language]}</h3>
                 <div className="flex items-center space-x-4 space-x-reverse">
                   <Select
                     value={preferences.theme}
                     onValueChange={(value) => setPreferences({...preferences, theme: value as 'light' | 'dark' | 'system'})}
                   >
                     <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="اختر المظهر" />
+                      <SelectValue placeholder={translations['appearance'][language]} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="light">فاتح</SelectItem>
-                      <SelectItem value="dark">داكن</SelectItem>
-                      <SelectItem value="system">تلقائي (حسب النظام)</SelectItem>
+                      <SelectItem value="light">{translations['lightMode'][language]}</SelectItem>
+                      <SelectItem value="dark">{translations['darkMode'][language]}</SelectItem>
+                      <SelectItem value="system">{translations['systemMode'][language]}</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Label htmlFor="theme">وضع العرض</Label>
+                  <Label htmlFor="theme">{translations['displayMode'][language]}</Label>
                 </div>
               </div>
               
               <div className="space-y-4">
-                <h3 className="text-lg font-medium">الإشعارات</h3>
+                <h3 className="text-lg font-medium">{translations['notifications'][language]}</h3>
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="notifications">تفعيل الإشعارات</Label>
+                  <Label htmlFor="notifications">{translations['enableNotifications'][language]}</Label>
                   <Switch
                     id="notifications"
                     checked={preferences.notificationsEnabled}
@@ -358,14 +359,14 @@ export default function ProfilePage() {
               </div>
               
               <div className="space-y-4">
-                <h3 className="text-lg font-medium">تفضيلات الطعام</h3>
+                <h3 className="text-lg font-medium">{translations['foodPreferences'][language]}</h3>
                 <div className="flex items-center space-x-4 space-x-reverse">
                   <Select
                     value={preferences.favoriteCuisine}
                     onValueChange={(value) => setPreferences({...preferences, favoriteCuisine: value})}
                   >
                     <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="اختر المطبخ المفضل" />
+                      <SelectValue placeholder={translations['favoriteCuisine'][language]} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="عربية">عربية</SelectItem>
@@ -382,7 +383,7 @@ export default function ProfilePage() {
                       <SelectItem value="أمريكية">أمريكية</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Label htmlFor="cuisineType">المطبخ المفضل</Label>
+                  <Label htmlFor="cuisineType">{translations['favoriteCuisine'][language]}</Label>
                 </div>
               </div>
             </CardContent>
@@ -392,7 +393,7 @@ export default function ProfilePage() {
                 className="ml-auto gap-2"
               >
                 <Save className="h-4 w-4" />
-                حفظ الإعدادات
+                {translations['saveSettings'][language]}
               </Button>
             </CardFooter>
           </Card>
@@ -406,9 +407,9 @@ export default function ProfilePage() {
                 <div className="flex items-center space-x-4 space-x-reverse">
                   <Shield className="h-6 w-6" />
                   <div>
-                    <CardTitle>لوحة تحكم المشرف</CardTitle>
+                    <CardTitle>{translations['adminDashboard'][language]}</CardTitle>
                     <CardDescription className="text-amber-100">
-                      مرحبًا بك في لوحة تحكم المشرفين، يمكنك إدارة المنصة من هنا
+                      {translations['adminDashboardDesc'][language]}
                     </CardDescription>
                   </div>
                 </div>
@@ -417,76 +418,76 @@ export default function ProfilePage() {
                 <div className="rounded-lg bg-amber-100 p-4 border border-amber-200">
                   <h3 className="text-lg font-medium flex items-center text-amber-900 mb-4">
                     <Settings className="h-5 w-5 mr-2" />
-                    إعدادات الإشراف
+                    {translations['moderationSettings'][language]}
                   </h3>
                   
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="p-4 bg-white rounded-md shadow-sm">
-                        <h4 className="font-medium mb-2">تنبيهات Discord</h4>
+                        <h4 className="font-medium mb-2">{translations['discordAlerts'][language]}</h4>
                         <div className="flex items-center justify-between">
-                          <Label htmlFor="discord-notifications">إرسال إشعارات Discord</Label>
+                          <Label htmlFor="discord-notifications">{translations['sendDiscordNotifications'][language]}</Label>
                           <Switch
                             id="discord-notifications"
                             checked={true}
                           />
                         </div>
                         <p className="text-sm text-muted-foreground mt-2">
-                          إرسال تنبيهات عن البلاغات الجديدة إلى قناة Discord
+                          {translations['sendDiscordAlertsDesc'][language]}
                         </p>
                       </div>
                       
                       <div className="p-4 bg-white rounded-md shadow-sm">
-                        <h4 className="font-medium mb-2">الحذف التلقائي</h4>
+                        <h4 className="font-medium mb-2">{translations['autoDeletePosts'][language]}</h4>
                         <div className="flex items-center justify-between">
-                          <Label htmlFor="auto-delete">حذف المنشورات تلقائيًا</Label>
+                          <Label htmlFor="auto-delete">{translations['autoDeletePosts'][language]}</Label>
                           <Switch
                             id="auto-delete"
                             checked={true}
                           />
                         </div>
                         <p className="text-sm text-muted-foreground mt-2">
-                          حذف المنشورات تلقائيًا بعد وصول عدد البلاغات إلى 50
+                          {translations['autoDeletePostsDesc'][language]}
                         </p>
                       </div>
                     </div>
                     
                     <div className="p-4 bg-white rounded-md shadow-sm">
-                      <h4 className="font-medium mb-2">مراقبة المحتوى</h4>
+                      <h4 className="font-medium mb-2">{translations['contentModerationSettings'][language]}</h4>
                       <div className="flex items-center justify-between">
-                        <Label htmlFor="content-moderation">مراقبة المحتوى بالذكاء الاصطناعي</Label>
+                        <Label htmlFor="content-moderation">{translations['aiContentModeration'][language]}</Label>
                         <Switch
                           id="content-moderation"
                           checked={true}
                         />
                       </div>
                       <p className="text-sm text-muted-foreground mt-2">
-                        فحص المنشورات والتعليقات تلقائيًا باستخدام Gemini AI
+                        {translations['aiContentModerationDesc'][language]}
                       </p>
                     </div>
                   </div>
                 </div>
                 
                 <div className="rounded-lg bg-white p-4 border">
-                  <h3 className="text-lg font-medium mb-4">إحصائيات المنصة</h3>
+                  <h3 className="text-lg font-medium mb-4">{translations['platformStats'][language]}</h3>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     <div className="p-3 bg-blue-50 rounded-md border border-blue-100">
-                      <p className="text-sm text-blue-600">المنشورات</p>
+                      <p className="text-sm text-blue-600">{translations['posts'][language]}</p>
                       <p className="text-2xl font-bold">120</p>
                     </div>
                     <div className="p-3 bg-green-50 rounded-md border border-green-100">
-                      <p className="text-sm text-green-600">المستخدمين</p>
+                      <p className="text-sm text-green-600">{translations['users'][language]}</p>
                       <p className="text-2xl font-bold">48</p>
                     </div>
                     <div className="p-3 bg-red-50 rounded-md border border-red-100">
-                      <p className="text-sm text-red-600">البلاغات</p>
+                      <p className="text-sm text-red-600">{translations['reportsHeader'][language]}</p>
                       <p className="text-2xl font-bold">15</p>
                     </div>
                   </div>
                 </div>
                 
                 <div className="rounded-lg bg-white p-4 border">
-                  <h3 className="text-lg font-medium mb-4">روابط سريعة</h3>
+                  <h3 className="text-lg font-medium mb-4">{translations['quickLinks'][language]}</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Button
                       variant="outline"
@@ -494,7 +495,7 @@ export default function ProfilePage() {
                       onClick={() => setLocation("/community-posts")}
                     >
                       <Settings className="h-4 w-4 text-amber-500" />
-                      إدارة منشورات المجتمع
+                      {translations['manageCommunityPosts'][language]}
                     </Button>
                     
                     <Button
@@ -503,7 +504,7 @@ export default function ProfilePage() {
                       onClick={() => window.open(process.env.DISCORD_WEBHOOK_URL?.split('/webhooks/')[0], '_blank')}
                     >
                       <Settings className="h-4 w-4 text-amber-500" />
-                      فتح قناة Discord
+                      {translations['openDiscordChannel'][language]}
                     </Button>
                   </div>
                 </div>
@@ -511,7 +512,7 @@ export default function ProfilePage() {
               <CardFooter>
                 <p className="text-sm text-muted-foreground">
                   <Shield className="h-4 w-4 inline-flex mr-1" />
-                  أنت تتصفح المنصة حاليًا بصلاحيات مشرف كاملة
+                  {translations['adminFullPrivilegesMessage'][language]}
                 </p>
               </CardFooter>
             </Card>
