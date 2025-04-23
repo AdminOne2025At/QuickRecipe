@@ -453,6 +453,51 @@ export const translations: Record<string, Record<Language, string>> = {
     'ar-SA': 'حذف جميع المنشورات',
     'en-US': 'Delete All Posts'
   },
+  'deleteAllPostsWarningText': {
+    'ar-EG': 'أنت على وشك حذف جميع منشورات المجتمع من منصة كويك ريسب!',
+    'ar-SA': 'أنت على وشك حذف جميع منشورات المجتمع من منصة كويك ريسب!',
+    'en-US': 'You are about to delete ALL community posts from the Quick Recipe platform!'
+  },
+  'deleteAllPostsDetails': {
+    'ar-EG': 'سيؤدي هذا إلى حذف جميع منشورات المستخدمين وتعليقاتهم والمحتوى المرتبط بها بشكل دائم.',
+    'ar-SA': 'سيؤدي هذا إلى حذف جميع منشورات المستخدمين وتعليقاتهم والمحتوى المرتبط بها بشكل دائم.',
+    'en-US': 'This will permanently delete all user posts, comments, and associated content.'
+  },
+  'deleteAllPostsBtn': {
+    'ar-EG': 'حذف جميع المنشورات',
+    'ar-SA': 'حذف جميع المنشورات',
+    'en-US': 'Delete All Posts'
+  },
+  'confirmDeleteAllPosts': {
+    'ar-EG': 'تأكيد حذف جميع المنشورات',
+    'ar-SA': 'تأكيد حذف جميع المنشورات',
+    'en-US': 'Confirm Deleting All Posts'
+  },
+  'confirmIrreversibleAction': {
+    'ar-EG': 'أؤكد فهمي أن هذا الإجراء لا يمكن التراجع عنه',
+    'ar-SA': 'أؤكد فهمي أن هذا الإجراء لا يمكن التراجع عنه',
+    'en-US': 'I confirm that I understand this action cannot be undone'
+  },
+  'deletingAllPosts': {
+    'ar-EG': 'جاري حذف جميع المنشورات...',
+    'ar-SA': 'جاري حذف جميع المنشورات...',
+    'en-US': 'Deleting all posts...'
+  },
+  'allPostsDeleted': {
+    'ar-EG': 'تم حذف جميع المنشورات',
+    'ar-SA': 'تم حذف جميع المنشورات',
+    'en-US': 'All Posts Deleted'
+  },
+  'allPostsDeletedSuccess': {
+    'ar-EG': 'تم حذف {count} منشور بنجاح من منصة كويك ريسب',
+    'ar-SA': 'تم حذف {count} منشور بنجاح من منصة كويك ريسب',
+    'en-US': 'Successfully deleted {count} posts from the Quick Recipe platform'
+  },
+  'allPostsDeleteFailed': {
+    'ar-EG': 'فشل في حذف جميع المنشورات',
+    'ar-SA': 'فشل في حذف جميع المنشورات',
+    'en-US': 'Failed to delete all posts'
+  },
   'postsDeletedSuccess': {
     'ar-EG': 'تم حذف {count} منشور بنجاح من منصة كويك ريسب',
     'ar-SA': 'تم حذف {count} منشور بنجاح من منصة كويك ريسب',
@@ -744,11 +789,6 @@ export const translations: Record<string, Record<Language, string>> = {
     'ar-EG': 'جاري حذف جميع المنشورات...',
     'ar-SA': 'جاري حذف جميع المنشورات...',
     'en-US': 'Deleting all posts...'
-  },
-  'confirmDeleteAllPosts': {
-    'ar-EG': 'تأكيد حذف جميع المنشورات',
-    'ar-SA': 'تأكيد حذف جميع المنشورات',
-    'en-US': 'Confirm Delete All Posts'
   },
   'confirmDeletePost': {
     'ar-EG': 'تأكيد حذف المنشور',
