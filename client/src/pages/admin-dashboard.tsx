@@ -137,7 +137,7 @@ function DeleteAllPostsButton() {
   );
 }
 
-// مكون زر حذف المنشور
+// Post deletion button component
 function DeletePostButton({ postId, postTitle, onSuccess }: { postId: number, postTitle: string, onSuccess: () => void }) {
   const { toast } = useToast();
   const { language } = useLanguage();
@@ -148,7 +148,7 @@ function DeletePostButton({ postId, postTitle, onSuccess }: { postId: number, po
       const res = await apiRequest("DELETE", `/api/admin/posts/${postId}?adminKey=admin123`);
       if (!res.ok) {
         const error = await res.json();
-        throw new Error(error.message || "فشل في حذف المنشور");
+        throw new Error(error.message || translations['postDeleteFailed'][language]);
       }
       return await res.json();
     },
@@ -226,7 +226,7 @@ export default function AdminDashboard() {
   const { language } = useLanguage();
   const [activeTab, setActiveTab] = useState("overview");
   
-  // التحقق من صلاحيات المشرف
+  // Verify admin privileges
   useEffect(() => {
     console.log("Admin Dashboard - Check Admin Access:", { user });
     
@@ -248,7 +248,7 @@ export default function AdminDashboard() {
       });
     } else {
       console.log("Admin access verified!");
-      // إظهار رسالة ترحيب للمشرف
+      // Show welcome message to admin
       toast({
         title: translations['adminGreeting'][language],
         description: translations['adminLoginSuccessMessage'][language],
@@ -257,20 +257,20 @@ export default function AdminDashboard() {
     }
   }, [user, setLocation, toast]);
   
-  // استعلام عن المنشورات
+  // Query for posts
   const { data: recentPosts = [], isLoading: isLoadingPosts } = useQuery<any[]>({
     queryKey: ['/api/community-posts/recent'],
     enabled: !!user?.isAdmin
   });
   
-  // استعلام وهمي عن المستخدمين (سيتم تنفيذه لاحقًا)
+  // Mock query for users (will be implemented later)
   const usersStats = {
     total: 48,
     newLastWeek: 12,
     active: 35
   };
   
-  // استعلام عن البلاغات
+  // Query for reports
   const { 
     data: reportedPosts = [], 
     isLoading: isLoadingReports,
@@ -280,7 +280,7 @@ export default function AdminDashboard() {
     queryFn: async () => {
       const res = await fetch('/api/admin/reports?adminKey=admin123');
       if (!res.ok) {
-        throw new Error('فشل في استرجاع البلاغات');
+        throw new Error(translations['failedToFetchReports'][language]);
       }
       return res.json();
     },
@@ -288,7 +288,7 @@ export default function AdminDashboard() {
     refetchOnWindowFocus: false
   });
   
-  // إحصائيات البلاغات
+  // Reports statistics
   const reportsStats = {
     total: reportedPosts.length,
     pending: reportedPosts.filter(post => post.reportCount < 50).length,
@@ -315,7 +315,7 @@ export default function AdminDashboard() {
         </Button>
       </div>
       
-      {/* بطاقات الإحصائيات */}
+      {/* Statistics cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <Card className="bg-blue-50 border-blue-200">
           <CardHeader className="pb-2">
@@ -344,7 +344,7 @@ export default function AdminDashboard() {
               {usersStats.total}
             </div>
             <p className="text-sm text-green-600 mt-1">
-              {usersStats.newLastWeek}+ مستخدم جديد هذا الأسبوع
+              {usersStats.newLastWeek}+ {translations['newUsersThisWeek'][language]}
             </p>
           </CardContent>
         </Card>
@@ -367,7 +367,7 @@ export default function AdminDashboard() {
         </Card>
       </div>
       
-      {/* علامات التبويب */}
+      {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList className="grid grid-cols-3 md:w-[400px]">
           <TabsTrigger value="overview">{translations['overview'][language]}</TabsTrigger>
@@ -375,7 +375,7 @@ export default function AdminDashboard() {
           <TabsTrigger value="settings">{translations['settings'][language]}</TabsTrigger>
         </TabsList>
         
-        {/* نظرة عامة */}
+        {/* Overview */}
         <TabsContent value="overview" className="space-y-4">
           <Card>
             <CardHeader>
@@ -388,7 +388,7 @@ export default function AdminDashboard() {
               {isLoadingPosts ? (
                 <div className="py-8 text-center">
                   <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2 text-muted-foreground" />
-                  <p className="text-muted-foreground">جاري تحميل المنشورات...</p>
+                  <p className="text-muted-foreground">{translations['loadingPosts'][language]}</p>
                 </div>
               ) : recentPosts && recentPosts.length > 0 ? (
                 <div className="space-y-4">
@@ -397,7 +397,7 @@ export default function AdminDashboard() {
                       <div>
                         <h4 className="font-medium">{post.title}</h4>
                         <p className="text-sm text-muted-foreground mt-1">
-                          بواسطة {post.authorName || "مستخدم #" + post.userId} • {new Date(post.createdAt).toLocaleDateString('ar-EG')}
+                          {translations['by'][language]} {post.authorName || translations['user'][language] + " #" + post.userId} • {new Date(post.createdAt).toLocaleDateString(language.includes('ar') ? 'ar-EG' : 'en-US')}
                         </p>
                       </div>
                       <Button
@@ -412,7 +412,7 @@ export default function AdminDashboard() {
                 </div>
               ) : (
                 <div className="py-8 text-center">
-                  <p className="text-muted-foreground">لا توجد منشورات حتى الآن</p>
+                  <p className="text-muted-foreground">{translations['noPosts'][language]}</p>
                 </div>
               )}
             </CardContent>
@@ -422,7 +422,7 @@ export default function AdminDashboard() {
                 className="w-full"
                 onClick={() => setLocation("/community-posts")}
               >
-                عرض جميع المنشورات
+                {translations['viewAllPosts'][language]}
               </Button>
             </CardFooter>
           </Card>
@@ -466,7 +466,7 @@ export default function AdminDashboard() {
           </Card>
         </TabsContent>
         
-        {/* البلاغات */}
+        {/* Reports tab */}
         <TabsContent value="reports" className="space-y-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
@@ -543,7 +543,7 @@ export default function AdminDashboard() {
                         <div className="mt-4 flex space-x-2 space-x-reverse">
                           <DeletePostButton 
                             postId={report.postId} 
-                            postTitle={report.postTitle || "منشور بدون عنوان"} 
+                            postTitle={report.postTitle || translations['noTitlePost'][language]} 
                             onSuccess={refetchReports} 
                           />
                           <Button 
@@ -569,7 +569,7 @@ export default function AdminDashboard() {
           </Card>
         </TabsContent>
         
-        {/* الإعدادات */}
+        {/* Settings tab */}
         <TabsContent value="settings" className="space-y-4">
           <Card>
             <CardHeader>
@@ -667,7 +667,7 @@ export default function AdminDashboard() {
                       size="sm" 
                       className="text-amber-700 border-amber-200"
                       onClick={() => {
-                        // فتح نافذة مساعدة
+                        // Open help window
                         toast({
                           title: translations['adminInfo'][language],
                           description: `${translations['adminStatus'][language]}: ${user?.isAdmin ? translations['active'][language] : translations['inactive'][language]}`,
@@ -683,18 +683,18 @@ export default function AdminDashboard() {
                       className="text-red-700 border-red-200"
                       onClick={async () => {
                         try {
-                          // إرسال إشعار تسجيل الخروج قبل حذف بيانات المستخدم من التخزين المحلي
+                          // Send logout notification before removing user data from localStorage
                           if (user) {
                             const response = await fetch('/api/login/notify', {
                               method: 'POST',
                               headers: { 'Content-Type': 'application/json' },
                               body: JSON.stringify({
-                                username: user.username || user.displayName || 'مشرف النظام',
+                                username: user.username || user.displayName || translations['systemAdmin'][language],
                                 loginMethod: 'admin',
                                 userAgent: navigator.userAgent,
                                 isAdmin: true,
                                 email: user.email || undefined,
-                                isLogout: true // علامة لتمييز أن هذا طلب تسجيل خروج
+                                isLogout: true // Flag to indicate that this is a logout request
                               })
                             });
                             console.log('Admin logout notification sent:', await response.json());
@@ -703,7 +703,7 @@ export default function AdminDashboard() {
                           console.error('Failed to send admin logout notification:', error);
                         }
                         
-                        // تسجيل الخروج
+                        // Logout
                         localStorage.removeItem("user");
                         window.location.href = "/";
                         toast({

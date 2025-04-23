@@ -7,18 +7,23 @@ import { Trash2, AlertCircle, Loader2 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { useLanguage } from "@/contexts/LanguageContext";
+import translations from "@/lib/translations";
 
 interface AdminDeletePostButtonProps {
   postId: number;
+  postTitle?: string;
+  onSuccess?: () => void;
 }
 
-export default function AdminDeletePostButton({ postId }: AdminDeletePostButtonProps) {
+export default function AdminDeletePostButton({ postId, postTitle, onSuccess }: AdminDeletePostButtonProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { language } = useLanguage();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  // التحقق من صلاحيات المشرف
+  // Check admin privileges
   if (!user || user.isAdmin !== true) {
     return null;
   }
@@ -28,27 +33,32 @@ export default function AdminDeletePostButton({ postId }: AdminDeletePostButtonP
       const res = await apiRequest("DELETE", `/api/admin/posts/${postId}`);
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.message || "فشل حذف المنشور");
+        throw new Error(errorData.message || translations['postDeleteFailed'][language]);
       }
       return true;
     },
     onSuccess: () => {
-      // تحديث جميع استعلامات المنشورات
+      // Update all post queries
       queryClient.invalidateQueries({ queryKey: ["/api/community-posts"] });
       queryClient.invalidateQueries({ queryKey: ["/api/community-posts/recent"] });
       queryClient.invalidateQueries({ queryKey: ["/api/community-posts/trending"] });
       
       toast({
-        title: "تم حذف المنشور",
-        description: "تم حذف المنشور بنجاح من قبل المشرف",
+        title: translations['postDeleted'][language],
+        description: translations['postDeletedSuccess'][language],
         variant: "default"
       });
       
       setIsDialogOpen(false);
+      
+      // Call the onSuccess callback if provided
+      if (onSuccess) {
+        onSuccess();
+      }
     },
     onError: (error: Error) => {
       toast({
-        title: "فشل حذف المنشور",
+        title: translations['postDeleteFailed'][language],
         description: error.message,
         variant: "destructive"
       });
@@ -72,7 +82,7 @@ export default function AdminDeletePostButton({ postId }: AdminDeletePostButtonP
         onClick={handleDeleteClick}
       >
         <Trash2 className="h-4 w-4 mr-1" />
-        <span className="hidden md:inline">حذف (مشرف)</span>
+        <span className="hidden md:inline">{translations['deletePost'][language]} ({translations['admin'][language]})</span>
       </Button>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -80,10 +90,11 @@ export default function AdminDeletePostButton({ postId }: AdminDeletePostButtonP
           <DialogHeader>
             <DialogTitle className="flex items-center">
               <AlertCircle className="h-5 w-5 text-red-500 mr-2" />
-              تأكيد حذف المنشور
+              {translations['confirmDeletePost'][language]}
             </DialogTitle>
             <DialogDescription>
-              هل أنت متأكد من حذف هذا المنشور؟ هذا الإجراء لا يمكن التراجع عنه.
+              {translations['confirmDeletePostMessage'][language].replace('{postTitle}', postTitle || translations['noTitlePost'][language])}
+              {translations['irreversibleAction'][language]}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -93,7 +104,7 @@ export default function AdminDeletePostButton({ postId }: AdminDeletePostButtonP
               onClick={() => setIsDialogOpen(false)}
               disabled={deletePostMutation.isPending}
             >
-              إلغاء
+              {translations['cancel'][language]}
             </Button>
             <Button 
               type="button" 
@@ -104,10 +115,10 @@ export default function AdminDeletePostButton({ postId }: AdminDeletePostButtonP
               {deletePostMutation.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  جاري الحذف...
+                  {translations['deleting'][language]}
                 </>
               ) : (
-                "تأكيد الحذف"
+                translations['confirmDelete'][language]
               )}
             </Button>
           </DialogFooter>
