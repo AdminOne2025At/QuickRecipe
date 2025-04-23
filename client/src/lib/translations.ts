@@ -72,7 +72,21 @@ export const translations: Record<string, Record<Language, string>> = {
     'ar-SA': 'تسجيل الخروج',
     'en-US': 'Logout'
   },
-  
+  'adminTools': {
+    'ar-EG': 'أدوات اختبار صلاحيات المشرف',
+    'ar-SA': 'أدوات اختبار صلاحيات المشرف',
+    'en-US': 'Admin Permissions Testing Tools'
+  },
+  'currentUserInfo': {
+    'ar-EG': 'معلومات المستخدم الحالي',
+    'ar-SA': 'معلومات المستخدم الحالي',
+    'en-US': 'Current User Information'
+  },
+  'saveSettings': {
+    'ar-EG': 'حفظ الإعدادات',
+    'ar-SA': 'حفظ الإعدادات',
+    'en-US': 'Save Settings'
+  },
   // Admin Login Page
   'adminEntrance': {
     'ar-EG': 'مدخل المشرفين',

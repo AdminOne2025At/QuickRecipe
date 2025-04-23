@@ -649,12 +649,12 @@ export default function AdminDashboard() {
               </div>
               
               <div className="space-y-4">
-                <h3 className="text-lg font-medium">أدوات اختبار صلاحيات المشرف</h3>
+                <h3 className="text-lg font-medium">{translations['adminTools'][language]}</h3>
                 <Separator />
                 
                 <div className="bg-amber-50 border border-amber-200 p-4 rounded-md">
                   <h4 className="text-amber-800 font-medium text-sm mb-2">
-                    معلومات المستخدم الحالي
+                    {translations['currentUserInfo'][language]}
                   </h4>
                   <div className="bg-white p-3 rounded border border-amber-100 text-xs font-mono mb-3 max-h-32 overflow-auto">
                     <pre>{JSON.stringify(user, null, 2)}</pre>
@@ -711,7 +711,7 @@ export default function AdminDashboard() {
                         });
                       }}
                     >
-                      تسجيل الخروج
+                      {translations['logout'][language]}
                     </Button>
                   </div>
                 </div>
@@ -720,7 +720,7 @@ export default function AdminDashboard() {
             <CardFooter>
               <Button className="gap-2">
                 <Save className="h-4 w-4" />
-                حفظ الإعدادات
+                {translations['saveSettings'][language]}
               </Button>
             </CardFooter>
           </Card>
