@@ -179,21 +179,6 @@ export function SimpleHeader() {
             
             {!isLoading && (
               <>
-                {/* زر تبديل اللغة - يظهر دائماً */}
-                <div 
-                  className="block py-2 px-3 hover:bg-blue-50 rounded-md text-blue-600 flex items-center gap-2 cursor-pointer"
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    setTimeout(() => {
-                      // استخدم toggleLanguage الذي حصلنا عليه من useLanguage hook
-                      toggleLanguage();
-                    }, 100);
-                  }}
-                >
-                  <Globe className="h-4 w-4 text-blue-500" />
-                  {isArabic ? "English" : "العربية"}
-                </div>
-              
                 {/* مدخل المشرفين - فقط للزوار أو المستخدمين العاديين (غير المشرفين) */}
                 {!isAdmin && (
                   <Link href="/admin-login">
@@ -221,6 +206,21 @@ export function SimpleHeader() {
                     </span>
                   </Link>
                 )}
+                
+                {/* زر تبديل اللغة - يظهر دائماً (تم نقله للأعلى كما طلب المستخدم) */}
+                <div 
+                  className="block py-2 px-3 hover:bg-blue-50 rounded-md text-blue-600 flex items-center gap-2 cursor-pointer"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    setTimeout(() => {
+                      // استخدم toggleLanguage الذي حصلنا عليه من useLanguage hook
+                      toggleLanguage();
+                    }, 100);
+                  }}
+                >
+                  <Globe className="h-4 w-4 text-blue-500" />
+                  {isArabic ? "English" : "العربية"}
+                </div>
               </>
             )}
           </nav>
