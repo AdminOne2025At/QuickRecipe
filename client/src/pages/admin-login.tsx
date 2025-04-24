@@ -173,32 +173,32 @@ export default function AdminLoginPage() {
                 <div className="flex items-center justify-center mb-2">
                   <Shield className={`h-5 w-5 ${isArabic ? 'ml-2' : 'mr-2'} text-amber-500`} />
                   <h2 className="text-2xl font-bold">
-                    {language ? translations['adminEntrance'][language] : 'بوابة دخول المشرفين'}
+                    {getTranslatedText('adminEntrance', 'بوابة دخول المشرفين')}
                   </h2>
                 </div>
                 <p className="text-gray-500 text-sm">
-                  {language && translations['adminPanelOnly'] ? translations['adminPanelOnly'][language] : 'مخصص للمشرفين فقط'}
+                  {getTranslatedText('adminPanelOnly', 'مخصص للمشرفين فقط')}
                 </p>
               </div>
               
               <form onSubmit={handleSubmit}>
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="admin-username">{language ? translations['username'][language] : 'اسم المستخدم'}</Label>
+                    <Label htmlFor="admin-username">{getTranslatedText('username', 'اسم المستخدم')}</Label>
                     <Input
                       id="admin-username"
-                      placeholder={language ? translations['enterUsername'][language] : 'أدخل اسم المستخدم'}
+                      placeholder={getTranslatedText('enterUsername', 'أدخل اسم المستخدم')}
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       dir={isArabic ? 'rtl' : 'ltr'}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="admin-password">{language ? translations['password'][language] : 'كلمة المرور'}</Label>
+                    <Label htmlFor="admin-password">{getTranslatedText('password', 'كلمة المرور')}</Label>
                     <Input
                       id="admin-password"
                       type="password"
-                      placeholder={language ? translations['enterPassword'][language] : 'أدخل كلمة المرور'}
+                      placeholder={getTranslatedText('enterPassword', 'أدخل كلمة المرور')}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       dir={isArabic ? 'rtl' : 'ltr'}
@@ -213,10 +213,10 @@ export default function AdminLoginPage() {
                     {adminLoginMutation.isPending ? (
                       <>
                         <Loader2 className={`h-4 w-4 animate-spin ${isArabic ? 'ml-2' : 'mr-2'}`} />
-                        {language ? translations['loggingIn'][language] : 'جاري تسجيل الدخول...'}
+                        {getTranslatedText('loggingIn', 'جاري تسجيل الدخول...')}
                       </>
                     ) : (
-                      language ? translations['loginAsAdmin'][language] : 'تسجيل الدخول كمشرف'
+                      getTranslatedText('loginAsAdmin', 'تسجيل الدخول كمشرف')
                     )}
                   </Button>
                 </div>
@@ -231,7 +231,7 @@ export default function AdminLoginPage() {
                     window.location.href = "/";
                   }}
                 >
-                  {language ? translations['returnToHomepage'][language] : 'العودة للصفحة الرئيسية'}
+                  {getTranslatedText('returnToHomepage', 'العودة للصفحة الرئيسية')}
                 </a>
               </div>
             </div>
@@ -246,13 +246,13 @@ export default function AdminLoginPage() {
             <Sparkles className="h-16 w-16 text-white" />
           </div>
           <h1 className="text-4xl font-bold mb-6">
-            {language ? translations['adminDashboard'][language] : 'لوحة تحكم المشرفين'}
+            {getTranslatedText('adminDashboard', 'لوحة تحكم المشرفين')}
           </h1>
           <p className="text-xl mb-4">
-            {language ? translations['adminWelcome'][language] : 'مرحباً بك في لوحة تحكم المشرفين'}
+            {getTranslatedText('adminWelcome', 'مرحباً بك في لوحة تحكم المشرفين')}
           </p>
           <p className="text-lg opacity-90">
-            {language ? translations['adminCapabilities'][language] : 'يمكنك إدارة المحتوى والبيانات والمستخدمين من هنا'}
+            {getTranslatedText('adminCapabilities', 'يمكنك إدارة المحتوى والبيانات والمستخدمين من هنا')}
           </p>
         </div>
       </div>
