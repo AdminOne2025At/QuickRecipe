@@ -52,3 +52,7 @@
 # للتعامل مع SPA
 [functions]
   node_bundler = "esbuild"
+
+# إضافة المكتبات اللازمة لدوال Netlify
+[[plugins]]
+  package = "@netlify/plugin-functions-install-core"

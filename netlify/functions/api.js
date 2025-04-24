@@ -1,7 +1,27 @@
 // Netlify Serverless Function for Quick Recipe API
+// تضمين المكتبات الضرورية
 const { Pool } = require('pg');
 const express = require('express');
-const serverless = require('serverless-http');
+// استيراد مكتبة serverless-http بطريقة مختلفة
+let serverless;
+try {
+  // محاولة استيراد المكتبة
+  serverless = require('serverless-http');
+  console.log("Successfully loaded serverless-http");
+} catch (error) {
+  // في حالة عدم توفر المكتبة، نوفر تنفيذًا بديلاً مبسطًا
+  console.error("Error loading serverless-http:", error.message);
+  serverless = (app) => async (event, context) => {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({
+        error: "Server configuration error",
+        message: "serverless-http module not available"
+      })
+    };
+  };
+}
+
 const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
