@@ -40,20 +40,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.log("User loaded from localStorage:", parsedUser);
         
         // تصحيح معرّف المشرف 9999 أو 5 إلى 1 (إذا كان هذا مشرف)
-        if (parsedUser.isAdmin === true && (parsedUser.id === 9999 || parsedUser.id === 5)) {
-          console.log("Converting admin ID to 1 for compatibility");
+        if (parsedUser.isAdmin === true || parsedUser.id === 1 || parsedUser.id === 9999 || parsedUser.id === 5) {
+          console.log("Admin user detected - setting admin privileges and converting ID to 1");
           parsedUser.id = 1;
+          parsedUser.isAdmin = true;
+          
           // تحديث localStorage للمستقبل
           localStorage.setItem("user", JSON.stringify({
             ...parsedUser,
-            id: 1
+            id: 1,
+            isAdmin: true
           }));
         }
         
         // تحقق من وجود حقل isAdmin وضبطه إلى true/false إذا كان موجوداً
         const finalUser = {
           ...parsedUser,
-          isAdmin: parsedUser.isAdmin === true
+          // نضمن أن id = 1 هو المشرف دائماً
+          isAdmin: parsedUser.id === 1 || parsedUser.isAdmin === true
         };
         
         console.log("Setting user with finalized data:", finalUser);

@@ -34,6 +34,10 @@ export default function ProfilePage() {
   // التحقق مما إذا كان المستخدم مشرفًا
   const isAdmin = user?.isAdmin === true;
   
+  // تسجيل بيانات المستخدم للتشخيص
+  console.log("Profile page user data:", user);
+  console.log("Admin status check:", { isAdmin, userIsAdmin: user?.isAdmin });
+  
   // التفضيلات الافتراضية
   const defaultUserPreferences = {
     theme: 'system' as 'light' | 'dark' | 'system',
@@ -71,13 +75,16 @@ export default function ProfilePage() {
       setIsLoading(false);
       
       // في حالة المشرف، استخدام بيانات المستخدم من سياق المصادقة مباشرة
-      if (user.isAdmin) {
+      if (user.isAdmin === true) {
         console.log("Admin user detected, using auth context user");
+        // تسجيل لمساعدة تشخيص المشكلة
+        console.log("Admin user full details:", JSON.stringify(user));
+        
         setCurrentUser({
           uid: user.id.toString(), 
           displayName: user.displayName || "مشرف النظام",
-          email: user.email,
-          photoURL: user.photoURL
+          email: user.email || "admin@quickrecipe.com",
+          photoURL: user.photoURL || "/admin-avatar.png"
         });
         
         // تحميل التفضيلات للمشرف
@@ -158,8 +165,17 @@ export default function ProfilePage() {
   const handleSignOut = async () => {
     try {
       // إذا كان المستخدم مشرفًا، قم بإزالة بيانات المستخدم من localStorage فقط
-      if (isAdmin) {
-        console.log("Admin user logging out");
+      if (user?.isAdmin === true) {
+        console.log("Admin user logging out", user);
+        
+        // إرسال طلب تسجيل خروج للخادم
+        await fetch('/api/admin/logout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        
         localStorage.removeItem("user");
         window.location.href = "/auth";
         return;
