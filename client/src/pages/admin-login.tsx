@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Shield, Loader2, Sparkles } from "lucide-react";
+import LanguageToggleButton from "@/components/LanguageToggleButton";
 
 export default function AdminLoginPage() {
   const [username, setUsername] = useState("");
@@ -222,10 +223,13 @@ export default function AdminLoginPage() {
                 </div>
               </form>
               
-              <div className="mt-4 text-center">
+              <div className="mt-4 space-y-3 text-center">
+                <div className="flex justify-center">
+                  <LanguageToggleButton className="w-full" />
+                </div>
                 <a
                   href="/"
-                  className="text-sm text-amber-600 hover:text-amber-800"
+                  className="text-sm text-amber-600 hover:text-amber-800 inline-block"
                   onClick={(e) => {
                     e.preventDefault();
                     window.location.href = "/";
