@@ -334,6 +334,18 @@ export const translations: Record<string, Record<Language, string>> = {
     'ar-SA': 'جاري رفع الصورة...',
     'en-US': 'Uploading image...'
   },
+  // Admin Login Welcome Section
+  'adminWelcome': {
+    'ar-EG': 'مرحباً بك في لوحة تحكم المشرفين',
+    'ar-SA': 'مرحباً بك في لوحة تحكم المشرفين',
+    'en-US': 'Welcome to the Admin Dashboard'
+  },
+  'adminCapabilities': {
+    'ar-EG': 'يمكنك إدارة المحتوى والبيانات والمستخدمين من هنا',
+    'ar-SA': 'يمكنك إدارة المحتوى والبيانات والمستخدمين من هنا',
+    'en-US': 'You can manage content, data, and users from here'
+  },
+  
   // Admin Dashboard Welcome Messages
   'adminGreeting': {
     'ar-EG': 'مرحباً بالمشرف',
@@ -547,6 +559,108 @@ export const translations: Record<string, Record<Language, string>> = {
     'ar-EG': 'عرض جميع المنشورات',
     'ar-SA': 'عرض جميع المنشورات',
     'en-US': 'View All Posts'
+  },
+
+  // Admin Login Page
+  'username': {
+    'ar-EG': 'اسم المستخدم',
+    'ar-SA': 'اسم المستخدم',
+    'en-US': 'Username'
+  },
+  'password': {
+    'ar-EG': 'كلمة المرور',
+    'ar-SA': 'كلمة المرور',
+    'en-US': 'Password'
+  },
+  'enterUsername': {
+    'ar-EG': 'أدخل اسم المستخدم',
+    'ar-SA': 'أدخل اسم المستخدم',
+    'en-US': 'Enter username'
+  },
+  'enterPassword': {
+    'ar-EG': 'أدخل كلمة المرور',
+    'ar-SA': 'أدخل كلمة المرور',
+    'en-US': 'Enter password'
+  },
+  'loginSuccess': {
+    'ar-EG': 'تم تسجيل الدخول بنجاح',
+    'ar-SA': 'تم تسجيل الدخول بنجاح',
+    'en-US': 'Login Successful'
+  },
+  'welcomeAdmin': {
+    'ar-EG': 'مرحباً بك في لوحة تحكم المشرف',
+    'ar-SA': 'مرحباً بك في لوحة تحكم المشرف',
+    'en-US': 'Welcome to the Admin Dashboard'
+  },
+  'verifying': {
+    'ar-EG': 'جاري التحقق',
+    'ar-SA': 'جاري التحقق',
+    'en-US': 'Verifying'
+  },
+  'pleaseWait': {
+    'ar-EG': 'يرجى الانتظار...',
+    'ar-SA': 'يرجى الانتظار...',
+    'en-US': 'Please wait...'
+  },
+  'processingContinues': {
+    'ar-EG': 'جاري المعالجة',
+    'ar-SA': 'جاري المعالجة',
+    'en-US': 'Processing Continues'
+  },
+  'synchronizingSession': {
+    'ar-EG': 'مزامنة الجلسة...',
+    'ar-SA': 'مزامنة الجلسة...',
+    'en-US': 'Synchronizing session...'
+  },
+  'verificationSuccess': {
+    'ar-EG': 'تم التحقق بنجاح',
+    'ar-SA': 'تم التحقق بنجاح',
+    'en-US': 'Verification Successful'
+  },
+  'redirectingToDashboard': {
+    'ar-EG': 'جاري التوجيه إلى لوحة التحكم...',
+    'ar-SA': 'جاري التوجيه إلى لوحة التحكم...',
+    'en-US': 'Redirecting to dashboard...'
+  },
+  'verificationFailed': {
+    'ar-EG': 'فشل التحقق',
+    'ar-SA': 'فشل التحقق',
+    'en-US': 'Verification Failed'
+  },
+  'verificationError': {
+    'ar-EG': 'حدث خطأ أثناء التحقق، يرجى المحاولة مرة أخرى',
+    'ar-SA': 'حدث خطأ أثناء التحقق، يرجى المحاولة مرة أخرى',
+    'en-US': 'An error occurred during verification, please try again'
+  },
+  'loginError': {
+    'ar-EG': 'خطأ في تسجيل الدخول',
+    'ar-SA': 'خطأ في تسجيل الدخول',
+    'en-US': 'Login Error'
+  },
+  'checkCredentials': {
+    'ar-EG': 'يرجى التحقق من بيانات الاعتماد الخاصة بك',
+    'ar-SA': 'يرجى التحقق من بيانات الاعتماد الخاصة بك',
+    'en-US': 'Please check your credentials'
+  },
+  'dataError': {
+    'ar-EG': 'خطأ في البيانات',
+    'ar-SA': 'خطأ في البيانات',
+    'en-US': 'Data Error'
+  },
+  'pleaseEnterCredentials': {
+    'ar-EG': 'يرجى إدخال اسم المستخدم وكلمة المرور',
+    'ar-SA': 'يرجى إدخال اسم المستخدم وكلمة المرور',
+    'en-US': 'Please enter username and password'
+  },
+  'loggingIn': {
+    'ar-EG': 'جاري تسجيل الدخول...',
+    'ar-SA': 'جاري تسجيل الدخول...',
+    'en-US': 'Logging in...'
+  },
+  'loginAsAdmin': {
+    'ar-EG': 'تسجيل الدخول كمشرف',
+    'ar-SA': 'تسجيل الدخول كمشرف',
+    'en-US': 'Login as Admin'
   },
 
   // Admin Dashboard Reports

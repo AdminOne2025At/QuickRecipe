@@ -3,7 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { translations } from "@/lib/translations";
+import { translations, Language } from "@/lib/translations";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,15 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState("");
   const { toast } = useToast();
   const { language, isArabic } = useLanguage();
+  
+  // تحديد اللغة الافتراضية في حالة عدم تعريف اللغة
+  const defaultLang: Language = 'ar-EG';
+  
+  // دالة مساعدة للحصول على النص حسب اللغة المتاحة
+  const getTranslatedText = (key: string, fallbackText: string) => {
+    if (!language || !translations[key]) return fallbackText;
+    return translations[key][language] || translations[key][defaultLang] || fallbackText;
+  };
   
   const adminLoginMutation = useMutation({
     mutationFn: async () => {
@@ -76,23 +85,23 @@ export default function AdminLoginPage() {
       }
       
       toast({
-        title: translations['loginSuccess'][language],
-        description: translations['welcomeAdmin'][language],
+        title: getTranslatedText('loginSuccess', 'تم تسجيل الدخول بنجاح'),
+        description: getTranslatedText('welcomeAdmin', 'مرحباً بك في لوحة تحكم المشرف'),
         variant: "default"
       });
       
       // تأخير أطول للتحقق من نجاح تسجيل الدخول وتحديث حالة المستخدم
       toast({
-        title: translations['verifying'][language],
-        description: translations['pleaseWait'][language],
+        title: getTranslatedText('verifying', 'جاري التحقق'),
+        description: getTranslatedText('pleaseWait', 'يرجى الانتظار...'),
         variant: "default"
       });
       
       // عرض رسالة إضافية بعد ثانيتين
       setTimeout(() => {
         toast({
-          title: translations['processingContinues'][language],
-          description: translations['synchronizingSession'][language],
+          title: getTranslatedText('processingContinues', 'جاري المعالجة'),
+          description: getTranslatedText('synchronizingSession', 'مزامنة الجلسة...'),
           variant: "default"
         });
       }, 2000);
@@ -110,8 +119,8 @@ export default function AdminLoginPage() {
           queryClient.invalidateQueries({ queryKey: ["/api/user"] });
           
           toast({
-            title: translations['verificationSuccess'][language],
-            description: translations['redirectingToDashboard'][language],
+            title: getTranslatedText('verificationSuccess', 'تم التحقق بنجاح'),
+            description: getTranslatedText('redirectingToDashboard', 'جاري التوجيه إلى لوحة التحكم...'),
             variant: "default"
           });
           
@@ -122,8 +131,8 @@ export default function AdminLoginPage() {
         } else {
           console.error("Admin verification failed after login!");
           toast({
-            title: translations['verificationFailed'][language],
-            description: translations['verificationError'][language],
+            title: getTranslatedText('verificationFailed', 'فشل التحقق'),
+            description: getTranslatedText('verificationError', 'حدث خطأ أثناء التحقق، يرجى المحاولة مرة أخرى'),
             variant: "destructive"
           });
         }
@@ -131,8 +140,8 @@ export default function AdminLoginPage() {
     },
     onError: (error: Error) => {
       toast({
-        title: translations['loginError'][language],
-        description: error.message || translations['checkCredentials'][language],
+        title: getTranslatedText('loginError', 'خطأ في تسجيل الدخول'),
+        description: error.message || getTranslatedText('checkCredentials', 'يرجى التحقق من بيانات الاعتماد الخاصة بك'),
         variant: "destructive"
       });
     }
@@ -143,8 +152,8 @@ export default function AdminLoginPage() {
     
     if (!username.trim() || !password.trim()) {
       toast({
-        title: translations['dataError'][language],
-        description: translations['pleaseEnterCredentials'][language],
+        title: getTranslatedText('dataError', 'خطأ في البيانات'),
+        description: getTranslatedText('pleaseEnterCredentials', 'يرجى إدخال اسم المستخدم وكلمة المرور'),
         variant: "destructive"
       });
       return;
